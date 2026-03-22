@@ -4,9 +4,391 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Todo App</title>
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue",
+        sans-serif;
+      background-color: #f5f5f5;
+      color: #333;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 600px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #222;
+      margin-bottom: 1.5rem;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    #todo-input {
+      flex: 1;
+      padding: 0.65rem 1rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    #todo-input:focus {
+      border-color: #4a90d9;
+    }
+
+    #add-btn {
+      padding: 0.65rem 1.25rem;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #fff;
+      background-color: #4a90d9;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      white-space: nowrap;
+    }
+
+    #add-btn:hover {
+      background-color: #357abd;
+    }
+
+    #add-btn:disabled {
+      background-color: #a0c4e8;
+      cursor: not-allowed;
+    }
+
+    #todo-list {
+      list-style: none;
+    }
+
+    .todo-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background-color: #fff;
+      padding: 0.75rem 1rem;
+      margin-bottom: 0.5rem;
+      border-radius: 6px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      transition: opacity 0.2s;
+    }
+
+    .todo-item.completed .todo-title {
+      text-decoration: line-through;
+      color: #999;
+    }
+
+    .todo-checkbox {
+      width: 1.15rem;
+      height: 1.15rem;
+      cursor: pointer;
+      flex-shrink: 0;
+      accent-color: #4a90d9;
+    }
+
+    .todo-title {
+      flex: 1;
+      font-size: 1rem;
+      word-break: break-word;
+    }
+
+    .delete-btn {
+      padding: 0.3rem 0.65rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #fff;
+      background-color: #e74c3c;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      flex-shrink: 0;
+    }
+
+    .delete-btn:hover {
+      background-color: #c0392b;
+    }
+
+    .empty-message {
+      text-align: center;
+      color: #999;
+      font-style: italic;
+      padding: 2rem 0;
+    }
+
+    .error-message {
+      text-align: center;
+      color: #e74c3c;
+      padding: 0.5rem 0;
+      font-size: 0.9rem;
+      min-height: 1.5rem;
+    }
+  </style>
 </head>
 <body>
-  <h1>Todo App</h1>
-  <p>Welcome to the Todo application.</p>
+  <div class="container">
+    <h1>Todo App</h1>
+    <div class="input-row">
+      <input
+        type="text"
+        id="todo-input"
+        placeholder="What needs to be done?"
+        maxlength="500"
+        aria-label="New todo title"
+      />
+      <button id="add-btn" type="button">Add</button>
+    </div>
+    <div id="error-container" class="error-message" role="alert"></div>
+    <ul id="todo-list"></ul>
+  </div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      var API_BASE = "/api/todos";
+
+      var todoInput = document.getElementById("todo-input");
+      var addBtn = document.getElementById("add-btn");
+      var todoList = document.getElementById("todo-list");
+      var errorContainer = document.getElementById("error-container");
+
+      /**
+       * Display a temporary error message to the user.
+       * @param {string} message
+       */
+      function showError(message) {
+        errorContainer.textContent = message;
+        setTimeout(function () {
+          errorContainer.textContent = "";
+        }, 4000);
+      }
+
+      /**
+       * Create the DOM element for a single todo item.
+       * @param {object} todo - The todo object from the API.
+       * @returns {HTMLLIElement}
+       */
+      function createTodoElement(todo) {
+        var li = document.createElement("li");
+        li.className = "todo-item" + (todo.completed ? " completed" : "");
+        li.dataset.id = todo.id;
+
+        var checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.className = "todo-checkbox";
+        checkbox.checked = todo.completed;
+        checkbox.setAttribute("aria-label", "Toggle completion for: " + todo.title);
+        checkbox.addEventListener("change", function () {
+          toggleTodo(todo.id, checkbox.checked, li, checkbox);
+        });
+
+        var titleSpan = document.createElement("span");
+        titleSpan.className = "todo-title";
+        titleSpan.textContent = todo.title;
+
+        var deleteButton = document.createElement("button");
+        deleteButton.type = "button";
+        deleteButton.className = "delete-btn";
+        deleteButton.textContent = "Delete";
+        deleteButton.setAttribute("aria-label", "Delete: " + todo.title);
+        deleteButton.addEventListener("click", function () {
+          deleteTodo(todo.id, li);
+        });
+
+        li.appendChild(checkbox);
+        li.appendChild(titleSpan);
+        li.appendChild(deleteButton);
+
+        return li;
+      }
+
+      /**
+       * Render the full list of todos into the DOM.
+       * @param {Array} todos
+       */
+      function renderTodos(todos) {
+        todoList.innerHTML = "";
+
+        if (todos.length === 0) {
+          var emptyP = document.createElement("p");
+          emptyP.className = "empty-message";
+          emptyP.textContent = "No todos yet. Add one above!";
+          todoList.appendChild(emptyP);
+          return;
+        }
+
+        todos.forEach(function (todo) {
+          todoList.appendChild(createTodoElement(todo));
+        });
+      }
+
+      /**
+       * Fetch all todos from the API and render them.
+       */
+      function fetchTodos() {
+        fetch(API_BASE)
+          .then(function (response) {
+            if (!response.ok) {
+              throw new Error("Failed to fetch todos");
+            }
+            return response.json();
+          })
+          .then(function (todos) {
+            renderTodos(todos);
+          })
+          .catch(function (err) {
+            showError("Error loading todos: " + err.message);
+          });
+      }
+
+      /**
+       * Add a new todo via POST and prepend it to the list.
+       */
+      function addTodo() {
+        var title = todoInput.value.trim();
+        if (!title) {
+          showError("Please enter a todo title.");
+          todoInput.focus();
+          return;
+        }
+
+        addBtn.disabled = true;
+
+        fetch(API_BASE, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title: title }),
+        })
+          .then(function (response) {
+            if (!response.ok) {
+              return response.json().then(function (data) {
+                throw new Error(data.detail || "Failed to create todo");
+              });
+            }
+            return response.json();
+          })
+          .then(function (todo) {
+            todoInput.value = "";
+            /* Remove the empty-state message if present */
+            var emptyMsg = todoList.querySelector(".empty-message");
+            if (emptyMsg) {
+              emptyMsg.remove();
+            }
+            todoList.prepend(createTodoElement(todo));
+          })
+          .catch(function (err) {
+            showError("Error adding todo: " + err.message);
+          })
+          .finally(function () {
+            addBtn.disabled = false;
+            todoInput.focus();
+          });
+      }
+
+      /**
+       * Toggle the completed status of a todo via PATCH.
+       * @param {number} id
+       * @param {boolean} completed
+       * @param {HTMLLIElement} li
+       * @param {HTMLInputElement} checkbox
+       */
+      function toggleTodo(id, completed, li, checkbox) {
+        fetch(API_BASE + "/" + id, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ completed: completed }),
+        })
+          .then(function (response) {
+            if (!response.ok) {
+              return response.json().then(function (data) {
+                throw new Error(data.detail || "Failed to update todo");
+              });
+            }
+            return response.json();
+          })
+          .then(function (todo) {
+            if (todo.completed) {
+              li.classList.add("completed");
+            } else {
+              li.classList.remove("completed");
+            }
+            checkbox.checked = todo.completed;
+          })
+          .catch(function (err) {
+            /* Revert the checkbox on failure */
+            checkbox.checked = !completed;
+            showError("Error updating todo: " + err.message);
+          });
+      }
+
+      /**
+       * Delete a todo via DELETE and remove it from the DOM.
+       * @param {number} id
+       * @param {HTMLLIElement} li
+       */
+      function deleteTodo(id, li) {
+        fetch(API_BASE + "/" + id, {
+          method: "DELETE",
+        })
+          .then(function (response) {
+            if (!response.ok) {
+              return response.json().then(function (data) {
+                throw new Error(data.detail || "Failed to delete todo");
+              });
+            }
+            li.remove();
+            /* Show empty message if no items remain */
+            if (todoList.querySelectorAll(".todo-item").length === 0) {
+              var emptyP = document.createElement("p");
+              emptyP.className = "empty-message";
+              emptyP.textContent = "No todos yet. Add one above!";
+              todoList.appendChild(emptyP);
+            }
+          })
+          .catch(function (err) {
+            showError("Error deleting todo: " + err.message);
+          });
+      }
+
+      /* --- Event Listeners --- */
+
+      addBtn.addEventListener("click", addTodo);
+
+      todoInput.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+          addTodo();
+        }
+      });
+
+      /* --- Initialise --- */
+
+      fetchTodos();
+    })();
+  </script>
 </body>
 </html>
