@@ -1,59 +1,56 @@
-# Task Manager API
+# Task Manager
 
-A FastAPI backend for managing tasks, backed by SQLite via SQLAlchemy.
+A lightweight task management application with a **FastAPI** backend and a
+**vanilla JavaScript** single-page frontend.
+
+---
 
 ## Architecture
 
-### Database Schema
-
-```sql
-CREATE TABLE tasks (
-    id          INTEGER   PRIMARY KEY AUTOINCREMENT,
-    title       VARCHAR   NOT NULL,
-    description VARCHAR   NOT NULL DEFAULT '',
-    status      VARCHAR   NOT NULL DEFAULT 'pending',
-    created_at  DATETIME  NOT NULL DEFAULT (CURRENT_TIMESTAMP)
-);
+```
+├── backend/
+│   ├── __init__.py          # Package marker
+│   ├── database.py          # SQLAlchemy engine, session, schema init
+│   ├── models.py            # ORM model (Task)
+│   ├── schemas.py           # Pydantic request/response schemas
+│   └── main.py              # FastAPI app, CORS config, route handlers
+├── frontend/
+│   ├── index.html           # SPA entry point
+│   ├── style.css            # Application styles
+│   └── app.js               # Client-side JS (fetch API)
+├── tests/
+│   ├── __init__.py          # Test package marker
+│   ├── test_api.py          # Backend API integration tests
+│   └── test_frontend.py     # Frontend file structure tests
+├── requirements.txt         # Python dependencies
+└── README.md                # This file
 ```
 
-- **id**: Auto-incrementing integer primary key.
-- **title**: Required non-empty string (max 200 chars enforced at API level).
-- **description**: Optional string, defaults to empty.
-- **status**: One of `'pending'`, `'done'`. Defaults to `'pending'`.
-- **created_at**: UTC timestamp, set automatically on row creation.
+---
 
-### API Endpoints
+## Database Schema
 
-| Method | Path             | Description                        |
-|--------|------------------|------------------------------------|
-| POST   | `/tasks`         | Create a new task                  |
-| GET    | `/tasks`         | List all tasks (newest first)      |
-| PATCH  | `/tasks/{id}`    | Update a task's status             |
+SQLite via SQLAlchemy ORM.
 
-#### POST /tasks
+| Column       | Type     | Constraints                                |
+|-------------|----------|--------------------------------------------|
+| id          | INTEGER  | PRIMARY KEY AUTOINCREMENT                  |
+| title       | TEXT     | NOT NULL                                   |
+| description | TEXT     | NOT NULL, DEFAULT ''                       |
+| status      | TEXT     | NOT NULL, DEFAULT 'pending'                |
+| created_at  | DATETIME | NOT NULL, DEFAULT now (UTC)                |
 
-**Request body:**
-```json
-{
-  "title": "Buy groceries",
-  "description": "Milk, eggs, bread"
-}
-```
+Valid `status` values: `pending`, `done`.
 
-**Response (201):**
-```json
-{
-  "id": 1,
-  "title": "Buy groceries",
-  "description": "Milk, eggs, bread",
-  "status": "pending",
-  "created_at": "2024-01-15T10:30:00"
-}
-```
+---
 
-#### GET /tasks
+## API Endpoints
 
-**Response (200):**
+### `GET /tasks`
+
+Returns all tasks ordered by `created_at` descending.
+
+**Response** `200 OK`:
 ```json
 [
   {
@@ -66,16 +63,41 @@ CREATE TABLE tasks (
 ]
 ```
 
-#### PATCH /tasks/{id}
+### `POST /tasks`
 
-**Request body:**
+Create a new task.
+
+**Request body**:
+```json
+{
+  "title": "Buy groceries",
+  "description": "Milk, eggs, bread"
+}
+```
+
+**Response** `201 Created`:
+```json
+{
+  "id": 1,
+  "title": "Buy groceries",
+  "description": "Milk, eggs, bread",
+  "status": "pending",
+  "created_at": "2024-01-15T10:30:00"
+}
+```
+
+### `PATCH /tasks/{id}`
+
+Update the status of an existing task.
+
+**Request body**:
 ```json
 {
   "status": "done"
 }
 ```
 
-**Response (200):**
+**Response** `200 OK`:
 ```json
 {
   "id": 1,
@@ -86,49 +108,59 @@ CREATE TABLE tasks (
 }
 ```
 
-**Response (404):**
+**Response** `404 Not Found`:
 ```json
 {
   "detail": "Task not found"
 }
 ```
 
-### CORS Configuration
+---
 
-CORS middleware is configured to allow **all origins** for local development:
-- `allow_origins=["*"]`
-- `allow_methods=["*"]`
-- `allow_headers=["*"]`
+## CORS Configuration
 
-### Directory Structure
+The backend allows all origins (`*`) for local development convenience.
 
-```
-.
-├── README.md
-├── requirements.txt
-├── backend/
-│   ├── __init__.py
-│   ├── database.py      # SQLAlchemy engine, session, table creation
-│   ├── models.py         # SQLAlchemy ORM model for Task
-│   ├── schemas.py        # Pydantic request/response schemas
-│   └── main.py           # FastAPI app, routes, CORS, lifespan
-└── tests/
-    ├── __init__.py
-    └── test_main.py      # Integration tests using TestClient
-```
+---
 
-## Setup & Run
+## Developer Setup
+
+### Backend
 
 ```bash
+# Create and activate a virtual environment
+python -m venv .venv
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
+
+# Install dependencies
 pip install -r requirements.txt
+
+# Run the API server
 uvicorn backend.main:app --reload
 ```
 
-The API will be available at `http://127.0.0.1:8000`.
-Interactive docs at `http://127.0.0.1:8000/docs`.
+The API will be available at `http://localhost:8000`.
 
-## Running Tests
+### Frontend
+
+Serve the `frontend/` directory with any static file server:
 
 ```bash
-pytest tests/ -v
+# Using Python's built-in server
+cd frontend
+python -m http.server 5500
 ```
+
+Then open `http://localhost:5500` in your browser.
+
+The frontend defaults to `http://localhost:8000` as the API base URL.
+Override it by setting `window.TASK_API_BASE_URL` before `app.js` loads.
+
+### Tests
+
+```bash
+pytest -v
+```
+
+Backend tests use `httpx` with FastAPI's `TestClient`. Frontend tests
+validate file structure and content.
