@@ -1,56 +1,52 @@
-# REST API Specification
+# API Specification
 
-Base URL: `/api`
+Base URL: `/`
 
 ---
 
 ## Authentication
 
-### `POST /api/auth/register`
+### POST /auth/register
 
-Register a new user account.
+Create a new user account.
 
-**Request Body**
-
+**Request Body:**
 ```json
 {
-  "username": "johndoe",
-  "email": "john@example.com",
-  "password": "securepassword123"
+  "username": "alice",
+  "password": "strongpass123"
 }
 ```
 
-**Response** – `201 Created`
-
+**Response (201):**
 ```json
 {
   "id": 1,
-  "username": "johndoe",
-  "email": "john@example.com",
+  "username": "alice",
   "is_active": true,
-  "created_at": "2025-01-01T00:00:00"
+  "created_at": "2024-01-01T00:00:00"
 }
 ```
 
-**Errors**: `409 Conflict` if username/email already exists.
+**Errors:**
+- `409` – Username already registered
+- `422` – Validation error
 
 ---
 
-### `POST /api/auth/login`
+### POST /auth/login
 
-Authenticate and receive an access token.
+Obtain a JWT access token.
 
-**Request Body**
-
+**Request Body:**
 ```json
 {
-  "username": "johndoe",
-  "password": "securepassword123"
+  "username": "alice",
+  "password": "strongpass123"
 }
 ```
 
-**Response** – `200 OK`
-
+**Response (200):**
 ```json
 {
   "access_token": "eyJhbGciOiJIUzI1NiIs...",
@@ -58,234 +54,139 @@ Authenticate and receive an access token.
 }
 ```
 
-**Errors**: `401 Unauthorized` if credentials are invalid.
+**Errors:**
+- `401` – Invalid username or password
 
 ---
 
-## Projects
+## Projects (require `Authorization: Bearer <token>`)
 
-All project endpoints require `Authorization: Bearer <token>`.
+### GET /api/projects
 
-### `GET /api/projects`
+**Query Params:** `skip` (int, default 0), `limit` (int, default 100)
 
-List all projects for the authenticated user.
+**Response (200):** `ProjectResponse[]`
 
-| Query Param | Type | Default | Description       |
-| ----------- | ---- | ------- | ----------------- |
-| `skip`      | int  | 0       | Pagination offset |
-| `limit`     | int  | 100     | Max items         |
+### POST /api/projects
 
-**Response** – `200 OK`
+**Request Body:** `ProjectCreate` (`name`, `description`)
 
-```json
-[
-  {
-    "id": 1,
-    "name": "My Project",
-    "description": "A sample project",
-    "created_at": "2025-01-01T00:00:00"
-  }
-]
-```
+**Response (201):** `ProjectResponse`
 
----
+### GET /api/projects/{id}
 
-### `POST /api/projects`
+**Response (200):** `ProjectDetailResponse` (includes `tasks`)
 
-Create a new project.
+**Errors:** `404` – Project not found
 
-**Request Body** (`ProjectCreate`)
+### DELETE /api/projects/{id}
 
-```json
-{
-  "name": "New Project",
-  "description": "Optional description"
-}
-```
+**Response:** `204 No Content`
 
-**Response** – `201 Created` (`ProjectResponse`)
-
-```json
-{
-  "id": 2,
-  "name": "New Project",
-  "description": "Optional description",
-  "created_at": "2025-01-01T12:00:00"
-}
-```
+**Errors:** `404` – Project not found
 
 ---
 
-### `GET /api/projects/{id}`
+## Tasks (require `Authorization: Bearer <token>`)
 
-Get a single project with its tasks.
+### GET /api/projects/{id}/tasks
 
-**Response** – `200 OK` (`ProjectDetailResponse`)
+**Query Params:** `status` (optional filter)
 
-```json
-{
-  "id": 1,
-  "name": "My Project",
-  "description": "desc",
-  "created_at": "2025-01-01T00:00:00",
-  "tasks": [
-    {
-      "id": 1,
-      "project_id": 1,
-      "title": "First task",
-      "description": "",
-      "status": "todo",
-      "priority": "medium",
-      "due_date": null,
-      "created_at": "2025-01-01T00:00:00"
-    }
-  ]
-}
-```
+**Response (200):** `TaskResponse[]`
 
-**Errors**: `404 Not Found`.
+### POST /api/projects/{id}/tasks
 
----
+**Request Body:** `TaskCreate` (`title`, `description`, `status`, `priority`, `due_date`)
 
-### `DELETE /api/projects/{id}`
+**Response (201):** `TaskResponse`
 
-Delete a project and all its tasks.
+### PATCH /api/tasks/{id}
 
-**Response** – `204 No Content`
+**Request Body:** `TaskUpdate` (partial fields)
 
-**Errors**: `404 Not Found`.
+**Response (200):** `TaskResponse`
+
+**Errors:** `404` – Task not found
+
+### DELETE /api/tasks/{id}
+
+**Response:** `204 No Content`
+
+**Errors:** `404` – Task not found
 
 ---
 
-## Tasks
+## Schemas
 
-All task endpoints require `Authorization: Bearer <token>`.
+### UserCreate
+| Field | Type | Constraints |
+|---|---|---|
+| username | string | min 3, max 50 |
+| password | string | min 6, max 128 |
 
-### `GET /api/projects/{id}/tasks`
+### UserResponse
+| Field | Type |
+|---|---|
+| id | integer |
+| username | string |
+| is_active | boolean |
+| created_at | datetime |
 
-List tasks for a given project.
+### TokenResponse
+| Field | Type |
+|---|---|
+| access_token | string |
+| token_type | string ("bearer") |
 
-| Query Param | Type   | Default | Description    |
-| ----------- | ------ | ------- | -------------- |
-| `status`    | string | (all)   | Filter by status (`todo`, `in_progress`, `done`) |
+### LoginRequest
+| Field | Type |
+|---|---|
+| username | string |
+| password | string |
 
-**Response** – `200 OK`
+### ProjectCreate
+| Field | Type | Constraints |
+|---|---|---|
+| name | string | min 1, max 100 |
+| description | string? | max 2000 |
 
-```json
-[
-  {
-    "id": 1,
-    "project_id": 1,
-    "title": "Task title",
-    "description": "",
-    "status": "todo",
-    "priority": "medium",
-    "due_date": "2025-06-15",
-    "created_at": "2025-01-01T00:00:00"
-  }
-]
-```
+### ProjectResponse
+| Field | Type |
+|---|---|
+| id | integer |
+| name | string |
+| description | string? |
+| created_at | datetime |
 
----
+### ProjectDetailResponse
+Same as ProjectResponse plus `tasks: TaskResponse[]`.
 
-### `POST /api/projects/{id}/tasks`
+### TaskCreate
+| Field | Type | Default |
+|---|---|---|
+| title | string (max 200) | required |
+| description | string? | "" |
+| status | TaskStatus | "todo" |
+| priority | TaskPriority | "medium" |
+| due_date | date? | null |
 
-Create a new task in a project.
+### TaskUpdate
+All fields optional.
 
-**Request Body** (`TaskCreate`)
-
-```json
-{
-  "title": "Implement feature",
-  "description": "Details here",
-  "status": "todo",
-  "priority": "high",
-  "due_date": "2025-06-15"
-}
-```
-
-**Response** – `201 Created` (`TaskResponse`)
-
----
-
-### `PATCH /api/tasks/{id}`
-
-Partially update a task.
-
-**Request Body** (`TaskUpdate`) – all fields optional:
-
-```json
-{
-  "status": "done",
-  "priority": "low"
-}
-```
-
-**Response** – `200 OK` (`TaskResponse`)
-
-**Errors**: `404 Not Found`.
-
----
-
-### `DELETE /api/tasks/{id}`
-
-Delete a task.
-
-**Response** – `204 No Content`
-
-**Errors**: `404 Not Found`.
-
----
-
-## Schema Definitions
-
-### `ProjectCreate`
-| Field         | Type   | Required | Constraints        |
-| ------------- | ------ | -------- | ------------------ |
-| `name`        | string | Yes      | 1–100 characters   |
-| `description` | string | No       | Max 2000 chars     |
-
-### `ProjectResponse`
-| Field        | Type     |
-| ------------ | -------- |
-| `id`         | integer  |
-| `name`       | string   |
-| `description`| string?  |
-| `created_at` | datetime |
-
-### `ProjectDetailResponse`
-Same as `ProjectResponse` plus:
-| Field   | Type             |
-| ------- | ---------------- |
-| `tasks` | TaskResponse[]   |
-
-### `TaskCreate`
-| Field         | Type   | Required | Default    |
-| ------------- | ------ | -------- | ---------- |
-| `title`       | string | Yes      | —          |
-| `description` | string | No       | `""`       |
-| `status`      | enum   | No       | `todo`     |
-| `priority`    | enum   | No       | `medium`   |
-| `due_date`    | date   | No       | `null`     |
-
-### `TaskUpdate`
-All fields from `TaskCreate` but every field is optional.
-
-### `TaskResponse`
-| Field        | Type     |
-| ------------ | -------- |
-| `id`         | integer  |
-| `project_id` | integer  |
-| `title`      | string   |
-| `description`| string?  |
-| `status`     | enum     |
-| `priority`   | enum     |
-| `due_date`   | date?    |
-| `created_at` | datetime |
+### TaskResponse
+| Field | Type |
+|---|---|
+| id | integer |
+| project_id | integer |
+| title | string |
+| description | string? |
+| status | TaskStatus |
+| priority | TaskPriority |
+| due_date | date? |
+| created_at | datetime |
 
 ### Error Response
 ```json
-{
-  "detail": "Human-readable error message"
-}
+{"detail": "Error description"}
 ```

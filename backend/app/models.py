@@ -1,6 +1,6 @@
 """SQLAlchemy ORM models for the project management application.
 
-Defines the ``Project`` and ``Task`` tables along with supporting
+Defines the ``User``, ``Project`` and ``Task`` tables along with supporting
 enumerations for task status and priority.
 """
 
@@ -11,6 +11,7 @@ from datetime import date, datetime
 from typing import List, Optional
 
 from sqlalchemy import (
+    Boolean,
     Date,
     DateTime,
     Enum,
@@ -41,6 +42,33 @@ class TaskPriority(str, enum.Enum):
     high = "high"
 
 
+class User(Base):
+    """Represents a registered user who can own projects."""
+
+    __tablename__ = "users"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    username: Mapped[str] = mapped_column(
+        String(50), unique=True, nullable=False, index=True
+    )
+    hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
+    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, nullable=False, server_default=func.now()
+    )
+
+    projects: Mapped[List["Project"]] = relationship(
+        "Project",
+        back_populates="owner",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
+
+    def __repr__(self) -> str:
+        """Return a developer-friendly string representation."""
+        return f"<User(id={self.id}, username={self.username!r})>"
+
+
 class Project(Base):
     """Represents a project that can contain multiple tasks."""
 
@@ -49,10 +77,14 @@ class Project(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True, default="")
+    owner_id: Mapped[Optional[int]] = mapped_column(
+        Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, server_default=func.now()
     )
 
+    owner: Mapped[Optional["User"]] = relationship("User", back_populates="projects")
     tasks: Mapped[List["Task"]] = relationship(
         "Task",
         back_populates="project",

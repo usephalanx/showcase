@@ -15,6 +15,47 @@ from app.models import TaskPriority, TaskStatus
 
 
 # ---------------------------------------------------------------------------
+# Auth / User schemas
+# ---------------------------------------------------------------------------
+
+
+class UserCreate(BaseModel):
+    """Request body for registering a new user."""
+
+    username: str = Field(
+        ..., min_length=3, max_length=50, description="Unique username"
+    )
+    password: str = Field(
+        ..., min_length=6, max_length=128, description="Plain-text password"
+    )
+
+
+class UserResponse(BaseModel):
+    """Response body representing a registered user (no password)."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    username: str
+    is_active: bool
+    created_at: datetime
+
+
+class LoginRequest(BaseModel):
+    """Request body for logging in."""
+
+    username: str = Field(..., min_length=1, description="Username")
+    password: str = Field(..., min_length=1, description="Plain-text password")
+
+
+class TokenResponse(BaseModel):
+    """Response body containing a JWT access token."""
+
+    access_token: str
+    token_type: str = "bearer"
+
+
+# ---------------------------------------------------------------------------
 # Project schemas
 # ---------------------------------------------------------------------------
 

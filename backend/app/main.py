@@ -1,6 +1,6 @@
 """FastAPI application entry-point.
 
-Initialises the database on startup and mounts the API router.
+Initialises the database on startup and mounts the API routers.
 """
 
 from __future__ import annotations
@@ -11,6 +11,7 @@ from typing import AsyncIterator
 from fastapi import FastAPI
 
 from app.database import init_db
+from app.routers.auth import router as auth_router
 
 
 @asynccontextmanager
@@ -26,6 +27,9 @@ app = FastAPI(
     version="0.1.0",
     lifespan=lifespan,
 )
+
+# Mount routers
+app.include_router(auth_router)
 
 
 @app.get("/health", tags=["health"])

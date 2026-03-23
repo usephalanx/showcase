@@ -1,142 +1,107 @@
-# Architecture Overview
+# Architecture
 
-## 1. Project Layout
+## Backend Structure
+
+The backend is a **FastAPI** application backed by **SQLite** via
+**SQLAlchemy 2.0** ORM.  Authentication uses **JWT** tokens signed with
+**HS256** (via python-jose) and passwords are hashed with **bcrypt**
+(via passlib).
 
 ```
 backend/
 ├── app/
 │   ├── __init__.py          # Package marker
-│   ├── main.py              # FastAPI application & lifespan
-│   ├── database.py          # SQLAlchemy engine, session, Base
-│   ├── models.py            # ORM models (Project, Task)
-│   ├── schemas.py           # Pydantic request/response schemas
-│   ├── routers/             # API route modules (future)
-│   │   ├── __init__.py
-│   │   ├── projects.py
-│   │   ├── tasks.py
-│   │   └── auth.py
-│   └── services/            # Business logic layer (future)
-│       └── __init__.py
+│   ├── main.py              # FastAPI app factory, lifespan, router mounts
+│   ├── config.py            # Settings from environment variables
+│   ├── database.py          # Engine, SessionLocal, Base, get_db, init_db
+│   ├── models.py            # SQLAlchemy ORM models (User, Project, Task)
+│   ├── schemas.py           # Pydantic v2 request/response schemas
+│   ├── security.py          # Password hashing + JWT utilities
+│   ├── auth.py              # get_current_user FastAPI dependency
+│   └── routers/
+│       ├── __init__.py
+│       └── auth.py          # POST /auth/register, POST /auth/login
 ├── tests/
 │   ├── __init__.py
-│   ├── conftest.py          # Shared fixtures
-│   ├── test_models.py
-│   ├── test_schemas.py
-│   ├── test_database.py
-│   └── test_health.py
+│   ├── conftest.py          # Fixtures (in-memory DB, TestClient, auth_headers)
+│   ├── test_auth.py         # Auth endpoint & dependency tests
+│   └── test_security.py     # Unit tests for hashing & JWT
 ├── init_db.py               # CLI script to create tables
-└── requirements.txt         # Python dependencies
+├── requirements.txt         # Python dependencies
+└── SETUP.md                 # Setup instructions
+```
 
-frontend/                    # (future)
+## Authentication Flow
+
+```
+Client                          Server
+  │                               │
+  │  POST /auth/register          │
+  │  {username, password}  ──────>│──> hash password
+  │                               │──> INSERT into users
+  │  <────── 201 {user}           │
+  │                               │
+  │  POST /auth/login             │
+  │  {username, password}  ──────>│──> lookup user
+  │                               │──> verify_password()
+  │                               │──> create_access_token(sub=username)
+  │  <────── 200 {access_token}   │
+  │                               │
+  │  GET /projects                │
+  │  Authorization: Bearer <JWT>  │
+  │  ────────────────────────────>│──> decode JWT
+  │                               │──> load User from DB
+  │                               │──> execute endpoint logic
+  │  <────── 200 [projects]       │
+```
+
+## Data Models
+
+### Users
+- id, username (unique), hashed_password, is_active, created_at
+
+### Projects
+- id, name, description, owner_id (FK → users.id), created_at
+
+### Tasks
+- id, project_id (FK → projects.id), title, description, status, priority, due_date, created_at
+
+## Protecting Endpoints
+
+Any endpoint can be protected by adding the `get_current_user` dependency:
+
+```python
+from app.auth import get_current_user
+from app.models import User
+
+@router.get("/projects")
+def list_projects(current_user: User = Depends(get_current_user)):
+    ...
+```
+
+## Frontend Structure (Planned)
+
+```
+frontend/
 ├── src/
-│   ├── components/
-│   │   ├── ProjectsGrid.tsx
-│   │   ├── ProjectDetail.tsx
-│   │   ├── TaskBoard.tsx
-│   │   ├── TaskCard.tsx
-│   │   └── AddTaskForm.tsx
-│   ├── contexts/
-│   │   └── AuthContext.tsx
-│   ├── hooks/
-│   │   └── useProjects.ts
-│   ├── pages/
+│   ├── main.tsx
 │   ├── App.tsx
-│   └── main.tsx
+│   ├── api/           # Axios/fetch wrappers
+│   ├── context/       # AuthContext (React Context + useReducer)
+│   ├── pages/         # ProjectsPage, ProjectDetailPage, LoginPage
+│   ├── components/    # ProjectsGrid, TaskBoard, TaskCard, AddTaskForm
+│   └── hooks/         # useAuth, useProjects, useTasks
 ├── index.html
-└── package.json
+├── tailwind.config.js
+└── vite.config.ts
 ```
 
-## 2. Backend Structure
+## State Management
 
-### Layers
+- **Auth state**: React Context + useReducer (token, user, isAuthenticated)
+- **Server state**: TanStack Query (React Query) for projects/tasks
 
-| Layer      | Responsibility                              |
-| ---------- | ------------------------------------------- |
-| Routers    | HTTP endpoint definitions, request parsing  |
-| Schemas    | Pydantic validation and serialisation       |
-| Services   | Business logic, orchestration               |
-| Models     | SQLAlchemy ORM table definitions             |
-| Database   | Engine, session factory, connection pooling  |
+## Theming
 
-### Database
-
-- **Engine**: SQLite via SQLAlchemy 2.0 (`create_engine`).
-- **Sessions**: `sessionmaker` yields sessions injected through `Depends(get_db)`.
-- **Migrations**: `init_db()` calls `Base.metadata.create_all`.
-
-### Authentication Flow (future)
-
-1. Client sends `POST /api/auth/login` with `{username, password}`.
-2. Backend verifies credentials using `passlib` + `bcrypt`.
-3. On success, a JWT access token is generated with `python-jose`.
-4. Subsequent requests include `Authorization: Bearer <token>`.
-5. A FastAPI dependency (`get_current_user`) decodes and validates the token.
-
-```
-┌────────┐   POST /auth/login    ┌─────────┐
-│ Client │ ──────────────────►   │ FastAPI │
-│        │ ◄──────────────────   │         │
-│        │   { access_token }    │         │
-│        │                       │         │
-│        │   GET /api/projects   │         │
-│        │   Authorization:      │         │
-│        │   Bearer <token>      │         │
-│        │ ──────────────────►   │         │
-│        │ ◄──────────────────   │         │
-│        │   [project list]      │         │
-└────────┘                       └─────────┘
-```
-
-## 3. Frontend Structure (future)
-
-- **React 18** + **Vite** for fast dev builds.
-- **react-router-dom v6** for client-side routing.
-- **TanStack Query** (React Query) for server-state management.
-- **React Context + useReducer** for auth state.
-- **Tailwind CSS** for styling with a custom colour palette.
-
-### Routing Plan
-
-| Path                  | Component      | Auth? |
-| --------------------- | -------------- | ----- |
-| `/login`              | LoginPage      | No    |
-| `/register`           | RegisterPage   | No    |
-| `/projects`           | ProjectsGrid   | Yes   |
-| `/projects/:id`       | ProjectDetail  | Yes   |
-
-## 4. Data Flow Diagrams
-
-### Project Creation
-
-```
-User ──► AddProjectForm ──► POST /api/projects ──► Router
-                                                      │
-                                                      ▼
-                                                   Service
-                                                      │
-                                                      ▼
-                                                   Model.create
-                                                      │
-                                                      ▼
-                                                   SQLite
-                                                      │
-                                              ProjectResponse
-                                                      │
-User ◄── ProjectsGrid ◄── React Query cache ◄────────┘
-```
-
-### Task Status Update
-
-```
-User drag-drop ──► TaskBoard ──► PATCH /api/tasks/:id
-                                        │
-                                        ▼
-                                     Service
-                                        │
-                                        ▼
-                                     Model.update
-                                        │
-                                  TaskResponse
-                                        │
-User ◄── TaskCard ◄── optimistic update ┘
-```
+- Tailwind CSS with a custom colour palette
+- Dark-mode via `class` strategy
