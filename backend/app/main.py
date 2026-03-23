@@ -16,6 +16,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import CORS_ORIGINS
 from app.database import Base, SessionLocal, engine
 from app.routers.auth_router import router as auth_router
+from app.routers.board_router import router as board_router
+from app.routers.card_router import router as card_router
 from app.seed import run_seed
 
 logging.basicConfig(level=logging.INFO)
@@ -28,7 +30,7 @@ async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
     # Import models so Base.metadata knows about them
     import app.models  # noqa: F401
 
-    logger.info("Creating database tables…")
+    logger.info("Creating database tables\u2026")
     Base.metadata.create_all(bind=engine)
 
     # Seed demo data
@@ -59,6 +61,8 @@ app.add_middleware(
 
 # Register routers
 app.include_router(auth_router)
+app.include_router(board_router)
+app.include_router(card_router)
 
 
 @app.get("/health", tags=["health"])
