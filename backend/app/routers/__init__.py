@@ -1,1 +1,1 @@
-"""FastAPI router sub-package."""
+"""API router package."""
