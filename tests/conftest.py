@@ -33,6 +33,11 @@ TestSessionLocal: sessionmaker[Session] = sessionmaker(
 @pytest.fixture(autouse=True)
 def setup_database() -> Generator[None, None, None]:
     """Create all tables before each test and drop them afterwards."""
+    # Import all models to ensure they are registered
+    import app.models.user  # noqa: F401
+    import app.models.project  # noqa: F401
+    import app.models.task  # noqa: F401
+
     Base.metadata.create_all(bind=engine)
     yield
     Base.metadata.drop_all(bind=engine)

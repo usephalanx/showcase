@@ -54,5 +54,29 @@ def init_db() -> None:
     # Import models so they register with Base.metadata
     import app.models.project  # noqa: F401
     import app.models.task  # noqa: F401
+    import app.models.user  # noqa: F401
 
     Base.metadata.create_all(bind=engine)
+
+
+def seed_default_user() -> None:
+    """Seed a default development/testing user if one does not already exist.
+
+    Creates a user with username ``admin`` and password ``admin123``.
+    This is intended for local development and testing only.
+    """
+    from app.core.security import hash_password
+    from app.models.user import User
+
+    db = SessionLocal()
+    try:
+        existing = db.query(User).filter(User.username == "admin").first()
+        if existing is None:
+            user = User(
+                username="admin",
+                hashed_password=hash_password("admin123"),
+            )
+            db.add(user)
+            db.commit()
+    finally:
+        db.close()
