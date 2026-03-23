@@ -17,7 +17,7 @@ from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
-from passlib.context import CryptContext
+import bcrypt as _bcrypt
 from pydantic import BaseModel, EmailStr, Field
 
 import database
@@ -34,7 +34,7 @@ ACCESS_TOKEN_EXPIRE_HOURS: int = 24
 # Security utilities
 # ---------------------------------------------------------------------------
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 security_scheme = HTTPBearer()
 
 
@@ -47,7 +47,7 @@ def hash_password(password: str) -> str:
     Returns:
         The bcrypt hash string.
     """
-    return pwd_context.hash(password)
+    return _bcrypt.hashpw(password.encode(), _bcrypt.gensalt()).decode()
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -60,7 +60,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     Returns:
         True if the password matches, False otherwise.
     """
-    return pwd_context.verify(plain_password, hashed_password)
+    return _bcrypt.checkpw(plain_password.encode(), hashed_password.encode())
 
 
 def create_access_token(data: Dict[str, Any], expires_delta: Optional[timedelta] = None) -> str:
@@ -301,3 +301,87 @@ async def get_me(
         email=current_user["email"],
         created_at=str(current_user["created_at"]),
     )
+
+
+# ---------------------------------------------------------------------------
+# Boards
+# ---------------------------------------------------------------------------
+
+class BoardCreate(BaseModel):
+    title: str = Field(..., min_length=1, max_length=100)
+
+class CardCreate(BaseModel):
+    title: str = Field(..., min_length=1, max_length=200)
+    description: str = ""
+
+class CardMove(BaseModel):
+    column_id: int
+    position: int = 0
+
+@app.get("/boards", tags=["boards"])
+async def list_boards(current_user: Dict[str, Any] = Depends(get_current_user)):
+    boards = database.get_boards_by_user(current_user["id"])
+    return boards
+
+@app.post("/boards", tags=["boards"], status_code=201)
+async def create_board(payload: BoardCreate, current_user: Dict[str, Any] = Depends(get_current_user)):
+    board = database.create_board(current_user["id"], payload.title)
+    return board
+
+@app.delete("/boards/{board_id}", tags=["boards"])
+async def delete_board(board_id: int, current_user: Dict[str, Any] = Depends(get_current_user)):
+    conn = database.get_db_connection()
+    conn.execute("DELETE FROM boards WHERE id = ? AND user_id = ?", (board_id, current_user["id"]))
+    conn.commit()
+    conn.close()
+    return {"ok": True}
+
+@app.get("/boards/{board_id}", tags=["boards"])
+async def get_board(board_id: int, current_user: Dict[str, Any] = Depends(get_current_user)):
+    board = database.get_board_by_id(board_id)
+    if not board or board["user_id"] != current_user["id"]:
+        raise HTTPException(status_code=404, detail="Board not found")
+    columns = database.get_columns_by_board(board_id)
+    for col in columns:
+        col["cards"] = database.get_cards_by_column(col["id"])
+    board["columns"] = columns
+    return board
+
+# ---------------------------------------------------------------------------
+# Cards
+# ---------------------------------------------------------------------------
+
+@app.post("/columns/{column_id}/cards", tags=["cards"], status_code=201)
+async def create_card(column_id: int, payload: CardCreate, current_user: Dict[str, Any] = Depends(get_current_user)):
+    conn = database.get_db_connection()
+    cursor = conn.execute(
+        "SELECT COUNT(*) as cnt FROM cards WHERE column_id = ?", (column_id,)
+    )
+    pos = cursor.fetchone()["cnt"]
+    cursor = conn.execute(
+        "INSERT INTO cards (column_id, title, description, position) VALUES (?,?,?,?) RETURNING *",
+        (column_id, payload.title, payload.description, pos),
+    )
+    card = dict(cursor.fetchone())
+    conn.commit()
+    conn.close()
+    return card
+
+@app.patch("/cards/{card_id}/move", tags=["cards"])
+async def move_card(card_id: int, payload: CardMove, current_user: Dict[str, Any] = Depends(get_current_user)):
+    conn = database.get_db_connection()
+    conn.execute(
+        "UPDATE cards SET column_id = ?, position = ? WHERE id = ?",
+        (payload.column_id, payload.position, card_id),
+    )
+    conn.commit()
+    conn.close()
+    return {"ok": True}
+
+@app.delete("/cards/{card_id}", tags=["cards"])
+async def delete_card(card_id: int, current_user: Dict[str, Any] = Depends(get_current_user)):
+    conn = database.get_db_connection()
+    conn.execute("DELETE FROM cards WHERE id = ?", (card_id,))
+    conn.commit()
+    conn.close()
+    return {"ok": True}
