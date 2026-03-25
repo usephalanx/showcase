@@ -1,16 +1,15 @@
-import React from "react";
-import App from "../App";
-
 /**
- * HomePage – the single page of the website.
- * Imports and renders the HelloWorld (App) component as its main content.
+ * HomePage component.
+ *
+ * Renders the primary landing content for the application,
+ * displaying a welcoming "Hello World" heading.
  */
-const HomePage: React.FC = () => {
+function HomePage(): JSX.Element {
   return (
-    <main>
-      <App />
+    <main className="home-page">
+      <h1>Hello World</h1>
     </main>
-  );
-};
+  )
+}
 
-export default HomePage;
+export default HomePage

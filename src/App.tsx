@@ -1,14 +1,15 @@
-import './App.css'
+import HomePage from './pages/HomePage'
+import './index.css'
 
 /**
- * Main application component.
+ * Root application component.
  *
- * Renders a centred "Hello World" heading.
+ * Imports and renders the HomePage component as the main view.
  */
 function App(): JSX.Element {
   return (
     <div className="app">
-      <h1>Hello World</h1>
+      <HomePage />
     </div>
   )
 }
