@@ -2,9 +2,20 @@
  * HomePage component.
  *
  * Serves as the landing page of the application. Composes the
- * Greeting component inside a semantic <main> element.
+ * Greeting component inside a semantic <main> element with
+ * full-viewport flexbox centering and a clean white background.
  */
 import Greeting from "../components/Greeting";
+
+const containerStyle: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  minHeight: "100vh",
+  backgroundColor: "#ffffff",
+  margin: 0,
+  padding: 0,
+};
 
 /**
  * Render the home page.
@@ -13,7 +24,7 @@ import Greeting from "../components/Greeting";
  */
 function HomePage(): JSX.Element {
   return (
-    <main>
+    <main style={containerStyle}>
       <Greeting />
     </main>
   );
