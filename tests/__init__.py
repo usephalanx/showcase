@@ -1,1 +1,1 @@
-"""Test package for the Kanban backend."""
+"""Test suite for the Kanban backend."""

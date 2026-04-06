@@ -16,6 +16,28 @@ from sqlalchemy.orm import Session
 from database import Base
 
 
+def generate_slug(value: str, max_length: int = 280) -> str:
+    """Generate a URL-friendly slug from the given text.
+
+    This is a pure function with no database interaction – it simply
+    converts *value* into a slug string using python-slugify.
+
+    Args:
+        value: The human-readable text to slugify.
+        max_length: Maximum allowed length for the slug.
+
+    Returns:
+        A slugified string.
+
+    Raises:
+        ValueError: If *value* produces an empty slug.
+    """
+    slug = slugify(value, max_length=max_length)
+    if not slug:
+        raise ValueError(f"Cannot generate slug from value: {value!r}")
+    return slug
+
+
 def generate_unique_slug(
     db: Session,
     model: Type[Base],  # type: ignore[type-arg]
@@ -45,9 +67,7 @@ def generate_unique_slug(
     Raises:
         ValueError: If *value* produces an empty slug.
     """
-    base_slug = slugify(value, max_length=max_length)
-    if not base_slug:
-        raise ValueError(f"Cannot generate slug from value: {value!r}")
+    base_slug = generate_slug(value, max_length=max_length)
 
     candidate = base_slug
     counter = 1
