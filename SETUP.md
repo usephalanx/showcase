@@ -2,36 +2,32 @@
 
 ## Prerequisites
 
-- Node.js >= 18
-- Python >= 3.11
-- npm (comes with Node.js)
+- Python 3.11+
+- pip
 
-## Frontend Setup
+## Backend Setup
 
 ```bash
-cd frontend
-npm install
-npm run dev
-```
+# Create and activate a virtual environment
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
-This will:
-1. Install all dependencies listed in `package.json` (generates `package-lock.json` and `node_modules/`).
-2. Start the Vite dev server on `http://localhost:5173`.
+# Install dependencies
+pip install -r requirements.txt
+
+# Run the development server
+cd backend
+uvicorn app.main:app --reload --port 8000
+```
 
 ## Running Tests
 
-From the repository root:
-
 ```bash
-pip install pytest
-pytest tests/ -v
+cd backend
+python -m pytest tests/ -v
 ```
 
-## Build for Production
+## Notes
 
-```bash
-cd frontend
-npm run build
-```
-
-Output will be in `frontend/dist/`.
+- The SQLite database file (`tasks.db`) is auto-created on first startup.
+- Do **not** commit generated files: `__pycache__/`, `*.egg-info/`, `.venv/`, `tasks.db`.
