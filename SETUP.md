@@ -1,36 +1,25 @@
-# Setup Instructions
+# Setup
 
-## Python Environment
+## Prerequisites
+
+- Python 3.11+
+- pip
+
+## Install Dependencies
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-pip install fastapi uvicorn sqlalchemy pydantic pytest
+pip install -r backend/requirements.txt
 ```
 
-## Running Tests
+## Run the Application
 
 ```bash
+uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+## Run Tests
+
+```bash
+pip install pytest httpx
 pytest tests/ -v
 ```
-
-## Lock Files
-
-Do not manually create or edit lock files. Generate them with:
-
-```bash
-# If using pip-tools:
-pip-compile requirements.in -o requirements.txt
-
-# If using poetry:
-poetry lock
-
-# If using npm (frontend):
-cd frontend && npm install
-```
-
-The following files are auto-generated and should NOT be hand-written:
-- `poetry.lock`, `Pipfile.lock`
-- `package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`
-- `*.egg-info/`, `__pycache__/`, `.venv/`, `node_modules/`
-- `build/`, `dist/`
