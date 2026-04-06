@@ -20,8 +20,9 @@ router = APIRouter(prefix="/tasks", tags=["tasks"])
 
 @router.get("", response_model=List[TaskResponse])
 def list_tasks(
-    status: Optional[str] = Query(
+    status_filter: Optional[str] = Query(
         default=None,
+        alias="status",
         description="Filter tasks by status (todo, in-progress, done)",
     ),
     db: Session = Depends(get_db),
@@ -29,23 +30,21 @@ def list_tasks(
     """Return all tasks, optionally filtered by status.
 
     Args:
-        status: Optional status string to filter results.
+        status_filter: Optional status string to filter results.
         db: Database session provided by dependency injection.
 
     Returns:
         A list of Task model instances.
     """
     query = db.query(Task)
-    if status is not None:
+    if status_filter is not None:
         # Validate that the provided status is a known enum value
         try:
-            status_enum = TaskStatus(status)
+            status_enum = TaskStatus(status_filter)
         except ValueError:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY
-                if hasattr(status, "HTTP_422_UNPROCESSABLE_ENTITY")
-                else 422,
-                detail=f"Invalid status '{status}'. "
+                status_code=422,
+                detail=f"Invalid status '{status_filter}'. "
                 f"Allowed values: {[s.value for s in TaskStatus]}",
             )
         query = query.filter(Task.status == status_enum)
@@ -144,12 +143,12 @@ def update_task(
     return task
 
 
-@router.delete("/{task_id}", status_code=status.HTTP_200_OK)
+@router.delete("/{task_id}")
 def delete_task(
     task_id: int,
     db: Session = Depends(get_db),
 ) -> dict:
-    """Delete a task by its ID.
+    """Delete an existing task by its ID.
 
     Args:
         task_id: The primary-key identifier of the task to delete.
@@ -169,4 +168,4 @@ def delete_task(
         )
     db.delete(task)
     db.commit()
-    return {"detail": f"Task with id {task_id} deleted successfully"}
+    return {"detail": f"Task with id {task_id} deleted"}
