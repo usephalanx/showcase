@@ -1,178 +1,115 @@
 # Todo Application — Architecture Document
 
-This document is the single source of truth for the full-stack Todo application.
-Every implementation task references this file for data shapes, endpoint contracts,
-component names, and file layout.
-
----
-
 ## 1. Overview
 
-The Todo App is a full-stack task-management application built with:
+A full-stack Todo/Task management application consisting of:
 
-| Layer    | Technology                          |
-| -------- | ----------------------------------- |
-| Backend  | **FastAPI** (Python 3.11+)          |
-| Database | **SQLite** via **SQLAlchemy**        |
-| Frontend | **React 18 + Vite + TypeScript**    |
-| HTTP     | **axios** for API calls             |
+- **Backend**: FastAPI (Python) REST API backed by SQLite via SQLAlchemy ORM.
+- **Frontend**: React + Vite + TypeScript single-page application.
+- **Database**: SQLite file-based database (`todo.db`).
 
-Users can create, read, update, and delete tasks. Each task has a title, a
-status (`todo`, `in-progress`, or `done`), and an optional due date.
-
----
+The application allows users to create, read, update, and delete tasks
+with workflow states (`todo`, `in-progress`, `done`) and optional due dates.
 
 ## 2. Backend Architecture
 
-### Framework & Middleware
+The backend is a FastAPI application structured as follows:
 
-* **FastAPI** application created in `backend/main.py`.
-* **CORSMiddleware** configured to allow the frontend dev origin
-  (`http://localhost:5173`).
-* **SQLAlchemy** ORM with a synchronous SQLite engine.
-
-### Key Modules
-
-| Module              | Responsibility                              |
-| ------------------- | ------------------------------------------- |
-| `main.py`           | App factory, router mounting, lifespan hook |
-| `database.py`       | Engine, `SessionLocal`, `Base`              |
-| `models.py`         | SQLAlchemy ORM model (`Task`)               |
-| `schemas.py`        | Pydantic request/response schemas           |
-| `crud.py`           | Database CRUD helper functions              |
-| `routers/tasks.py`  | `/tasks` API router                         |
-
-### Pydantic Schemas
-
-```text
-TaskCreate   { title: str, status?: str = "todo", due_date?: str | null }
-TaskUpdate   { title?: str, status?: str, due_date?: str | null }
-TaskResponse { id: int, title: str, status: str, due_date: str | null, created_at: str, updated_at: str }
+```
+backend/
+├── __init__.py          # Package marker
+├── database.py          # SQLAlchemy engine, session factory, get_db dependency
+├── models.py            # SQLAlchemy ORM models (Task)
+├── schemas.py           # Pydantic request/response schemas
+├── main.py              # FastAPI app, lifespan, CORS, route registration
+└── crud.py              # CRUD helper functions
 ```
 
----
+**Key components**:
+
+- **database.py** — Creates the SQLAlchemy `engine` (SQLite with
+  `check_same_thread=False`), a `SessionLocal` session factory, and a
+  `get_db()` generator for FastAPI dependency injection.
+- **models.py** — Defines the `Task` ORM model mapped to the `tasks` table.
+- **schemas.py** — Defines `TaskCreate`, `TaskUpdate`, and `TaskResponse`
+  Pydantic models with validation and `from_attributes` (ORM mode) support.
+- **main.py** — Instantiates the FastAPI app, configures CORS middleware,
+  registers route handlers, and runs `init_db()` at startup.
+- **crud.py** — Contains database query functions used by route handlers.
 
 ## 3. Database Schema
 
-A single table named **`tasks`**:
+The `tasks` table has the following schema:
 
-| Column       | Type                | Constraints                                                        |
-| ------------ | ------------------- | ------------------------------------------------------------------ |
-| `id`         | INTEGER             | PRIMARY KEY AUTOINCREMENT                                          |
-| `title`      | VARCHAR(255)        | NOT NULL                                                           |
-| `status`     | VARCHAR(20)         | NOT NULL DEFAULT `'todo'`, CHECK IN (`'todo'`, `'in-progress'`, `'done'`) |
-| `due_date`   | DATE                | NULLABLE                                                           |
-| `created_at` | DATETIME            | NOT NULL DEFAULT CURRENT_TIMESTAMP                                 |
-| `updated_at` | DATETIME            | NOT NULL DEFAULT CURRENT_TIMESTAMP, updated on every row mutation  |
-
-### Status Enum
-
-The **status** column accepts exactly three values:
-
-1. `todo`
-2. `in-progress`
-3. `done`
-
-This constraint is enforced at the database level (`CHECK`), the Pydantic
-schema level (`Literal` / `enum`), and the TypeScript type level.
-
-### `due_date` Nullability
-
-`due_date` is **nullable / optional** across every layer:
-
-* Database: the column allows `NULL`.
-* Pydantic: `Optional[date] = None`.
-* TypeScript: `due_date: string | null`.
-* API JSON: the field may be `null` or omitted on creation.
-
----
+| Column       | Type          | Constraints                                                |
+|-------------|---------------|------------------------------------------------------------|
+| `id`        | INTEGER       | PRIMARY KEY AUTOINCREMENT                                  |
+| `title`     | VARCHAR(255)  | NOT NULL                                                   |
+| `status`    | VARCHAR(20)   | NOT NULL, DEFAULT `'todo'`, CHECK IN (`'todo'`, `'in-progress'`, `'done'`) |
+| `due_date`  | DATE          | NULLABLE                                                   |
+| `created_at`| DATETIME      | NOT NULL, DEFAULT CURRENT_TIMESTAMP                        |
+| `updated_at`| DATETIME      | NOT NULL, DEFAULT CURRENT_TIMESTAMP, ON UPDATE CURRENT_TIMESTAMP |
 
 ## 4. API Endpoints
 
-All endpoints are prefixed with `/tasks`.
-
 ### `GET /tasks`
 
-Retrieve all tasks with optional filtering and sorting.
+Retrieve all tasks. Supports optional query parameters:
 
-| Query Param | Type   | Description                                      |
-| ----------- | ------ | ------------------------------------------------ |
-| `status`    | string | Filter by status (`todo`, `in-progress`, `done`) |
-| `sort_by`   | string | Sort field (`created_at`, `due_date`, `title`)   |
+- `status` (string) — filter by status (`todo`, `in-progress`, `done`)
+- `sort_by` (string) — sort field (`created_at`, `due_date`, `title`)
 
-**Response** `200 OK`
-
-```json
-[
-  {
-    "id": 1,
-    "title": "Buy groceries",
-    "status": "todo",
-    "due_date": "2025-03-01",
-    "created_at": "2025-01-15T10:30:00",
-    "updated_at": "2025-01-15T10:30:00"
-  }
-]
-```
+**Response**: `200 OK` — `TaskResponse[]`
 
 ### `GET /tasks/{id}`
 
-Retrieve a single task by its primary key.
+Retrieve a single task by primary key.
 
-**Response** `200 OK` — single task object.  
-**Response** `404 Not Found` — `{"detail": "Task not found"}`.
+**Response**: `200 OK` — `TaskResponse`
+**Error**: `404 Not Found` — if no task with the given id exists.
 
 ### `POST /tasks`
 
 Create a new task.
 
-**Request Body**
-
+**Request body** (`TaskCreate`):
 ```json
 {
-  "title": "Buy groceries",
-  "status": "todo",
-  "due_date": "2025-03-01"
+  "title": "string (required, 1-255 chars)",
+  "status": "string (optional, default 'todo')",
+  "due_date": "string|null (optional, ISO 8601 date)"
 }
 ```
 
-`status` defaults to `"todo"` if omitted. `due_date` is optional (nullable).
-
-**Response** `201 Created` — the created task object.
+**Response**: `201 Created` — `TaskResponse`
+**Error**: `422 Unprocessable Entity` — on validation failure.
 
 ### `PUT /tasks/{id}`
 
-Update an existing task (partial updates allowed).
+Update an existing task (partial updates supported).
 
-**Request Body**
-
+**Request body** (`TaskUpdate`):
 ```json
 {
-  "title": "Buy organic groceries",
-  "status": "in-progress",
-  "due_date": null
+  "title": "string|null (optional)",
+  "status": "string|null (optional)",
+  "due_date": "string|null (optional)"
 }
 ```
 
-**Response** `200 OK` — the updated task object.  
-**Response** `404 Not Found` — `{"detail": "Task not found"}`.
+**Response**: `200 OK` — `TaskResponse`
+**Error**: `404 Not Found` — if no task with the given id exists.
 
 ### `DELETE /tasks/{id}`
 
-Delete a task by its id.
+Delete a task by primary key.
 
-**Response** `200 OK` — `{"detail": "Task deleted successfully"}`.  
-**Response** `404 Not Found` — `{"detail": "Task not found"}`.
-
----
+**Response**: `200 OK` — `{"detail": "Task deleted successfully"}`
+**Error**: `404 Not Found` — if no task with the given id exists.
 
 ## 5. Frontend Architecture
 
-### Tooling
-
-* **Vite** dev server on port `5173`.
-* **TypeScript** in strict mode.
-* **axios** for HTTP communication with the backend.
+The frontend is a React application scaffolded with Vite and TypeScript.
 
 ### Component Tree
 
@@ -185,82 +122,65 @@ App
             └── StatusBadge
 ```
 
-| Component     | Responsibility                                              |
-| ------------- | ----------------------------------------------------------- |
-| `App`         | Top-level layout and routing                                |
-| `HomePage`    | Composes task form and list, owns top-level task state      |
-| `TaskForm`    | Input form for creating / editing a task                    |
-| `TaskList`    | Renders a list of `TaskCard` components                     |
-| `TaskCard`    | Displays a single task's title, due date, and status badge  |
-| `StatusBadge` | Visual indicator of a task's current status                 |
+### Components
+
+- **App** — Top-level component; provides routing and layout.
+- **HomePage** — Main page; fetches tasks and holds application state.
+- **TaskForm** — Form for creating or editing a task.
+- **TaskList** — Renders a list of `TaskCard` components.
+- **TaskCard** — Displays a single task with title, status badge, and due date.
+- **StatusBadge** — Visual indicator for the task's workflow state.
 
 ### State Management
 
-State is managed via React hooks:
-
-* `useState` — local component state for tasks array, form fields, loading flags.
-* `useEffect` — data fetching on mount and after mutations.
-
-No external state library is required at this scale.
-
-### API Client
-
-A thin `api.ts` module wraps **axios** with a pre-configured base URL
-(`http://localhost:8000`) and exports typed functions:
-
-```ts
-getTasks(params?): Promise<Task[]>
-getTask(id): Promise<Task>
-createTask(data): Promise<Task>
-updateTask(id, data): Promise<Task>
-deleteTask(id): Promise<void>
-```
-
----
+State is managed with React hooks (`useState`, `useEffect`). API calls
+are made via `fetch` or an Axios-based API client.
 
 ## 6. File Structure
 
 ```
-/
+.
+├── ARCHITECTURE.md
+├── RUNNING.md
 ├── backend/
-│   ├── main.py
+│   ├── __init__.py
 │   ├── database.py
 │   ├── models.py
 │   ├── schemas.py
-│   ├── crud.py
-│   └── routers/
-│       └── tasks.py
+│   ├── main.py
+│   └── crud.py
 ├── frontend/
 │   ├── index.html
 │   ├── package.json
 │   ├── tsconfig.json
-│   ├── tsconfig.node.json
 │   ├── vite.config.ts
 │   └── src/
 │       ├── main.tsx
 │       ├── App.tsx
-│       ├── api.ts
-│       ├── types.ts
+│       ├── api/
+│       │   └── client.ts
 │       ├── components/
 │       │   ├── HomePage.tsx
 │       │   ├── TaskForm.tsx
 │       │   ├── TaskList.tsx
 │       │   ├── TaskCard.tsx
 │       │   └── StatusBadge.tsx
-│       └── vite-env.d.ts
+│       └── types/
+│           └── task.ts
 ├── tests/
-│   └── test_architecture_doc.py
-├── ARCHITECTURE.md
-├── RUNNING.md
-└── README.md
+│   ├── __init__.py
+│   ├── test_database.py
+│   ├── test_models.py
+│   └── test_schemas.py
+├── docker-compose.yml
+├── Dockerfile.backend
+└── Dockerfile.frontend
 ```
-
----
 
 ## 7. CORS Configuration
 
 The FastAPI backend uses `CORSMiddleware` to allow cross-origin requests
-from the Vite dev server:
+from the frontend development server:
 
 ```python
 from fastapi.middleware.cors import CORSMiddleware
@@ -274,10 +194,8 @@ app.add_middleware(
 )
 ```
 
-> **Note:** The origin uses `http` (not `https`) because the local Vite
-> dev server does not enable TLS by default.
-
----
+The allowed origin is `http://localhost:5173` (Vite's default dev server
+port). For production, this should be updated to the actual deployment URL.
 
 ## 8. Development Workflow
 
@@ -285,11 +203,12 @@ app.add_middleware(
 
 ```bash
 cd backend
-pip install fastapi uvicorn sqlalchemy
+pip install fastapi uvicorn sqlalchemy pydantic
 uvicorn main:app --reload --port 8000
 ```
 
-Interactive API docs are available at `http://localhost:8000/docs`.
+API documentation is available at http://localhost:8000/docs (Swagger UI)
+and http://localhost:8000/redoc (ReDoc).
 
 ### Frontend
 
@@ -299,9 +218,8 @@ npm install
 npm run dev
 ```
 
-The Vite dev server starts on `http://localhost:5173`.
+The frontend dev server starts at http://localhost:5173.
 
-### Running Both Together
+### Docker (recommended)
 
-See [RUNNING.md](./RUNNING.md) for Docker Compose instructions that start
-both services with a single command.
+See [RUNNING.md](./RUNNING.md) for Docker Compose instructions.

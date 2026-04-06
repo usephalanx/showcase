@@ -1,22 +1,36 @@
 # Setup Instructions
 
-This file documents commands to generate lock files and install dependencies.
-Do **not** hand-write or commit generated lock files.
-
-## Frontend
+## Python Environment
 
 ```bash
-cd frontend
-npm install
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+pip install fastapi uvicorn sqlalchemy pydantic pytest
 ```
 
-This generates:
-- `node_modules/` — installed packages (git-ignored)
-- `package-lock.json` — dependency lock file (git-ignored or auto-generated)
-
-## Python Tests
+## Running Tests
 
 ```bash
-pip install pytest
-pytest tests/
+pytest tests/ -v
 ```
+
+## Lock Files
+
+Do not manually create or edit lock files. Generate them with:
+
+```bash
+# If using pip-tools:
+pip-compile requirements.in -o requirements.txt
+
+# If using poetry:
+poetry lock
+
+# If using npm (frontend):
+cd frontend && npm install
+```
+
+The following files are auto-generated and should NOT be hand-written:
+- `poetry.lock`, `Pipfile.lock`
+- `package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`
+- `*.egg-info/`, `__pycache__/`, `.venv/`, `node_modules/`
+- `build/`, `dist/`

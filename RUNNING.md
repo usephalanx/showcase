@@ -1,47 +1,22 @@
 # Running the Todo Application
 
-This guide explains how to run the full-stack Todo application locally
-using **Docker** and **Docker Compose**.
-
----
-
 ## Prerequisites
 
-| Tool             | Minimum Version |
-| ---------------- | --------------- |
-| Docker           | 20.10+          |
-| Docker Compose   | 2.0+ (V2)       |
-
-Both are included in [Docker Desktop](https://www.docker.com/products/docker-desktop/).
-
----
+- [Docker](https://docs.docker.com/get-docker/) (v20+ recommended)
+- [Docker Compose](https://docs.docker.com/compose/install/) (v2+ recommended)
 
 ## Quick Start
 
 ```bash
-# 1. Clone the repository
-git clone <repo-url>
-cd <repo-directory>
-
-# 2. Build and start all services
 docker compose up --build
-
-# 3. Open the frontend
-#    http://localhost:5173
 ```
 
-That's it! The application is now running:
+This single command builds and starts both the backend and frontend services.
 
-| Service  | URL                                   |
-| -------- | ------------------------------------- |
-| Frontend | http://localhost:5173                 |
-| Backend  | http://localhost:8000                 |
-| API Docs | http://localhost:8000/docs            |
-
-The backend runs on `http://localhost:8000` and exposes interactive
-Swagger documentation at `http://localhost:8000/docs`.
-
----
+- **Frontend**: http://localhost:5173
+- **Backend API**: http://localhost:8000
+- **API Docs (Swagger)**: http://localhost:8000/docs
+- **API Docs (ReDoc)**: http://localhost:8000/redoc
 
 ## Stopping the Application
 
@@ -49,17 +24,23 @@ Swagger documentation at `http://localhost:8000/docs`.
 docker compose down
 ```
 
-This stops and removes all containers created by `docker compose up`.
+This stops and removes all containers. The SQLite database file (`todo.db`)
+persists in the backend volume between restarts.
 
-To also remove the persisted database volume:
+## Manual Setup (without Docker)
+
+### Backend
 
 ```bash
-docker compose down -v
+cd backend
+pip install fastapi uvicorn sqlalchemy pydantic
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
----
+### Frontend
 
-## Running Without Docker
-
-If you prefer to run services directly on your host machine, see the
-**Development Workflow** section in [ARCHITECTURE.md](./ARCHITECTURE.md).
+```bash
+cd frontend
+npm install
+npm run dev
+```
