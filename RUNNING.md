@@ -1,63 +1,33 @@
-# Running the Kanban Board Application
+# Running the Kanban Application
 
 ## Prerequisites
 
-- [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) installed.
-- Alternatively, for local development: Node.js 18+ and Python 3.11+.
+- Python 3.11+
+- pip
 
----
-
-## Quick Start (Docker Compose)
+## Quick Start
 
 ```bash
-# 1. Clone the repository
-git clone <repository-url>
-cd <repository-name>
+# Install dependencies
+pip install -r requirements.txt
 
-# 2. Start all services
-docker compose up --build
-
-# 3. Open in browser
-# Frontend: http://localhost:5173
-# Backend API: http://localhost:8000/api
+# Run the application
+python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-## Local Development (Without Docker)
+## Access
 
-### Frontend
+- **API**: http://localhost:8000
+- **API Docs**: http://localhost:8000/docs
+
+## Running Tests
 
 ```bash
-cd frontend
-npm install
-npm run dev
+python -m pytest tests/ -v
 ```
 
-The frontend dev server starts at `http://localhost:5173` with API proxy to `http://localhost:8000`.
+## Database
 
-### Backend
-
-```bash
-cd backend
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-pip install -e ".[dev]"
-uvicorn app.main:app --reload --port 8000
-```
-
-The backend API starts at `http://localhost:8000`.
-
----
-
-## Project Status
-
-> **Note:** This project is in the initial setup phase. The architecture is defined in [ARCHITECTURE.md](./ARCHITECTURE.md). Application features are being implemented incrementally.
-
----
-
-## URLs
-
-| Service   | URL                          |
-|-----------|------------------------------|
-| Frontend  | http://localhost:5173        |
-| API       | http://localhost:8000/api    |
-| API Docs  | http://localhost:8000/docs   |
+The application uses SQLite. The database file (`kanban.db`) is created
+automatically on first startup. For testing, an in-memory SQLite database
+is used.
