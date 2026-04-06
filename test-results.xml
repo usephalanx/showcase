@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="4" failures="0" skipped="0" tests="4" time="0.756" timestamp="2026-04-06T01:52:43.065443+00:00" hostname="a47e7e343963"><testcase classname="" name="healthcheck.e36e389f.tests.test_database" time="0.000"><error message="collection failure">import file mismatch:
+imported module 'tests.test_database' has this __file__ attribute:
+  /tmp/forge-repos/bb269cba-4eb2-4ab1-8558-e4f174c396fe/1faccc46-5e97-4492-bf6a-4ba8cdde04a6/tests/test_database.py
+which is not the same as the test file we want to collect:
+  /tmp/forge-repos/bb269cba-4eb2-4ab1-8558-e4f174c396fe/1faccc46-5e97-4492-bf6a-4ba8cdde04a6/healthcheck/e36e389f/tests/test_database.py
+HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test file modules</error></testcase><testcase classname="" name="healthcheck.e36e389f.tests.test_frontend" time="0.000"><error message="collection failure">ImportError while importing test module '/tmp/forge-repos/bb269cba-4eb2-4ab1-8558-e4f174c396fe/1faccc46-5e97-4492-bf6a-4ba8cdde04a6/healthcheck/e36e389f/tests/test_frontend.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/local/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   ModuleNotFoundError: No module named 'tests.test_frontend'</error></testcase><testcase classname="" name="healthcheck.e36e389f.tests.test_main" time="0.000"><error message="collection failure">import file mismatch:
+imported module 'tests.test_main' has this __file__ attribute:
+  /tmp/forge-repos/bb269cba-4eb2-4ab1-8558-e4f174c396fe/1faccc46-5e97-4492-bf6a-4ba8cdde04a6/tests/test_main.py
+which is not the same as the test file we want to collect:
+  /tmp/forge-repos/bb269cba-4eb2-4ab1-8558-e4f174c396fe/1faccc46-5e97-4492-bf6a-4ba8cdde04a6/healthcheck/e36e389f/tests/test_main.py
+HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test file modules</error></testcase><testcase classname="" name="healthcheck.e36e389f.tests.test_static_file" time="0.000"><error message="collection failure">ImportError while importing test module '/tmp/forge-repos/bb269cba-4eb2-4ab1-8558-e4f174c396fe/1faccc46-5e97-4492-bf6a-4ba8cdde04a6/healthcheck/e36e389f/tests/test_static_file.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/local/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   ModuleNotFoundError: No module named 'tests.test_static_file'</error></testcase></testsuite></testsuites>
