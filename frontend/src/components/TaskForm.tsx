@@ -1,136 +1,78 @@
-import React, { useState, FormEvent, ChangeEvent } from "react";
+import React, { useState, useEffect } from "react";
+import { Task } from "../types/Task";
 
-/**
- * Represents the data submitted by the TaskForm.
- */
-export interface TaskFormData {
-  title: string;
-  status: "todo" | "in-progress" | "done";
-  due_date: string;
+interface TaskFormProps {
+  editingTask: Task | null;
+  onSubmit: (data: { title: string; status: string; due_date: string | null }) => void;
+  onCancel: () => void;
 }
 
-/**
- * Props for the TaskForm component.
- */
-export interface TaskFormProps {
-  /** Callback invoked with form data on valid submission. */
-  onSubmit: (data: TaskFormData) => void;
-  /** Optional initial values to pre-populate the form (edit mode). */
-  initialValues?: Partial<TaskFormData>;
-}
+const TaskForm: React.FC<TaskFormProps> = ({ editingTask, onSubmit, onCancel }) => {
+  const [title, setTitle] = useState("");
+  const [status, setStatus] = useState("todo");
+  const [dueDate, setDueDate] = useState("");
 
-const STATUS_OPTIONS: { value: TaskFormData["status"]; label: string }[] = [
-  { value: "todo", label: "Todo" },
-  { value: "in-progress", label: "In Progress" },
-  { value: "done", label: "Done" },
-];
-
-/**
- * A form component for creating or editing tasks.
- *
- * When `initialValues` is provided the form operates in edit mode and
- * the submit button reads "Update Task"; otherwise it reads "Add Task".
- */
-export default function TaskForm({
-  onSubmit,
-  initialValues,
-}: TaskFormProps): React.ReactElement {
-  const isEditMode = initialValues !== undefined;
-
-  const [title, setTitle] = useState<string>(initialValues?.title ?? "");
-  const [status, setStatus] = useState<TaskFormData["status"]>(
-    initialValues?.status ?? "todo"
-  );
-  const [dueDate, setDueDate] = useState<string>(
-    initialValues?.due_date ?? ""
-  );
-  const [titleError, setTitleError] = useState<string>("");
-
-  const validate = (): boolean => {
-    if (!title.trim()) {
-      setTitleError("Title is required");
-      return false;
+  useEffect(() => {
+    if (editingTask) {
+      setTitle(editingTask.title);
+      setStatus(editingTask.status);
+      setDueDate(editingTask.due_date ?? "");
+    } else {
+      setTitle("");
+      setStatus("todo");
+      setDueDate("");
     }
-    setTitleError("");
-    return true;
-  };
+  }, [editingTask]);
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validate()) {
-      return;
+    if (!title.trim()) return;
+    onSubmit({ title: title.trim(), status, due_date: dueDate || null });
+    if (!editingTask) {
+      setTitle("");
+      setStatus("todo");
+      setDueDate("");
     }
-    onSubmit({
-      title: title.trim(),
-      status,
-      due_date: dueDate,
-    });
-  };
-
-  const handleTitleChange = (e: ChangeEvent<HTMLInputElement>): void => {
-    setTitle(e.target.value);
-    if (titleError && e.target.value.trim()) {
-      setTitleError("");
-    }
-  };
-
-  const handleStatusChange = (e: ChangeEvent<HTMLSelectElement>): void => {
-    setStatus(e.target.value as TaskFormData["status"]);
-  };
-
-  const handleDueDateChange = (e: ChangeEvent<HTMLInputElement>): void => {
-    setDueDate(e.target.value);
   };
 
   return (
-    <form onSubmit={handleSubmit} aria-label="Task form">
-      <div>
-        <label htmlFor="task-title">Title</label>
+    <form onSubmit={handleSubmit} style={{ marginBottom: "24px", padding: "16px", border: "1px solid #e5e7eb", borderRadius: "8px", background: "#f9fafb" }}>
+      <h3 style={{ margin: "0 0 12px" }}>{editingTask ? "Edit Task" : "New Task"}</h3>
+      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
         <input
-          id="task-title"
           type="text"
+          placeholder="Task title"
           value={title}
-          onChange={handleTitleChange}
-          placeholder="Enter task title"
-          aria-required="true"
-          aria-invalid={titleError ? "true" : "false"}
-          aria-describedby={titleError ? "title-error" : undefined}
+          onChange={(e) => setTitle(e.target.value)}
+          required
+          style={{ padding: "8px 12px", borderRadius: "4px", border: "1px solid #d1d5db", fontSize: "14px" }}
         />
-        {titleError && (
-          <span id="title-error" role="alert" style={{ color: "red" }}>
-            {titleError}
-          </span>
-        )}
+        <div style={{ display: "flex", gap: "10px" }}>
+          <select value={status} onChange={(e) => setStatus(e.target.value)} style={{ padding: "8px 12px", borderRadius: "4px", border: "1px solid #d1d5db", fontSize: "14px" }}>
+            <option value="todo">Todo</option>
+            <option value="in-progress">In Progress</option>
+            <option value="done">Done</option>
+          </select>
+          <input
+            type="date"
+            value={dueDate}
+            onChange={(e) => setDueDate(e.target.value)}
+            style={{ padding: "8px 12px", borderRadius: "4px", border: "1px solid #d1d5db", fontSize: "14px" }}
+          />
+        </div>
+        <div style={{ display: "flex", gap: "8px" }}>
+          <button type="submit" style={{ padding: "8px 20px", borderRadius: "4px", border: "none", background: "#4f46e5", color: "#fff", cursor: "pointer", fontWeight: 600 }}>
+            {editingTask ? "Update" : "Add Task"}
+          </button>
+          {editingTask && (
+            <button type="button" onClick={onCancel} style={{ padding: "8px 20px", borderRadius: "4px", border: "1px solid #d1d5db", background: "#fff", cursor: "pointer" }}>
+              Cancel
+            </button>
+          )}
+        </div>
       </div>
-
-      <div>
-        <label htmlFor="task-status">Status</label>
-        <select
-          id="task-status"
-          value={status}
-          onChange={handleStatusChange}
-        >
-          {STATUS_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div>
-        <label htmlFor="task-due-date">Due Date</label>
-        <input
-          id="task-due-date"
-          type="date"
-          value={dueDate}
-          onChange={handleDueDateChange}
-        />
-      </div>
-
-      <button type="submit">
-        {isEditMode ? "Update Task" : "Add Task"}
-      </button>
     </form>
   );
-}
+};
+
+export default TaskForm;

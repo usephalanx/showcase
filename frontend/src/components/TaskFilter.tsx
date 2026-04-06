@@ -1,57 +1,38 @@
 import React from "react";
+import { TaskStatusFilter } from "../types/Task";
 
-/**
- * Represents a single filter option with its value and display label.
- */
-interface FilterOption {
-  value: string;
-  label: string;
+interface TaskFilterProps {
+  current: TaskStatusFilter;
+  onChange: (filter: TaskStatusFilter) => void;
 }
 
-/**
- * Props for the TaskFilter component.
- */
-export interface TaskFilterProps {
-  /** The currently active filter value. */
-  currentFilter: string;
-  /** Callback invoked when the user selects a different filter. */
-  onFilterChange: (filter: string) => void;
-}
-
-const FILTER_OPTIONS: FilterOption[] = [
-  { value: "all", label: "All" },
-  { value: "todo", label: "Todo" },
-  { value: "in-progress", label: "In Progress" },
-  { value: "done", label: "Done" },
+const FILTERS: { label: string; value: TaskStatusFilter }[] = [
+  { label: "All", value: "all" },
+  { label: "Todo", value: "todo" },
+  { label: "In Progress", value: "in-progress" },
+  { label: "Done", value: "done" },
 ];
 
-/**
- * TaskFilter displays a row of buttons/tabs for filtering tasks by status.
- * The active filter is visually highlighted.
- */
-const TaskFilter: React.FC<TaskFilterProps> = ({
-  currentFilter,
-  onFilterChange,
-}) => {
+const TaskFilter: React.FC<TaskFilterProps> = ({ current, onChange }) => {
   return (
-    <div className="task-filter" role="group" aria-label="Filter tasks by status">
-      {FILTER_OPTIONS.map((option) => {
-        const isActive = currentFilter === option.value;
-
-        return (
-          <button
-            key={option.value}
-            type="button"
-            className={`task-filter__button${
-              isActive ? " task-filter__button--active" : ""
-            }`}
-            aria-pressed={isActive}
-            onClick={() => onFilterChange(option.value)}
-          >
-            {option.label}
-          </button>
-        );
-      })}
+    <div style={{ display: "flex", gap: "8px", marginBottom: "16px" }}>
+      {FILTERS.map((f) => (
+        <button
+          key={f.value}
+          onClick={() => onChange(f.value)}
+          style={{
+            padding: "6px 14px",
+            borderRadius: "4px",
+            border: current === f.value ? "2px solid #4f46e5" : "1px solid #d1d5db",
+            background: current === f.value ? "#eef2ff" : "#fff",
+            color: current === f.value ? "#4f46e5" : "#374151",
+            cursor: "pointer",
+            fontWeight: current === f.value ? 600 : 400,
+          }}
+        >
+          {f.label}
+        </button>
+      ))}
     </div>
   );
 };
