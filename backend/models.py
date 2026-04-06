@@ -107,6 +107,8 @@ class Column(Base):
         board_id: Foreign key to the parent board.
         title: Column heading.
         position: Ordering position within the board.
+        created_at: Timestamp of creation (UTC).
+        updated_at: Timestamp of last update (UTC).
         board: Parent Board object.
         cards: Related Card objects (ordered by position).
     """
@@ -122,6 +124,12 @@ class Column(Base):
     )
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     position: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=_utcnow,
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=_utcnow, onupdate=_utcnow,
+    )
 
     board: Mapped["Board"] = relationship("Board", back_populates="columns")
     cards: Mapped[List["Card"]] = relationship(
@@ -150,12 +158,11 @@ class Card(Base):
         column_id: Foreign key to the parent column.
         title: Card title.
         description: Optional rich-text description.
-        slug: SEO-friendly URL slug (unique).
         position: Ordering position within the column.
         created_at: Timestamp of creation (UTC).
         updated_at: Timestamp of last update (UTC).
         column: Parent Column object.
-        categories: Related Category objects via junction table.
+        categories: Associated Category objects.
     """
 
     __tablename__ = "cards"
@@ -166,10 +173,9 @@ class Card(Base):
     )
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
-    slug: Mapped[str] = mapped_column(String(280), nullable=False, unique=True, index=True)
     position: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), nullable=False, default=_utcnow, index=True,
+        DateTime(timezone=True), nullable=False, default=_utcnow,
     )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, default=_utcnow, onupdate=_utcnow,
@@ -180,12 +186,11 @@ class Card(Base):
         "Category",
         secondary=card_categories,
         back_populates="cards",
-        passive_deletes=True,
     )
 
     def __repr__(self) -> str:
         """Return developer-friendly string representation."""
-        return f"<Card(id={self.id}, slug='{self.slug}')>"
+        return f"<Card(id={self.id}, title='{self.title}')>"
 
 
 # ---------------------------------------------------------------------------
@@ -194,20 +199,18 @@ class Card(Base):
 
 
 class Category(Base):
-    """A hierarchical category for organising cards.
-
-    Supports self-referential parent/child relationships for building
-    a category tree.  Max depth is enforced at the application layer.
+    """A hierarchical taxonomy category for cards.
 
     Attributes:
         id: Primary key.
-        name: Display name.
+        name: Category display name.
         slug: SEO-friendly URL slug (unique).
-        description: Optional description.
-        parent_id: FK to parent category (nullable for root categories).
-        parent: Parent Category object (or None).
+        parent_id: Optional self-referential FK for nesting.
+        created_at: Timestamp of creation (UTC).
+        updated_at: Timestamp of last update (UTC).
+        parent: Parent Category (if nested).
         children: Child Category objects.
-        cards: Related Card objects via junction table.
+        cards: Associated Card objects.
     """
 
     __tablename__ = "categories"
@@ -215,9 +218,14 @@ class Category(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     slug: Mapped[str] = mapped_column(String(280), nullable=False, unique=True, index=True)
-    description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     parent_id: Mapped[Optional[int]] = mapped_column(
-        Integer, ForeignKey("categories.id", ondelete="SET NULL"), nullable=True, index=True,
+        Integer, ForeignKey("categories.id", ondelete="SET NULL"), nullable=True,
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=_utcnow,
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=_utcnow, onupdate=_utcnow,
     )
 
     parent: Mapped[Optional["Category"]] = relationship(
@@ -234,7 +242,6 @@ class Category(Base):
         "Card",
         secondary=card_categories,
         back_populates="categories",
-        passive_deletes=True,
     )
 
     def __repr__(self) -> str:

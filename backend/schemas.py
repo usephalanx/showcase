@@ -13,6 +13,137 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 # ---------------------------------------------------------------------------
+# Card schemas
+# ---------------------------------------------------------------------------
+
+
+class CardCreate(BaseModel):
+    """Schema for creating a new card within a column."""
+
+    title: str = Field(
+        ...,
+        min_length=1,
+        max_length=255,
+        description="Card title.",
+    )
+    description: Optional[str] = Field(
+        None,
+        description="Optional rich-text description.",
+    )
+    column_id: int = Field(
+        ...,
+        description="ID of the parent column.",
+    )
+    position: int = Field(
+        0,
+        ge=0,
+        description="Ordering position within the column.",
+    )
+
+
+class CardUpdate(BaseModel):
+    """Schema for updating an existing card.
+
+    All fields are optional; only supplied fields are updated.
+    """
+
+    title: Optional[str] = Field(
+        None,
+        min_length=1,
+        max_length=255,
+        description="Card title.",
+    )
+    description: Optional[str] = Field(
+        None,
+        description="Optional rich-text description.",
+    )
+    position: Optional[int] = Field(
+        None,
+        ge=0,
+        description="Ordering position within the column.",
+    )
+    column_id: Optional[int] = Field(
+        None,
+        description="ID of the parent column (for moving between columns).",
+    )
+
+
+class CardResponse(BaseModel):
+    """Schema for card API responses."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    column_id: int
+    title: str
+    description: Optional[str] = None
+    position: int
+    created_at: datetime
+    updated_at: datetime
+
+
+# ---------------------------------------------------------------------------
+# Column schemas
+# ---------------------------------------------------------------------------
+
+
+class ColumnCreate(BaseModel):
+    """Schema for creating a new column within a board."""
+
+    title: str = Field(
+        ...,
+        min_length=1,
+        max_length=255,
+        description="Column heading.",
+    )
+    board_id: int = Field(
+        ...,
+        description="ID of the parent board.",
+    )
+    position: int = Field(
+        0,
+        ge=0,
+        description="Ordering position within the board.",
+    )
+
+
+class ColumnUpdate(BaseModel):
+    """Schema for updating an existing column.
+
+    All fields are optional; only supplied fields are updated.
+    """
+
+    title: Optional[str] = Field(
+        None,
+        min_length=1,
+        max_length=255,
+        description="Column heading.",
+    )
+    position: Optional[int] = Field(
+        None,
+        ge=0,
+        description="Ordering position within the board.",
+    )
+
+
+class ColumnResponse(BaseModel):
+    """Schema for column API responses."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    board_id: int
+    title: str
+    position: int
+    created_at: datetime
+    updated_at: datetime
+    cards: List[CardResponse] = Field(
+        default_factory=list,
+        description="Cards belonging to this column.",
+    )
+
+
+# ---------------------------------------------------------------------------
 # Board schemas
 # ---------------------------------------------------------------------------
 
@@ -90,150 +221,6 @@ class BoardResponse(BaseModel):
 
 
 # ---------------------------------------------------------------------------
-# Column schemas
-# ---------------------------------------------------------------------------
-
-
-class ColumnCreate(BaseModel):
-    """Schema for creating a new column within a board."""
-
-    title: str = Field(
-        ...,
-        min_length=1,
-        max_length=255,
-        description="Column heading.",
-    )
-    board_id: int = Field(
-        ...,
-        description="ID of the parent board.",
-    )
-    position: int = Field(
-        0,
-        ge=0,
-        description="Ordering position within the board.",
-    )
-
-
-class ColumnUpdate(BaseModel):
-    """Schema for updating an existing column.
-
-    All fields are optional; only supplied fields are updated.
-    """
-
-    title: Optional[str] = Field(
-        None,
-        min_length=1,
-        max_length=255,
-        description="Column heading.",
-    )
-    position: Optional[int] = Field(
-        None,
-        ge=0,
-        description="Ordering position within the board.",
-    )
-
-
-class ColumnResponse(BaseModel):
-    """Schema for column API responses."""
-
-    model_config = ConfigDict(from_attributes=True)
-
-    id: int
-    board_id: int
-    title: str
-    position: int
-    created_at: datetime
-    updated_at: datetime
-    cards: List[CardResponse] = Field(
-        default_factory=list,
-        description="Cards belonging to this column.",
-    )
-
-
-# ---------------------------------------------------------------------------
-# Card schemas
-# ---------------------------------------------------------------------------
-
-
-class CardCreate(BaseModel):
-    """Schema for creating a new card within a column."""
-
-    title: str = Field(
-        ...,
-        min_length=1,
-        max_length=255,
-        description="Card title.",
-    )
-    column_id: int = Field(
-        ...,
-        description="ID of the parent column.",
-    )
-    description: Optional[str] = Field(
-        None,
-        description="Optional card description / body.",
-    )
-    position: int = Field(
-        0,
-        ge=0,
-        description="Ordering position within the column.",
-    )
-    category_ids: List[int] = Field(
-        default_factory=list,
-        description="IDs of categories to associate with this card.",
-    )
-
-
-class CardUpdate(BaseModel):
-    """Schema for updating an existing card.
-
-    All fields are optional; only supplied fields are updated.
-    """
-
-    title: Optional[str] = Field(
-        None,
-        min_length=1,
-        max_length=255,
-        description="Card title.",
-    )
-    description: Optional[str] = Field(
-        None,
-        description="Optional card description / body.",
-    )
-    column_id: Optional[int] = Field(
-        None,
-        description="ID of the parent column (for moving cards).",
-    )
-    position: Optional[int] = Field(
-        None,
-        ge=0,
-        description="Ordering position within the column.",
-    )
-    category_ids: Optional[List[int]] = Field(
-        None,
-        description="IDs of categories to associate with this card.",
-    )
-
-
-class CardResponse(BaseModel):
-    """Schema for card API responses."""
-
-    model_config = ConfigDict(from_attributes=True)
-
-    id: int
-    column_id: int
-    title: str
-    slug: str
-    description: Optional[str] = None
-    position: int
-    created_at: datetime
-    updated_at: datetime
-    categories: List[CategoryResponse] = Field(
-        default_factory=list,
-        description="Categories associated with this card.",
-    )
-
-
-# ---------------------------------------------------------------------------
 # Category schemas
 # ---------------------------------------------------------------------------
 
@@ -245,15 +232,11 @@ class CategoryCreate(BaseModel):
         ...,
         min_length=1,
         max_length=255,
-        description="Category name.",
+        description="Category display name.",
     )
     parent_id: Optional[int] = Field(
         None,
-        description="Optional parent category ID for hierarchy.",
-    )
-    description: Optional[str] = Field(
-        None,
-        description="Optional category description.",
+        description="Optional parent category ID for nesting.",
     )
 
 
@@ -267,15 +250,11 @@ class CategoryUpdate(BaseModel):
         None,
         min_length=1,
         max_length=255,
-        description="Category name.",
+        description="Category display name.",
     )
     parent_id: Optional[int] = Field(
         None,
-        description="Optional parent category ID for hierarchy.",
-    )
-    description: Optional[str] = Field(
-        None,
-        description="Optional category description.",
+        description="Optional parent category ID for nesting.",
     )
 
 
@@ -287,16 +266,6 @@ class CategoryResponse(BaseModel):
     id: int
     name: str
     slug: str
-    description: Optional[str] = None
     parent_id: Optional[int] = None
     created_at: datetime
     updated_at: datetime
-
-
-# ---------------------------------------------------------------------------
-# Rebuild forward references so that nested models resolve correctly.
-# ---------------------------------------------------------------------------
-
-BoardResponse.model_rebuild()
-ColumnResponse.model_rebuild()
-CardResponse.model_rebuild()
