@@ -1,1 +1,1 @@
-"""Test suite for the Todo backend."""
+"""Test package for the Todo application."""
