@@ -1,105 +1,108 @@
 /**
- * Mock neighborhood data for development.
+ * Mock neighborhood data for development and testing.
  *
- * Provides a static array of neighborhoods and a lookup helper.
+ * Provides a static array of Neighborhood objects and a helper
+ * function to retrieve a neighborhood by slug.
  */
 
 import type { Neighborhood } from "../types/models";
 
-/** Sample neighborhoods. */
+/** Static list of mock neighborhoods. */
 export const MOCK_NEIGHBORHOODS: Neighborhood[] = [
   {
     id: "neighborhood-1",
-    name: "Lakewood Hills",
-    slug: "lakewood-hills",
-    city: "Austin",
-    state: "TX",
+    name: "Downtown Heights",
+    slug: "downtown-heights",
+    city: "Metropolis",
+    state: "CA",
     description:
-      "An exclusive lakeside community known for its luxury estates, scenic trails, and top-rated schools. Residents enjoy private lake access, boat docks, and a peaceful retreat minutes from downtown.",
+      "A vibrant urban core with walkable streets, world-class dining, and a thriving arts scene. Downtown Heights offers the best of city living with modern high-rises and converted lofts.",
     image:
       "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800&h=600&fit=crop",
-    averagePrice: 1_100_000,
-    walkScore: 45,
-    transitScore: 30,
+    averagePrice: 750000,
+    walkScore: 95,
+    transitScore: 90,
     highlights: [
-      "Private Lake Access",
-      "Top-Rated Schools",
-      "Scenic Hiking Trails",
-      "Gated Communities",
+      "Walk to restaurants and shops",
+      "Excellent public transit",
+      "Vibrant nightlife",
+      "Farmers market every Saturday",
     ],
-    featuredProperties: ["prop-1"],
+    featuredProperties: ["prop-1", "prop-2"],
   },
   {
     id: "neighborhood-2",
-    name: "Downtown",
-    slug: "downtown",
-    city: "Austin",
-    state: "TX",
+    name: "Oakwood Estates",
+    slug: "oakwood-estates",
+    city: "Metropolis",
+    state: "CA",
     description:
-      "The vibrant urban core with world-class dining, live music venues, and stunning skyline views. High-rise condos and lofts put you steps away from everything the city has to offer.",
+      "Tree-lined streets and spacious lots define this family-friendly suburb. Oakwood Estates is known for its top-rated schools, community parks, and friendly neighbors.",
     image:
-      "https://images.unsplash.com/photo-1444723121867-7a241cacace9?w=800&h=600&fit=crop",
-    averagePrice: 750_000,
-    walkScore: 95,
-    transitScore: 85,
+      "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=800&h=600&fit=crop",
+    averagePrice: 950000,
+    walkScore: 65,
+    transitScore: 45,
     highlights: [
-      "Live Music Capital",
-      "Walkable Everywhere",
-      "Rooftop Bars & Restaurants",
-      "Lady Bird Lake Access",
+      "Top-rated school district",
+      "Community pool and playground",
+      "Low crime rate",
+      "Annual block party",
     ],
-    featuredProperties: ["prop-2"],
+    featuredProperties: ["prop-3", "prop-4"],
   },
   {
     id: "neighborhood-3",
-    name: "South Congress",
-    slug: "south-congress",
-    city: "Austin",
-    state: "TX",
+    name: "Harbor View",
+    slug: "harbor-view",
+    city: "Metropolis",
+    state: "CA",
     description:
-      "Eclectic and colorful, SoCo is famous for its boutique shopping, food trucks, and artistic vibe. Charming bungalows and renovated homes line the tree-shaded streets just south of the river.",
+      "Perched along the waterfront, Harbor View combines stunning ocean vistas with a laid-back coastal lifestyle. Enjoy morning jogs along the boardwalk and sunset dining at harborside bistros.",
     image:
-      "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=800&h=600&fit=crop",
-    averagePrice: 550_000,
-    walkScore: 82,
-    transitScore: 60,
+      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&h=600&fit=crop",
+    averagePrice: 1200000,
+    walkScore: 78,
+    transitScore: 55,
     highlights: [
-      "Boutique Shopping",
-      "Food Truck Paradise",
-      "Art Galleries",
-      "Historic Architecture",
+      "Ocean views",
+      "Boardwalk and marina",
+      "Fresh seafood restaurants",
+      "Weekend sailing regattas",
     ],
-    featuredProperties: ["prop-3"],
+    featuredProperties: ["prop-5"],
   },
   {
     id: "neighborhood-4",
-    name: "Westlake Hills",
-    slug: "westlake-hills",
-    city: "Austin",
-    state: "TX",
+    name: "Maplewood Commons",
+    slug: "maplewood-commons",
+    city: "Metropolis",
+    state: "CA",
     description:
-      "A prestigious enclave in the Texas Hill Country offering panoramic views, sprawling estates, and acclaimed Eanes ISD schools. The area blends natural beauty with sophisticated luxury living.",
+      "An up-and-coming neighborhood blending historic charm with modern renovations. Maplewood Commons features artisan coffee shops, indie bookstores, and a growing tech-startup presence.",
     image:
-      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800&h=600&fit=crop",
-    averagePrice: 1_500_000,
-    walkScore: 25,
-    transitScore: 15,
+      "https://images.unsplash.com/photo-1460317442991-0ec209397118?w=800&h=600&fit=crop",
+    averagePrice: 620000,
+    walkScore: 88,
+    transitScore: 72,
     highlights: [
-      "Hill Country Views",
-      "Eanes ISD Schools",
-      "Nature Preserves",
-      "Luxury Estates",
+      "Trendy cafes and boutiques",
+      "Historic architecture",
+      "Growing tech hub",
+      "Dog-friendly parks",
     ],
-    featuredProperties: ["prop-4"],
+    featuredProperties: ["prop-6"],
   },
 ];
 
 /**
- * Look up a single neighborhood by its URL slug.
+ * Retrieve a single neighborhood by its URL-friendly slug.
  *
- * @param slug - The URL-friendly slug to search for.
- * @returns The matching Neighborhood, or undefined if not found.
+ * @param slug - The neighborhood slug to look up.
+ * @returns The matching Neighborhood object, or undefined if not found.
  */
-export function getNeighborhoodBySlug(slug: string): Neighborhood | undefined {
+export function getNeighborhoodBySlug(
+  slug: string,
+): Neighborhood | undefined {
   return MOCK_NEIGHBORHOODS.find((n) => n.slug === slug);
 }
