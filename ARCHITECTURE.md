@@ -1,90 +1,87 @@
 # Real Estate Website — Architecture Document
 
-## Overview
+## Project Overview
 
-A modern, responsive real estate website built with React, TypeScript, Vite, and Tailwind CSS. The application showcases property listings, agent profiles, and neighborhood information with a contact system.
-
-## Tech Stack
-
-| Layer         | Technology                       |
-| ------------- | -------------------------------- |
-| Framework     | React 18+                        |
-| Language      | TypeScript 5+                    |
-| Build Tool    | Vite 5+                          |
-| Routing       | React Router v6 (BrowserRouter)  |
-| Styling       | Tailwind CSS 4+                  |
-| Linting       | ESLint, Prettier                 |
-| Data          | Mock data (static JSON-like TS)  |
-| Images        | Unsplash source URLs             |
+A modern real estate listing website built with React, TypeScript, Vite, and Tailwind CSS.
 
 ## Project Structure
 
 ```
-├── index.html                  # HTML entry point
-├── ARCHITECTURE.md             # This file
-├── package.json
-├── tsconfig.json
-├── vite.config.ts
-├── src/
-│   ├── main.tsx                # React DOM render + BrowserRouter
-│   ├── App.tsx                 # Route definitions
-│   ├── index.css               # Tailwind directives
-│   ├── types/
-│   │   └── models.ts           # TypeScript interfaces & type aliases
-│   ├── data/
-│   │   ├── mockProperties.ts   # Mock property listings
-│   │   ├── mockAgents.ts       # Mock agent profiles
-│   │   └── mockNeighborhoods.ts# Mock neighborhood data
-│   ├── pages/
-│   │   ├── HomePage.tsx        # Landing page with featured listings
-│   │   ├── PropertyDetailPage.tsx # Single property view
-│   │   └── ContactPage.tsx     # Contact form
-│   └── components/             # Reusable UI components (future phases)
-│       ├── atoms/              # Buttons, inputs, badges
-│       ├── molecules/          # Cards, list items, form groups
-│       └── organisms/          # Header, footer, property grid
-└── tests/
-    ├── models.test.ts          # Type/data validation tests
-    ├── mockData.test.ts        # Mock data helper tests
-    └── App.test.tsx            # Route rendering tests
+src/
+├── types/
+│   └── models.ts              # TypeScript interfaces & type aliases
+├── data/
+│   ├── mockProperties.ts      # 12+ mock property listings
+│   ├── mockAgents.ts          # 3+ mock real estate agents
+│   └── mockNeighborhoods.ts   # 6 mock neighborhoods
+├── components/
+│   ├── atoms/                 # Buttons, badges, inputs, icons
+│   ├── molecules/             # Cards, forms, nav items
+│   └── organisms/             # Header, footer, property grid, hero
+├── pages/
+│   ├── HomePage.tsx
+│   ├── PropertiesPage.tsx
+│   ├── PropertyDetailPage.tsx
+│   ├── AgentsPage.tsx
+│   ├── AgentDetailPage.tsx
+│   ├── NeighborhoodsPage.tsx
+│   ├── NeighborhoodDetailPage.tsx
+│   └── ContactPage.tsx
+├── hooks/                     # Custom React hooks
+├── utils/                     # Formatting helpers (price, address)
+├── App.tsx                    # Root component with React Router
+├── main.tsx                   # Entry point
+└── index.css                  # Tailwind directives & custom styles
 ```
-
-## Routing
-
-| Path              | Component            | Description                     |
-| ----------------- | -------------------- | ------------------------------- |
-| `/`               | `HomePage`           | Featured listings & hero        |
-| `/property/:id`   | `PropertyDetailPage` | Single property detail view     |
-| `/contact`        | `ContactPage`        | Contact form                    |
 
 ## Data Models
 
-### Property
+All domain models live in `src/types/models.ts`:
 
-Represents a real estate listing with full details including location, features, pricing, associated agent, and neighborhood.
+| Model            | Purpose                                       |
+| ---------------- | --------------------------------------------- |
+| `Property`       | A real estate listing with images, price, etc. |
+| `Agent`          | A real estate agent / broker                   |
+| `Neighborhood`   | A geographic area with aggregate stats         |
+| `ContactFormData`| Shape of the contact form submission           |
 
-### Agent
+Supporting union types: `PropertyType`, `PropertyStatus`, `PreferredContact`.
 
-Represents a real estate agent with contact info, bio, specialties, and social links.
+## Routing (React Router v6)
 
-### Neighborhood
-
-Represents a neighborhood area with walkability scores, average prices, and highlights.
-
-### ContactFormData
-
-Captures user-submitted contact/inquiry form data.
+| Path                          | Page                     |
+| ----------------------------- | ------------------------ |
+| `/`                           | HomePage                 |
+| `/properties`                 | PropertiesPage           |
+| `/properties/:slug`           | PropertyDetailPage       |
+| `/agents`                     | AgentsPage               |
+| `/agents/:id`                 | AgentDetailPage          |
+| `/neighborhoods`              | NeighborhoodsPage        |
+| `/neighborhoods/:slug`        | NeighborhoodDetailPage   |
+| `/contact`                    | ContactPage              |
 
 ## Mock Data Strategy
 
-All data is served from static TypeScript modules in `src/data/`. Images use stable Unsplash photo URLs with explicit width/height/fit parameters to ensure consistent rendering. Helper functions provide filtered and lookup access to the data.
+- All images use real **Unsplash** photo IDs with the format:
+  `https://images.unsplash.com/photo-{ID}?w={W}&h={H}&fit=crop`
+- Properties: exterior & interior photography
+- Agents: professional headshot portraits
+- Neighborhoods: aerial / cityscape / street-level imagery
 
-## Design Tokens (Tailwind)
+## Styling
 
-- **Primary**: Slate-based neutral palette (`slate-50` through `slate-900`)
-- **Accent**: Blue (`blue-600`, `blue-700`) for CTAs and links
-- **Success**: Green (`green-600`) for status indicators
-- **Warning**: Amber (`amber-500`) for pending states
-- **Font**: System font stack via Tailwind defaults
-- **Spacing**: Tailwind's default 4px-based scale
-- **Breakpoints**: `sm` (640px), `md` (768px), `lg` (1024px), `xl` (1280px)
+- **Tailwind CSS** utility-first approach
+- Design tokens defined via `tailwind.config.js` `extend` section
+- Colour palette: slate (neutrals), blue (primary), amber (accent)
+- Typography: Inter (sans), Georgia fallback (serif headings)
+- Responsive breakpoints: `sm` 640px, `md` 768px, `lg` 1024px, `xl` 1280px
+
+## Build Tooling
+
+| Tool        | Purpose                |
+| ----------- | ---------------------- |
+| Vite        | Dev server & bundler   |
+| TypeScript  | Static type checking   |
+| ESLint      | Linting                |
+| Prettier    | Code formatting        |
+| Vitest      | Unit / integration tests |

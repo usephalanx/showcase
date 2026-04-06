@@ -1,62 +1,111 @@
 /**
- * Domain data models for the real estate website.
+ * Domain model type definitions for the real estate website.
  *
- * All interfaces and type aliases used across the application are
- * defined here as a single source of truth.
+ * Every data structure used across the application is defined here to
+ * ensure type safety and consistent contracts between components, pages,
+ * and data layers.
  */
 
-/** The type classification of a property listing. */
-export type PropertyType = "house" | "condo" | "townhouse" | "apartment" | "land";
+// ---------------------------------------------------------------------------
+// Union / Literal Types
+// ---------------------------------------------------------------------------
 
-/** The current sale status of a property listing. */
-export type PropertyStatus = "for-sale" | "pending" | "sold";
+/** The category of a property listing. */
+export type PropertyType = 'house' | 'condo' | 'townhouse' | 'apartment' | 'land';
 
-/** The user's preferred method of contact. */
-export type PreferredContact = "email" | "phone" | "either";
+/** Current sales status of a property. */
+export type PropertyStatus = 'for-sale' | 'pending' | 'sold';
 
-/** Social media links for an agent profile. */
-export interface SocialLinks {
-  /** LinkedIn profile URL. */
-  linkedin?: string;
-  /** Twitter / X profile URL. */
-  twitter?: string;
-  /** Facebook profile URL. */
-  facebook?: string;
-  /** Instagram profile URL. */
-  instagram?: string;
+/** How the user prefers to be contacted. */
+export type PreferredContact = 'email' | 'phone' | 'either';
+
+// ---------------------------------------------------------------------------
+// Core Interfaces
+// ---------------------------------------------------------------------------
+
+/** A real estate property listing. */
+export interface Property {
+  /** Unique identifier. */
+  id: string;
+  /** Display title shown in cards and detail pages. */
+  title: string;
+  /** URL-friendly slug derived from the title. */
+  slug: string;
+  /** Listing price in USD (whole dollars). */
+  price: number;
+  /** Street address line. */
+  address: string;
+  /** City name. */
+  city: string;
+  /** Two-letter US state abbreviation. */
+  state: string;
+  /** Five-digit ZIP code. */
+  zipCode: string;
+  /** Category of the property. */
+  propertyType: PropertyType;
+  /** Number of bedrooms. */
+  bedrooms: number;
+  /** Number of bathrooms (may include halves, e.g. 2.5). */
+  bathrooms: number;
+  /** Total interior square footage. */
+  squareFeet: number;
+  /** Lot size in acres (optional for condos / apartments). */
+  lotSize?: number;
+  /** Year the structure was built. */
+  yearBuilt: number;
+  /** Long-form marketing description. */
+  description: string;
+  /** Notable features / amenities. */
+  features: string[];
+  /** Ordered list of image URLs (first is hero). */
+  images: string[];
+  /** Whether this property should appear in the "featured" section. */
+  featured: boolean;
+  /** ID of the listing agent. */
+  agentId: string;
+  /** ID of the neighbourhood the property belongs to. */
+  neighborhoodId: string;
+  /** ISO-8601 date string of the original listing date. */
+  listingDate: string;
+  /** Current sales status. */
+  status: PropertyStatus;
 }
 
-/**
- * Represents a real estate agent.
- */
+/** Social-media links for an agent. */
+export interface SocialLinks {
+  linkedin?: string;
+  twitter?: string;
+  instagram?: string;
+  facebook?: string;
+}
+
+/** A real estate agent or broker. */
 export interface Agent {
   /** Unique identifier. */
   id: string;
   /** Full display name. */
   name: string;
-  /** Professional title (e.g. "Senior Agent"). */
+  /** Professional title (e.g. "Senior Listing Agent"). */
   title: string;
   /** Contact phone number. */
   phone: string;
   /** Contact email address. */
   email: string;
-  /** URL to a profile photo. */
+  /** Headshot / portrait image URL. */
   photo: string;
-  /** Short biography. */
+  /** Short biography paragraph. */
   bio: string;
-  /** List of market specialties. */
+  /** Areas of expertise. */
   specialties: string[];
-  /** Number of active property listings. */
+  /** Total active listings count. */
   propertiesCount: number;
-  /** Average client rating (0–5). */
+  /** Average client rating (1–5 scale). */
   rating: number;
   /** Optional social media links. */
   socialLinks: SocialLinks;
 }
 
-/**
- * Represents a neighborhood or area.
- */
+/** A neighbourhood or community area. */
 export interface Neighborhood {
   /** Unique identifier. */
   id: string;
@@ -64,88 +113,38 @@ export interface Neighborhood {
   name: string;
   /** URL-friendly slug. */
   slug: string;
-  /** City where the neighborhood is located. */
+  /** City the neighbourhood is located in. */
   city: string;
-  /** State abbreviation. */
+  /** Two-letter US state abbreviation. */
   state: string;
-  /** Narrative description. */
+  /** Marketing description. */
   description: string;
   /** Hero image URL. */
   image: string;
-  /** Average listing price in the area. */
+  /** Average listing price in USD. */
   averagePrice: number;
   /** Walk Score (0–100). */
   walkScore: number;
   /** Transit Score (0–100). */
   transitScore: number;
-  /** Notable highlights of the area. */
+  /** Key highlights / selling points. */
   highlights: string[];
-  /** IDs of featured properties in this neighborhood. */
-  featuredProperties: string[];
+  /** IDs of featured properties within this neighbourhood. */
+  featuredPropertyIds: string[];
 }
 
-/**
- * Represents a property listing.
- */
-export interface Property {
-  /** Unique identifier. */
-  id: string;
-  /** Listing headline / title. */
-  title: string;
-  /** URL-friendly slug. */
-  slug: string;
-  /** Listing price in USD. */
-  price: number;
-  /** Street address. */
-  address: string;
-  /** City. */
-  city: string;
-  /** State abbreviation. */
-  state: string;
-  /** ZIP code. */
-  zipCode: string;
-  /** Classification of the property. */
-  propertyType: PropertyType;
-  /** Number of bedrooms. */
-  bedrooms: number;
-  /** Number of bathrooms (supports half-baths as 0.5). */
-  bathrooms: number;
-  /** Interior square footage. */
-  squareFeet: number;
-  /** Lot size in acres (optional for condos, etc.). */
-  lotSize?: number;
-  /** Year the property was built. */
-  yearBuilt: number;
-  /** Full description of the property. */
-  description: string;
-  /** List of notable features / amenities. */
-  features: string[];
-  /** Gallery image URLs. */
-  images: string[];
-  /** The listing agent. */
-  agent: Agent;
-  /** The neighborhood the property belongs to. */
-  neighborhood: Neighborhood;
-  /** ISO-8601 date string when the listing was published. */
-  listingDate: string;
-  /** Current sale status. */
-  status: PropertyStatus;
-}
-
-/**
- * Data captured from the contact / inquiry form.
- */
+/** Shape of the contact-us form submission payload. */
 export interface ContactFormData {
-  /** Full name of the person submitting the form. */
+  /** Sender's full name. */
   name: string;
-  /** Email address. */
+  /** Sender's email address. */
   email: string;
-  /** Phone number (optional). */
-  phone: string;
+  /** Sender's phone number (optional). */
+  phone?: string;
   /** Free-text message body. */
   message: string;
-  /** ID of the property the inquiry is about (optional). */
+  /** If the enquiry relates to a specific property. */
   propertyId?: string;
-  /** How the user prefers to be contacted. */
+  /** How the sender would like to be reached. */
   preferredContact: PreferredContact;
 }
