@@ -1,15 +1,9 @@
-/**
- * Mock property listing data for development and testing.
- *
- * Contains 12+ realistic property entries with real Unsplash photo IDs
- * for exterior shots, interior photography, and lifestyle images.
- */
-
-import type { Property, PropertyStatus } from '../types/models';
+import { Property, PropertyStatus } from '../types/models';
+import { MOCK_AGENTS } from './mockAgents';
 
 export const MOCK_PROPERTIES: Property[] = [
   {
-    id: 'prop-001',
+    id: 'prop-1',
     title: 'Modern Lakefront Estate',
     slug: 'modern-lakefront-estate',
     price: 1250000,
@@ -19,72 +13,56 @@ export const MOCK_PROPERTIES: Property[] = [
     zipCode: '78701',
     propertyType: 'house',
     bedrooms: 5,
-    bathrooms: 4.5,
+    bathrooms: 4,
     squareFeet: 4200,
-    lotSize: 0.85,
-    yearBuilt: 2021,
-    description:
-      'Stunning contemporary estate on the shores of Lake Austin. Floor-to-ceiling windows flood every room with natural light while providing panoramic water views. The open-concept living area features a chef's kitchen with Thermador appliances, waterfall quartz island, and custom cabinetry. A private dock and infinity pool complete this luxury retreat.',
-    features: [
-      'Private boat dock',
-      'Infinity pool',
-      'Home theater',
-      'Wine cellar',
-      'Smart home system',
-      'Three-car garage',
-    ],
+    lotSize: '0.75 acres',
+    yearBuilt: 2019,
+    description: 'This stunning modern lakefront estate offers breathtaking views and luxurious living. The open-concept floor plan features floor-to-ceiling windows that flood every room with natural light. The gourmet kitchen boasts top-of-the-line appliances, a large island with waterfall countertops, and a walk-in pantry. The primary suite includes a spa-like bathroom with a soaking tub, dual vanities, and a rainfall shower. Step outside to the expansive deck with an infinity pool overlooking the lake. Smart home technology throughout ensures comfort and convenience at your fingertips.',
+    features: ['Infinity Pool', 'Smart Home System', 'Wine Cellar', 'Home Theater', '3-Car Garage', 'Waterfront', 'Gourmet Kitchen', 'Hardwood Floors', 'Fireplace', 'Central AC'],
     images: [
       'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=600&fit=crop',
       'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop',
       'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=600&fit=crop',
     ],
-    featured: true,
-    agentId: 'agent-001',
-    neighborhoodId: 'hood-001',
-    listingDate: '2024-09-15',
+    agent: MOCK_AGENTS[0],
+    neighborhood: 'Lake Austin',
+    listingDate: '2024-01-15',
     status: 'for-sale',
   },
   {
-    id: 'prop-002',
-    title: 'Downtown Luxury Condo',
-    slug: 'downtown-luxury-condo',
-    price: 685000,
-    address: '900 Congress Ave #2204',
+    id: 'prop-2',
+    title: 'Downtown Luxury Penthouse',
+    slug: 'downtown-luxury-penthouse',
+    price: 890000,
+    address: '500 Congress Avenue, Unit PH1',
     city: 'Austin',
     state: 'TX',
     zipCode: '78701',
     propertyType: 'condo',
-    bedrooms: 2,
-    bathrooms: 2,
-    squareFeet: 1450,
-    yearBuilt: 2019,
-    description:
-      'Sleek high-rise living in the heart of downtown Austin. This 22nd-floor unit boasts sweeping skyline views, designer finishes, and resort-style amenities including a rooftop pool, concierge service, and state-of-the-art fitness center. Walk to Rainey Street, Lady Bird Lake, and world-class dining.',
-    features: [
-      'Rooftop pool',
-      'Concierge service',
-      'Floor-to-ceiling windows',
-      'EV charging',
-      'Pet-friendly',
-    ],
+    bedrooms: 3,
+    bathrooms: 3,
+    squareFeet: 2800,
+    yearBuilt: 2021,
+    description: 'Experience the pinnacle of urban living in this breathtaking downtown penthouse. Perched atop one of the city\'s most prestigious buildings, this residence offers panoramic skyline views from every room. The open living area features Italian marble floors, a designer kitchen with integrated appliances, and a private terrace perfect for entertaining. Building amenities include a rooftop pool, fitness center, concierge service, and valet parking.',
+    features: ['Panoramic Views', 'Private Terrace', 'Concierge Service', 'Rooftop Pool', 'Valet Parking', 'Fitness Center', 'Italian Marble Floors', 'Built-in Sound System', 'Floor-to-Ceiling Windows'],
     images: [
-      'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=600&fit=crop',
       'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop',
       'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop',
     ],
-    featured: true,
-    agentId: 'agent-002',
-    neighborhoodId: 'hood-002',
-    listingDate: '2024-10-01',
+    agent: MOCK_AGENTS[1],
+    neighborhood: 'Downtown',
+    listingDate: '2024-02-01',
     status: 'for-sale',
   },
   {
-    id: 'prop-003',
+    id: 'prop-3',
     title: 'Charming Craftsman Bungalow',
     slug: 'charming-craftsman-bungalow',
-    price: 475000,
-    address: '3218 Oak Hollow Lane',
+    price: 525000,
+    address: '2847 Oak Hill Lane',
     city: 'Austin',
     state: 'TX',
     zipCode: '78704',
@@ -92,438 +70,114 @@ export const MOCK_PROPERTIES: Property[] = [
     bedrooms: 3,
     bathrooms: 2,
     squareFeet: 1850,
-    lotSize: 0.28,
-    yearBuilt: 1948,
-    description:
-      'Lovingly restored 1940s Craftsman bungalow in the heart of South Austin. Original hardwood floors, built-in bookshelves, and a wraparound porch give this home timeless character. Updated kitchen and bathrooms blend period charm with modern convenience. Mature pecan trees shade the generous backyard.',
-    features: [
-      'Original hardwood floors',
-      'Wraparound porch',
-      'Updated kitchen',
-      'Mature trees',
-      'Detached studio',
-    ],
+    lotSize: '0.25 acres',
+    yearBuilt: 1935,
+    description: 'Step into timeless charm with this beautifully restored Craftsman bungalow. Original hardwood floors, built-in bookshelves, and a stunning stained-glass window greet you in the living room. The updated kitchen seamlessly blends period-appropriate details with modern functionality. A wraparound porch provides the perfect spot for morning coffee, while the mature oak trees in the backyard offer peaceful shade. Located in one of Austin\'s most walkable neighborhoods, you\'ll be steps from local shops, restaurants, and parks.',
+    features: ['Original Hardwood Floors', 'Wraparound Porch', 'Updated Kitchen', 'Mature Trees', 'Stained Glass Windows', 'Built-in Bookshelves', 'Detached Garage', 'Garden', 'Walking Distance to Shops'],
     images: [
-      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop',
       'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop',
     ],
-    featured: true,
-    agentId: 'agent-003',
-    neighborhoodId: 'hood-003',
-    listingDate: '2024-08-20',
+    agent: MOCK_AGENTS[2],
+    neighborhood: 'South Congress',
+    listingDate: '2024-01-28',
     status: 'for-sale',
   },
   {
-    id: 'prop-004',
-    title: 'Hill Country Contemporary',
-    slug: 'hill-country-contemporary',
-    price: 925000,
-    address: '7801 Scenic Brook Ct',
+    id: 'prop-4',
+    title: 'Hill Country Modern Ranch',
+    slug: 'hill-country-modern-ranch',
+    price: 975000,
+    address: '8901 Violet Crown Trail',
     city: 'Austin',
     state: 'TX',
     zipCode: '78735',
     propertyType: 'house',
     bedrooms: 4,
-    bathrooms: 3.5,
+    bathrooms: 3,
     squareFeet: 3400,
-    lotSize: 1.2,
-    yearBuilt: 2020,
-    description:
-      'Perched on a hilltop with breathtaking views of the Texas Hill Country, this contemporary masterpiece seamlessly blends indoor and outdoor living. Walls of glass open to expansive limestone terraces, a resort-style pool, and native landscaping. Premium finishes throughout include white oak floors, Calacatta marble, and custom steel doors.',
-    features: [
-      'Hill Country views',
-      'Resort-style pool',
-      'Outdoor kitchen',
-      'White oak floors',
-      'Three-car garage',
-      'Home office',
-    ],
+    lotSize: '2.5 acres',
+    yearBuilt: 2022,
+    description: 'Nestled in the rolling hills of Texas Hill Country, this modern ranch home offers the perfect blend of contemporary design and natural beauty. The single-story layout features an open living space with a dramatic stone fireplace, chef\'s kitchen, and walls of glass that frame the stunning hill country views. The outdoor living area includes a covered patio, built-in grill, and a saltwater pool surrounded by native landscaping. A separate guest casita provides privacy for visitors.',
+    features: ['Saltwater Pool', 'Guest Casita', 'Stone Fireplace', 'Chef\'s Kitchen', 'Covered Patio', 'Built-in Grill', 'Native Landscaping', 'Single Story', 'Hill Country Views', '3-Car Garage'],
     images: [
-      'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop',
       'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=600&fit=crop',
       'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=600&fit=crop',
     ],
-    featured: false,
-    agentId: 'agent-001',
-    neighborhoodId: 'hood-004',
-    listingDate: '2024-10-10',
+    agent: MOCK_AGENTS[3],
+    neighborhood: 'Barton Creek',
+    listingDate: '2024-02-10',
     status: 'for-sale',
   },
   {
-    id: 'prop-005',
-    title: 'East Side Townhome',
-    slug: 'east-side-townhome',
-    price: 520000,
-    address: '1105 Chicon St Unit B',
+    id: 'prop-5',
+    title: 'Urban Townhouse in East Side',
+    slug: 'urban-townhouse-east-side',
+    price: 620000,
+    address: '1205 East 6th Street, Unit B',
     city: 'Austin',
     state: 'TX',
     zipCode: '78702',
     propertyType: 'townhouse',
     bedrooms: 3,
-    bathrooms: 2.5,
-    squareFeet: 1900,
-    yearBuilt: 2022,
-    description:
-      'Brand-new construction townhome in the vibrant East Austin corridor. Clean Scandinavian-inspired design features open-plan living, a gourmet kitchen with waterfall island, and a private rooftop deck with skyline views. Steps from acclaimed restaurants, galleries, and the hike-and-bike trail.',
-    features: [
-      'Rooftop deck',
-      'Skyline views',
-      'Gourmet kitchen',
-      'Two-car garage',
-      'Energy efficient',
-    ],
+    bathrooms: 2,
+    squareFeet: 2100,
+    yearBuilt: 2020,
+    description: 'This sleek urban townhouse puts you in the heart of Austin\'s vibrant East Side. The three-story layout maximizes space with a ground-floor garage, a second-floor open living and dining area, and bedrooms on the top floor for privacy. The rooftop deck offers stunning downtown skyline views — perfect for entertaining. High-end finishes include quartz countertops, custom cabinetry, and wide-plank oak floors throughout.',
+    features: ['Rooftop Deck', 'Skyline Views', 'Quartz Countertops', 'Custom Cabinetry', 'Wide-Plank Oak Floors', 'Attached Garage', 'Energy Efficient', 'Walk to Restaurants'],
     images: [
+      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=600&fit=crop',
       'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop',
-    ],
-    featured: false,
-    agentId: 'agent-002',
-    neighborhoodId: 'hood-005',
-    listingDate: '2024-09-28',
-    status: 'for-sale',
-  },
-  {
-    id: 'prop-006',
-    title: 'Riverside Park Apartment',
-    slug: 'riverside-park-apartment',
-    price: 325000,
-    address: '2200 S Lakeshore Blvd #310',
-    city: 'Austin',
-    state: 'TX',
-    zipCode: '78741',
-    propertyType: 'apartment',
-    bedrooms: 1,
-    bathrooms: 1,
-    squareFeet: 850,
-    yearBuilt: 2017,
-    description:
-      'Stylish one-bedroom apartment overlooking the Colorado River. Modern finishes include quartz countertops, stainless appliances, and luxury vinyl plank flooring. Community amenities feature a lap pool, dog park, and coworking lounge. Ideal for professionals seeking low-maintenance urban living.',
-    features: [
-      'River views',
-      'Lap pool',
-      'Dog park',
-      'Coworking lounge',
-      'Bike storage',
-    ],
-    images: [
-      'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&h=600&fit=crop',
       'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop',
-    ],
-    featured: false,
-    agentId: 'agent-003',
-    neighborhoodId: 'hood-006',
-    listingDate: '2024-10-05',
-    status: 'for-sale',
-  },
-  {
-    id: 'prop-007',
-    title: 'Westlake Family Retreat',
-    slug: 'westlake-family-retreat',
-    price: 1475000,
-    address: '4500 Westlake Dr',
-    city: 'Austin',
-    state: 'TX',
-    zipCode: '78746',
-    propertyType: 'house',
-    bedrooms: 5,
-    bathrooms: 4,
-    squareFeet: 4600,
-    lotSize: 0.95,
-    yearBuilt: 2018,
-    description:
-      'Elegant family home in the prestigious Westlake neighborhood with access to top-rated Eanes ISD schools. A grand foyer opens to soaring ceilings and a wall of windows framing lush greenery. Chef's kitchen, media room, exercise studio, and a resort-caliber backyard with pool, spa, and outdoor fireplace.',
-    features: [
-      'Pool and spa',
-      'Outdoor fireplace',
-      'Media room',
-      'Exercise studio',
-      'Eanes ISD',
-      'Four-car garage',
-    ],
-    images: [
-      'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=600&fit=crop',
       'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=600&fit=crop',
     ],
-    featured: false,
-    agentId: 'agent-001',
-    neighborhoodId: 'hood-004',
-    listingDate: '2024-07-12',
+    agent: MOCK_AGENTS[2],
+    neighborhood: 'East Austin',
+    listingDate: '2024-02-05',
     status: 'pending',
   },
   {
-    id: 'prop-008',
-    title: 'Mueller Mid-Century Modern',
-    slug: 'mueller-mid-century-modern',
-    price: 610000,
-    address: '1920 Aldrich St #12',
+    id: 'prop-6',
+    title: 'Renovated Mid-Century Gem',
+    slug: 'renovated-mid-century-gem',
+    price: 715000,
+    address: '3456 Ridgeview Drive',
     city: 'Austin',
     state: 'TX',
-    zipCode: '78723',
-    propertyType: 'townhouse',
-    bedrooms: 3,
-    bathrooms: 2.5,
-    squareFeet: 2050,
-    yearBuilt: 2016,
-    description:
-      'Award-winning mid-century-inspired townhome in the master-planned Mueller community. Clean lines, abundant natural light, and an open floor plan define this thoughtfully designed residence. Walk to Thinkery children's museum, the farmers' market, and acres of parkland.',
-    features: [
-      'Mid-century design',
-      'Open floor plan',
-      'Community parks',
-      'Farmers' market nearby',
-      'Solar panels',
-    ],
-    images: [
-      'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=600&fit=crop',
-    ],
-    featured: false,
-    agentId: 'agent-002',
-    neighborhoodId: 'hood-005',
-    listingDate: '2024-06-30',
-    status: 'sold',
-  },
-  {
-    id: 'prop-009',
-    title: 'SoCo Artistic Retreat',
-    slug: 'soco-artistic-retreat',
-    price: 555000,
-    address: '2406 S 1st St',
-    city: 'Austin',
-    state: 'TX',
-    zipCode: '78704',
-    propertyType: 'house',
-    bedrooms: 2,
-    bathrooms: 2,
-    squareFeet: 1400,
-    lotSize: 0.18,
-    yearBuilt: 1955,
-    description:
-      'Eclectic cottage on iconic South Congress Avenue. Fully renovated with an artist's eye—polished concrete floors, exposed beam ceilings, and a chef's kitchen with butcher block counters. The private backyard oasis features string lights, a fire pit, and native plantings. Walk to SoCo shops, food trucks, and live music.',
-    features: [
-      'Polished concrete floors',
-      'Exposed beams',
-      'Backyard oasis',
-      'Walk to SoCo',
-      'Renovated kitchen',
-    ],
-    images: [
-      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=600&fit=crop',
-    ],
-    featured: false,
-    agentId: 'agent-003',
-    neighborhoodId: 'hood-003',
-    listingDate: '2024-09-01',
-    status: 'for-sale',
-  },
-  {
-    id: 'prop-010',
-    title: 'Domain Luxury Penthouse',
-    slug: 'domain-luxury-penthouse',
-    price: 890000,
-    address: '11511 Rock Rose Ave PH-1',
-    city: 'Austin',
-    state: 'TX',
-    zipCode: '78758',
-    propertyType: 'condo',
-    bedrooms: 3,
-    bathrooms: 3,
-    squareFeet: 2400,
-    yearBuilt: 2023,
-    description:
-      'Top-floor penthouse in the Domain's newest luxury tower. Wraparound terrace offers 270-degree views of the Austin skyline. Italian porcelain tile, German-engineered kitchen, spa-like primary bath, and a private elevator entry. Steps from upscale shopping, dining, and entertainment.',
-    features: [
-      'Private elevator',
-      'Wraparound terrace',
-      'Italian porcelain tile',
-      'Skyline views',
-      'Valet parking',
-      'Spa-like primary bath',
-    ],
-    images: [
-      'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop',
-    ],
-    featured: false,
-    agentId: 'agent-001',
-    neighborhoodId: 'hood-002',
-    listingDate: '2024-10-15',
-    status: 'for-sale',
-  },
-  {
-    id: 'prop-011',
-    title: 'Barton Creek Colonial',
-    slug: 'barton-creek-colonial',
-    price: 1150000,
-    address: '8200 Barton Club Dr',
-    city: 'Austin',
-    state: 'TX',
-    zipCode: '78735',
-    propertyType: 'house',
-    bedrooms: 4,
-    bathrooms: 3.5,
-    squareFeet: 3800,
-    lotSize: 0.65,
-    yearBuilt: 2005,
-    description:
-      'Stately colonial on the Barton Creek greenbelt with mature oak canopy and seasonal creek views. Formal living and dining rooms, a large family room with stone fireplace, and an updated gourmet kitchen. The primary suite includes a sitting area, dual walk-in closets, and a spa bath. Community golf course and tennis courts.',
-    features: [
-      'Greenbelt lot',
-      'Stone fireplace',
-      'Gourmet kitchen',
-      'Community golf course',
-      'Tennis courts',
-      'Three-car garage',
-    ],
-    images: [
-      'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop',
-    ],
-    featured: false,
-    agentId: 'agent-002',
-    neighborhoodId: 'hood-004',
-    listingDate: '2024-08-05',
-    status: 'pending',
-  },
-  {
-    id: 'prop-012',
-    title: 'Riverside Loft Conversion',
-    slug: 'riverside-loft-conversion',
-    price: 415000,
-    address: '1800 E Riverside Dr #405',
-    city: 'Austin',
-    state: 'TX',
-    zipCode: '78741',
-    propertyType: 'apartment',
-    bedrooms: 2,
-    bathrooms: 2,
-    squareFeet: 1200,
-    yearBuilt: 2015,
-    description:
-      'Industrial-chic loft in a converted warehouse along the Riverside corridor. Soaring 14-foot ceilings, exposed brick walls, and oversized factory windows create a dramatic living space. Updated with contemporary fixtures, a sleek kitchen, and in-unit laundry. Minutes from downtown via the Metro Rail.',
-    features: [
-      '14-foot ceilings',
-      'Exposed brick',
-      'Factory windows',
-      'In-unit laundry',
-      'Metro Rail access',
-    ],
-    images: [
-      'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop',
-    ],
-    featured: false,
-    agentId: 'agent-003',
-    neighborhoodId: 'hood-006',
-    listingDate: '2024-10-18',
-    status: 'for-sale',
-  },
-  {
-    id: 'prop-013',
-    title: 'Travis Heights Victorian',
-    slug: 'travis-heights-victorian',
-    price: 795000,
-    address: '1100 Travis Heights Blvd',
-    city: 'Austin',
-    state: 'TX',
-    zipCode: '78704',
+    zipCode: '78731',
     propertyType: 'house',
     bedrooms: 4,
     bathrooms: 3,
     squareFeet: 2600,
-    lotSize: 0.32,
-    yearBuilt: 1925,
-    description:
-      'Beautifully preserved Victorian in the coveted Travis Heights neighborhood. Period details—stained glass transoms, crown molding, clawfoot tubs—coexist with a modern addition featuring a gourmet kitchen and glass-walled family room. Terraced garden with city-skyline views.',
-    features: [
-      'Stained glass transoms',
-      'Clawfoot tubs',
-      'Terraced garden',
-      'Skyline views',
-      'Modern addition',
-    ],
+    lotSize: '0.4 acres',
+    yearBuilt: 1962,
+    description: 'This meticulously renovated mid-century modern home honors its original architecture while incorporating all the comforts of contemporary living. Signature features include exposed beam ceilings, walls of glass, and an open floor plan that flows seamlessly to the outdoor entertaining area. The updated kitchen features custom walnut cabinetry, professional-grade appliances, and a massive quartz island. The landscaped backyard with a heated pool and mature pecan trees creates a private oasis.',
+    features: ['Heated Pool', 'Exposed Beam Ceilings', 'Professional Appliances', 'Walnut Cabinetry', 'Quartz Island', 'Mature Pecan Trees', 'Mid-Century Design', 'Open Floor Plan', 'Updated Electrical & Plumbing'],
     images: [
-      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=600&fit=crop',
       'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop',
       'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=600&fit=crop',
     ],
-    featured: false,
-    agentId: 'agent-001',
-    neighborhoodId: 'hood-003',
-    listingDate: '2024-07-22',
+    agent: MOCK_AGENTS[0],
+    neighborhood: 'Northwest Hills',
+    listingDate: '2024-01-20',
     status: 'sold',
   },
 ];
 
-/**
- * Look up a single property by its URL-friendly slug.
- *
- * @param slug - The slug to search for.
- * @returns The matching Property or undefined.
- */
 export function getPropertyBySlug(slug: string): Property | undefined {
   return MOCK_PROPERTIES.find((p) => p.slug === slug);
 }
 
-/**
- * Filter properties by their sales status.
- *
- * @param status - The PropertyStatus to filter on.
- * @returns An array of matching properties.
- */
 export function getPropertiesByStatus(status: PropertyStatus): Property[] {
   return MOCK_PROPERTIES.filter((p) => p.status === status);
 }
 
-/**
- * Return the set of properties marked as featured.
- *
- * @returns The first three featured properties.
- */
 export function getFeaturedProperties(): Property[] {
-  return MOCK_PROPERTIES.filter((p) => p.featured).slice(0, 3);
-}
-
-/**
- * Look up a single property by its unique ID.
- *
- * @param id - The property ID to search for.
- * @returns The matching Property or undefined.
- */
-export function getPropertyById(id: string): Property | undefined {
-  return MOCK_PROPERTIES.find((p) => p.id === id);
-}
-
-/**
- * Return all properties associated with a given neighborhood.
- *
- * @param neighborhoodId - The neighborhood ID to filter on.
- * @returns An array of matching properties.
- */
-export function getPropertiesByNeighborhood(neighborhoodId: string): Property[] {
-  return MOCK_PROPERTIES.filter((p) => p.neighborhoodId === neighborhoodId);
-}
-
-/**
- * Return all properties listed by a given agent.
- *
- * @param agentId - The agent ID to filter on.
- * @returns An array of matching properties.
- */
-export function getPropertiesByAgent(agentId: string): Property[] {
-  return MOCK_PROPERTIES.filter((p) => p.agentId === agentId);
+  return MOCK_PROPERTIES.slice(0, 3);
 }
