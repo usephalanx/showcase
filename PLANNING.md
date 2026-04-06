@@ -1,16 +1,27 @@
-# Todo App — Architecture & Design Plan
+# Todo Application — Architecture & Design Plan
 
-This document is the single source of truth for the Todo application's
-architecture, data models, API contract, and frontend component hierarchy.
+This document serves as the single source of truth for the Todo application
+architecture, covering both the **FastAPI + SQLite** backend and the
+**React + TypeScript + Vite** frontend.
 
 ---
 
 ## Overview
 
-A full-stack task management application consisting of:
+A full-stack task management application that exposes a RESTful API for
+CRUD operations on tasks and provides a React-based single-page frontend.
 
-- **Backend** — FastAPI + SQLAlchemy ORM + SQLite
-- **Frontend** — React + TypeScript + Vite
+### Technology Stack
+
+| Layer      | Technology                        | Version  |
+|------------|-----------------------------------|----------|
+| Backend    | Python                            | ≥ 3.11   |
+| Framework  | FastAPI                           | ≥ 0.110 |
+| ORM        | SQLAlchemy                        | ≥ 2.0    |
+| Validation | Pydantic                          | ≥ 2.0    |
+| Database   | SQLite                            | 3.x      |
+| Frontend   | React + TypeScript + Vite         | 18 / 5   |
+| Testing    | pytest, React Testing Library     | latest   |
 
 ---
 
@@ -18,109 +29,140 @@ A full-stack task management application consisting of:
 
 ```
 /
-├── PLANNING.md
-├── requirements.txt
 ├── backend/
 │   ├── app/
 │   │   ├── __init__.py
-│   │   ├── main.py          # FastAPI application entry point & lifespan
-│   │   ├── database.py       # SQLAlchemy engine, SessionLocal, Base
-│   │   ├── models.py         # SQLAlchemy ORM models
-│   │   ├── schemas.py        # Pydantic request/response schemas
-│   │   ├── crud.py           # Database CRUD helper functions
+│   │   ├── main.py              # FastAPI entry-point & lifespan
+│   │   ├── database.py          # Engine, session, Base, init_db
+│   │   ├── models.py            # SQLAlchemy ORM models
+│   │   ├── schemas.py           # Pydantic request/response schemas
+│   │   ├── crud.py              # Data-access helper functions
 │   │   └── routers/
 │   │       ├── __init__.py
-│   │       └── tasks.py      # /api/tasks router
-│   └── tests/
-│       ├── __init__.py
-│       ├── test_models.py
-│       ├── test_database.py
-│       └── test_schemas.py
+│   │       └── tasks.py         # /api/tasks endpoints
+│   ├── tests/
+│   │   ├── __init__.py
+│   │   ├── conftest.py          # Shared fixtures
+│   │   ├── test_schemas.py      # Schema validation tests
+│   │   ├── test_models.py       # ORM model tests
+│   │   └── test_tasks.py        # Router / integration tests
+│   └── requirements.txt
 ├── frontend/
+│   ├── src/
+│   │   ├── App.tsx
+│   │   ├── main.tsx
+│   │   ├── components/
+│   │   │   ├── Layout.tsx
+│   │   │   ├── TaskList.tsx
+│   │   │   ├── TaskItem.tsx
+│   │   │   ├── TaskForm.tsx
+│   │   │   └── TaskFilter.tsx
+│   │   ├── services/
+│   │   │   └── api.ts           # Axios/fetch wrapper
+│   │   └── types/
+│   │       └── task.ts          # TypeScript interfaces
 │   ├── index.html
 │   ├── package.json
 │   ├── tsconfig.json
-│   ├── vite.config.ts
-│   └── src/
-│       ├── App.tsx
-│       ├── main.tsx
-│       ├── types/
-│       │   └── task.ts
-│       ├── services/
-│       │   └── api.ts
-│       └── components/
-│           ├── Layout.tsx
-│           ├── TaskList.tsx
-│           ├── TaskItem.tsx
-│           ├── TaskForm.tsx
-│           └── TaskFilter.tsx
-└── SETUP.md
+│   └── vite.config.ts
+├── PLANNING.md
+└── README.md
 ```
 
 ---
 
 ## Data Models
 
-### SQLAlchemy — `Task`
+### SQLAlchemy — `Task` (backend/app/models.py)
 
-| Column       | Type                  | Constraints                          |
-|--------------|-----------------------|--------------------------------------|
-| `id`         | Integer               | Primary Key, autoincrement           |
-| `title`      | String(255)           | NOT NULL                             |
-| `status`     | String(20)            | NOT NULL, enum: `todo`, `in-progress`, `done`; default `todo` |
-| `due_date`   | Date                  | Nullable                             |
-| `created_at` | DateTime              | NOT NULL, server default `now()`     |
-| `updated_at` | DateTime              | NOT NULL, server default `now()`, onupdate `now()` |
+| Column       | Type                                    | Constraints                        |
+|--------------|-----------------------------------------|------------------------------------|
+| `id`         | `Integer`                               | Primary key, auto-increment        |
+| `title`      | `String(255)`                           | NOT NULL                           |
+| `status`     | `Enum('todo','in-progress','done')`     | NOT NULL, default `'todo'`         |
+| `due_date`   | `Date`                                  | Nullable, default `None`           |
+| `created_at` | `DateTime`                              | NOT NULL, server_default `now()`   |
+| `updated_at` | `DateTime`                              | NOT NULL, server_default `now()`, onupdate `now()` |
+
+### Status Enum Values
+
+- `todo` — Task has not been started
+- `in-progress` — Task is currently being worked on
+- `done` — Task has been completed
 
 ---
 
 ## Pydantic Schemas
 
-### `TaskCreate` (request body — POST)
+### `TaskCreate` (POST request body)
 
-| Field      | Type            | Required | Notes              |
-|------------|-----------------|----------|-----------------------|
-| `title`    | `str`           | Yes      | min_length=1          |
-| `status`   | `str`           | No       | default `"todo"`      |
-| `due_date` | `date \| None`  | No       | default `None`        |
+| Field      | Type                | Required | Default  |
+|------------|---------------------|----------|----------|
+| `title`    | `str` (1–255 chars) | Yes      | —        |
+| `status`   | `TaskStatusEnum`    | No       | `"todo"` |
+| `due_date` | `Optional[date]`    | No       | `None`   |
 
-### `TaskUpdate` (request body — PUT, requires all fields; PATCH, all optional)
+### `TaskUpdate` (PUT request body)
 
-| Field      | Type            | Required (PUT) | Required (PATCH) |
-|------------|-----------------|----------------|------------------|
-| `title`    | `str`           | Yes            | No               |
-| `status`   | `str`           | Yes            | No               |
-| `due_date` | `date \| None`  | Yes            | No               |
+| Field      | Type                | Required | Default |
+|------------|---------------------|----------|---------|
+| `title`    | `str` (1–255 chars) | Yes      | —       |
+| `status`   | `TaskStatusEnum`    | Yes      | —       |
+| `due_date` | `Optional[date]`    | No       | `None`  |
 
-### `TaskResponse` (response body)
+### `TaskPatch` (PATCH request body)
 
-| Field        | Type            | Notes         |
-|--------------|-----------------|---------------|
-| `id`         | `int`           | read-only     |
-| `title`      | `str`           |               |
-| `status`     | `str`           |               |
-| `due_date`   | `date \| None`  |               |
-| `created_at` | `datetime`      | read-only     |
-| `updated_at` | `datetime`      | read-only     |
+| Field      | Type                        | Required | Default |
+|------------|-----------------------------|----------|---------|
+| `title`    | `Optional[str]` (1–255)     | No       | `None`  |
+| `status`   | `Optional[TaskStatusEnum]`  | No       | `None`  |
+| `due_date` | `Optional[date]`            | No       | `None`  |
 
-> **Note:** `created_at` and `updated_at` are **read-only**. They are never
-> accepted in create or update request bodies.
+### `TaskResponse` (all responses)
+
+| Field        | Type               | Notes              |
+|--------------|--------------------|--------------------||
+| `id`         | `int`              | Read-only          |
+| `title`      | `str`              |                    |
+| `status`     | `TaskStatusEnum`   |                    |
+| `due_date`   | `Optional[date]`   | Nullable           |
+| `created_at` | `datetime`         | Read-only          |
+| `updated_at` | `datetime`         | Read-only          |
+
+> `created_at` and `updated_at` are **read-only**: they are never accepted
+> in create or update request bodies.
 
 ---
 
 ## API Contract
 
-Base path: `/api`
+Base path: `/api/tasks`
 
 ### 1. List Tasks
 
 ```
-GET /api/tasks?status=todo
+GET /api/tasks?status={status}
 ```
 
-- **Query params:** `status` (optional) — filter by status. Returns 422 if
-  value is not one of `todo`, `in-progress`, `done`.
-- **Response:** `200 OK` — `TaskResponse[]`
+| Parameter | In    | Type              | Required | Description              |
+|-----------|-------|-------------------|----------|--------------------------|
+| `status`  | query | `TaskStatusEnum`  | No       | Filter by task status    |
+
+**Response:** `200 OK`
+```json
+[
+  {
+    "id": 1,
+    "title": "Buy groceries",
+    "status": "todo",
+    "due_date": "2025-06-15",
+    "created_at": "2025-01-01T12:00:00",
+    "updated_at": "2025-01-01T12:00:00"
+  }
+]
+```
+
+**Error — invalid status filter:** `422 Unprocessable Entity`
 
 ### 2. Get Task by ID
 
@@ -128,48 +170,59 @@ GET /api/tasks?status=todo
 GET /api/tasks/{task_id}
 ```
 
-- **Path params:** `task_id` (int)
-- **Response:** `200 OK` — `TaskResponse`
-- **Errors:** `404 Not Found`
+| Parameter | In   | Type  | Required | Description         |
+|-----------|------|-------|----------|---------------------|
+| `task_id` | path | `int` | Yes      | Task primary key    |
+
+**Response:** `200 OK` — single `TaskResponse`
+
+**Error:** `404 Not Found`
+```json
+{"detail": "Task not found"}
+```
 
 ### 3. Create Task
 
 ```
 POST /api/tasks
-Content-Type: application/json
-
-{"title": "Buy groceries", "due_date": "2025-01-15"}
 ```
 
-- **Request body:** `TaskCreate`
-- **Response:** `201 Created` — `TaskResponse`
-- **Errors:** `422 Unprocessable Entity`
+**Request body:** `TaskCreate`
+```json
+{
+  "title": "Buy groceries",
+  "status": "todo",
+  "due_date": "2025-06-15"
+}
+```
+
+**Response:** `201 Created` — `TaskResponse`
+
+**Error:** `422 Unprocessable Entity` (validation failure)
 
 ### 4. Full Update Task
 
 ```
 PUT /api/tasks/{task_id}
-Content-Type: application/json
-
-{"title": "Updated", "status": "done", "due_date": null}
 ```
 
-- **Request body:** `TaskUpdate` (all fields required)
-- **Response:** `200 OK` — `TaskResponse`
-- **Errors:** `404`, `422`
+**Request body:** `TaskUpdate` — all fields required
+
+**Response:** `200 OK` — `TaskResponse`
+
+**Errors:** `404 Not Found`, `422 Unprocessable Entity`
 
 ### 5. Partial Update Task
 
 ```
 PATCH /api/tasks/{task_id}
-Content-Type: application/json
-
-{"status": "in-progress"}
 ```
 
-- **Request body:** `TaskUpdate` (fields are optional)
-- **Response:** `200 OK` — `TaskResponse`
-- **Errors:** `404`, `422`
+**Request body:** `TaskPatch` — only supplied fields are updated
+
+**Response:** `200 OK` — `TaskResponse`
+
+**Errors:** `404 Not Found`, `422 Unprocessable Entity`
 
 ### 6. Delete Task
 
@@ -177,70 +230,121 @@ Content-Type: application/json
 DELETE /api/tasks/{task_id}
 ```
 
-- **Response:** `200 OK` — `{"detail": "Task deleted successfully"}`
-- **Errors:** `404 Not Found`
+**Response:** `204 No Content`
+
+**Error:** `404 Not Found`
 
 ---
 
 ## Error Responses
 
-All errors follow this shape:
+All errors follow FastAPI's default format:
 
 ```json
-{"detail": "Human-readable message"}
+{
+  "detail": "Human-readable error message"
+}
 ```
 
-Standard HTTP status codes:
+Or for validation errors (422):
 
-| Code | Meaning                 |
-|------|-------------------------|
-| 200  | Success                 |
-| 201  | Created                 |
-| 404  | Resource not found      |
-| 422  | Validation error        |
-| 500  | Internal server error   |
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "title"],
+      "msg": "String should have at least 1 character",
+      "type": "string_too_short"
+    }
+  ]
+}
+```
+
+| Status Code | Meaning                  | When                                        |
+|-------------|--------------------------|---------------------------------------------|
+| 200         | OK                       | Successful GET, PUT, PATCH                  |
+| 201         | Created                  | Successful POST                             |
+| 204         | No Content               | Successful DELETE                           |
+| 404         | Not Found                | Task with given ID does not exist           |
+| 422         | Unprocessable Entity     | Request validation failure (bad enum, etc.) |
 
 ---
 
-## Component Hierarchy (Frontend)
+## Component Hierarchy
 
 ```
 App
 └── Layout
-    ├── TaskForm          # create / edit a task
-    ├── TaskFilter        # filter by status
-    └── TaskList
-        └── TaskItem      # single task row (edit, delete, status toggle)
+    ├── TaskForm          # Create new task
+    ├── TaskFilter        # Filter by status
+    └── TaskList          # List of tasks
+        └── TaskItem      # Individual task with edit/delete actions
 ```
+
+### Component Responsibilities
+
+- **App** — Top-level routing and state provider
+- **Layout** — Page layout wrapper (header, main content area)
+- **TaskForm** — Form for creating new tasks (title, status, due_date)
+- **TaskFilter** — Dropdown or button group to filter tasks by status
+- **TaskList** — Renders an array of tasks, handles empty state
+- **TaskItem** — Displays a single task; inline edit, status toggle, delete
 
 ---
 
 ## Frontend Services
 
-`src/services/api.ts` wraps all HTTP calls:
+### `api.ts`
 
-- `fetchTasks(status?: string): Promise<Task[]>`
-- `fetchTask(id: number): Promise<Task>`
-- `createTask(data: TaskCreate): Promise<Task>`
-- `updateTask(id: number, data: TaskUpdate): Promise<Task>`
-- `patchTask(id: number, data: Partial<TaskUpdate>): Promise<Task>`
-- `deleteTask(id: number): Promise<void>`
+```typescript
+getTasks(status?: string): Promise<Task[]>
+getTask(id: number): Promise<Task>
+createTask(data: TaskCreate): Promise<Task>
+updateTask(id: number, data: TaskUpdate): Promise<Task>
+patchTask(id: number, data: Partial<TaskUpdate>): Promise<Task>
+deleteTask(id: number): Promise<void>
+```
+
+### State Management
+
+- React `useState` + `useEffect` for task list
+- Optimistic updates for status toggles
+- Error state for API failures
 
 ---
 
 ## Configuration
 
-| Variable          | Default              | Description               |
-|-------------------|----------------------|---------------------------|
-| `DATABASE_URL`    | `sqlite:///./tasks.db` | SQLAlchemy connection URL |
-| `BACKEND_PORT`    | `8000`               | Uvicorn listen port       |
-| `FRONTEND_PORT`   | `5173`               | Vite dev-server port      |
+| Variable       | Default                        | Description             |
+|----------------|--------------------------------|-------------------------|
+| `DATABASE_URL` | `sqlite:///./tasks.db`         | SQLAlchemy database URL |
+| `VITE_API_URL` | `http://localhost:8000`        | Backend URL for frontend|
 
 ---
 
 ## Development Workflow
 
-1. `pip install -r requirements.txt`
-2. `cd backend && uvicorn app.main:app --reload`
-3. `cd frontend && npm install && npm run dev`
-4. Run tests: `cd backend && python -m pytest tests/ -v`
+### Backend
+
+```bash
+cd backend
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload
+```
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+### Testing
+
+```bash
+cd backend
+python -m pytest tests/ -v
+```
