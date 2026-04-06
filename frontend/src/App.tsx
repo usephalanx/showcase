@@ -1,18 +1,14 @@
 /**
  * Root application component.
  *
- * Serves as the top-level layout shell.  Child page components and
- * routing will be added in subsequent tasks.
+ * Renders the HomePage as the main view.
  */
 
 import React from 'react';
+import HomePage from './pages/HomePage';
 
 const App: React.FC = () => {
-  return (
-    <div>
-      <h1>Todo App</h1>
-    </div>
-  );
+  return <HomePage />;
 };
 
 export default App;

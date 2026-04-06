@@ -1,154 +1,93 @@
-import React, { useState, useEffect, FormEvent, ChangeEvent } from "react";
+import React, { useState, useEffect } from 'react';
+import { Task, TaskStatus } from '../types/Task';
 
-/**
- * Allowed status values for a task, mirroring the backend TaskStatus enum.
- */
-export type TaskStatus = "todo" | "in-progress" | "done";
-
-/**
- * Shape of data submitted by the form – mirrors backend TaskCreate schema.
- */
-export interface TaskCreate {
+export interface TaskFormData {
   title: string;
   status: TaskStatus;
-  due_date: string | null;
+  due_date: string;
 }
 
-/**
- * Props accepted by the TaskForm component.
- */
-export interface TaskFormProps {
-  /** Pre-populated data when editing an existing task. */
-  initialData?: Partial<TaskCreate>;
-  /** Callback invoked with validated form data on submission. */
-  onSubmit: (data: TaskCreate) => void;
-  /** Callback invoked when the user cancels the form. */
+interface TaskFormProps {
+  initial?: Task | null;
+  onSubmit: (data: TaskFormData) => void;
   onCancel: () => void;
-  /** Optional label for the submit button. Defaults to "Save". */
-  submitLabel?: string;
+  loading?: boolean;
 }
 
-const STATUS_OPTIONS: { value: TaskStatus; label: string }[] = [
-  { value: "todo", label: "Todo" },
-  { value: "in-progress", label: "In Progress" },
-  { value: "done", label: "Done" },
-];
+const TaskForm: React.FC<TaskFormProps> = ({ initial, onSubmit, onCancel, loading }) => {
+  const [title, setTitle] = useState(initial?.title ?? '');
+  const [status, setStatus] = useState<TaskStatus>(initial?.status ?? 'todo');
+  const [dueDate, setDueDate] = useState(initial?.due_date ?? '');
 
-/**
- * A form component for creating or editing a task.
- *
- * Validates that the title field is non-empty before allowing submission.
- */
-export default function TaskForm({
-  initialData,
-  onSubmit,
-  onCancel,
-  submitLabel = "Save",
-}: TaskFormProps) {
-  const [title, setTitle] = useState<string>(initialData?.title ?? "");
-  const [status, setStatus] = useState<TaskStatus>(initialData?.status ?? "todo");
-  const [dueDate, setDueDate] = useState<string>(initialData?.due_date ?? "");
-  const [titleError, setTitleError] = useState<string | null>(null);
-  const [submitted, setSubmitted] = useState(false);
-
-  // Sync with initialData changes (e.g. switching between edit targets)
   useEffect(() => {
-    setTitle(initialData?.title ?? "");
-    setStatus(initialData?.status ?? "todo");
-    setDueDate(initialData?.due_date ?? "");
-    setTitleError(null);
-    setSubmitted(false);
-  }, [initialData]);
+    setTitle(initial?.title ?? '');
+    setStatus(initial?.status ?? 'todo');
+    setDueDate(initial?.due_date ?? '');
+  }, [initial]);
 
-  const validate = (): boolean => {
-    const trimmed = title.trim();
-    if (trimmed.length === 0) {
-      setTitleError("Title is required");
-      return false;
-    }
-    setTitleError(null);
-    return true;
-  };
-
-  const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setTitle(e.target.value);
-    if (submitted) {
-      // Re-validate on change after first submit attempt
-      if (e.target.value.trim().length > 0) {
-        setTitleError(null);
-      } else {
-        setTitleError("Title is required");
-      }
-    }
-  };
-
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
-
-    if (!validate()) {
-      return;
-    }
-
-    onSubmit({
-      title: title.trim(),
-      status,
-      due_date: dueDate === "" ? null : dueDate,
-    });
+    if (!title.trim()) return;
+    onSubmit({ title: title.trim(), status, due_date: dueDate });
   };
 
   return (
-    <form onSubmit={handleSubmit} aria-label="Task form">
+    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
       <div>
-        <label htmlFor="task-title">Title</label>
+        <label htmlFor="task-title" style={{ display: 'block', marginBottom: '4px', fontWeight: 600 }}>Title</label>
         <input
           id="task-title"
           type="text"
           value={title}
-          onChange={handleTitleChange}
-          placeholder="Enter task title"
-          aria-required="true"
-          aria-invalid={titleError ? "true" : "false"}
-          aria-describedby={titleError ? "task-title-error" : undefined}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Task title"
+          maxLength={255}
+          required
+          style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #d1d5db', boxSizing: 'border-box' }}
         />
-        {titleError && (
-          <span id="task-title-error" role="alert" style={{ color: "red" }}>
-            {titleError}
-          </span>
-        )}
       </div>
-
       <div>
-        <label htmlFor="task-status">Status</label>
+        <label htmlFor="task-status" style={{ display: 'block', marginBottom: '4px', fontWeight: 600 }}>Status</label>
         <select
           id="task-status"
           value={status}
           onChange={(e) => setStatus(e.target.value as TaskStatus)}
+          style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #d1d5db', boxSizing: 'border-box' }}
         >
-          {STATUS_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
+          <option value="todo">Todo</option>
+          <option value="in-progress">In Progress</option>
+          <option value="done">Done</option>
         </select>
       </div>
-
       <div>
-        <label htmlFor="task-due-date">Due Date</label>
+        <label htmlFor="task-due-date" style={{ display: 'block', marginBottom: '4px', fontWeight: 600 }}>Due Date</label>
         <input
           id="task-due-date"
           type="date"
           value={dueDate}
           onChange={(e) => setDueDate(e.target.value)}
+          style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #d1d5db', boxSizing: 'border-box' }}
         />
       </div>
-
-      <div>
-        <button type="submit">{submitLabel}</button>
-        <button type="button" onClick={onCancel}>
+      <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={loading}
+          style={{ padding: '8px 16px', borderRadius: '4px', border: '1px solid #d1d5db', background: '#fff', cursor: 'pointer' }}
+        >
           Cancel
+        </button>
+        <button
+          type="submit"
+          disabled={loading || !title.trim()}
+          style={{ padding: '8px 16px', borderRadius: '4px', border: 'none', background: '#2563eb', color: '#fff', cursor: 'pointer', opacity: loading ? 0.6 : 1 }}
+        >
+          {loading ? 'Saving…' : initial ? 'Update Task' : 'Add Task'}
         </button>
       </div>
     </form>
   );
-}
+};
+
+export default TaskForm;
