@@ -1,4 +1,4 @@
-# Setup Instructions
+# Setup Guide
 
 ## Prerequisites
 
@@ -9,33 +9,35 @@
 
 ```bash
 cd backend
-pip install fastapi uvicorn sqlalchemy python-slugify pydantic alembic
-pip install pytest httpx  # for testing
+pip install -r requirements.txt
 ```
 
 ## Running the Application
 
 ```bash
 cd backend
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+uvicorn main:app --reload
 ```
 
 ## Running Tests
 
 ```bash
-# From the project root
+cd backend
 python -m pytest tests/ -v
 ```
 
-## Database Migrations
+## Running Migrations
 
 ```bash
 cd backend
+alembic revision --autogenerate -m "description"
 alembic upgrade head
 ```
 
 ## Environment Variables
 
-| Variable       | Default              | Description          |
-|---------------|----------------------|----------------------|
-| DATABASE_URL  | sqlite:///kanban.db  | Database connection  |
+| Variable | Default | Description |
+|---|---|---|
+| `DATABASE_URL` | `sqlite:///kanban.db` | SQLAlchemy database URL |
+| `SITE_BASE_URL` | `https://example.com` | Base URL for canonical links |
+| `SITE_NAME` | `Kanban Board` | Site name appended to page titles |

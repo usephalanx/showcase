@@ -107,8 +107,6 @@ class Column(Base):
         board_id: Foreign key to the parent board.
         title: Column heading.
         position: Ordering position within the board.
-        created_at: Timestamp of creation (UTC).
-        updated_at: Timestamp of last update (UTC).
         board: Parent Board object.
         cards: Related Card objects (ordered by position).
     """
@@ -181,7 +179,7 @@ class Card(Base):
     meta_title: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     meta_description: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), nullable=False, default=_utcnow, index=True,
+        DateTime(timezone=True), nullable=False, default=_utcnow,
     )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, default=_utcnow, onupdate=_utcnow,
@@ -192,7 +190,6 @@ class Card(Base):
         "Category",
         secondary=card_categories,
         back_populates="cards",
-        lazy="selectin",
     )
 
     def __repr__(self) -> str:
@@ -206,19 +203,23 @@ class Card(Base):
 
 
 class Category(Base):
-    """A hierarchical taxonomy for cards.
+    """A hierarchical taxonomy category for cards.
 
-    Supports self-referential parent-child relationships for
-    nested categorisation.
+    Supports self-referential parent/children relationships to form
+    a tree structure. Maximum nesting depth is enforced at the
+    application level.
 
     Attributes:
         id: Primary key.
-        name: Category name.
+        name: Human-readable category name.
         slug: SEO-friendly URL slug (unique).
-        parent_id: Optional FK to parent category.
+        description: Optional description.
+        parent_id: Foreign key to parent category (nullable for roots).
+        meta_title: Optional SEO meta title override.
+        meta_description: Optional SEO meta description override.
         created_at: Timestamp of creation (UTC).
         updated_at: Timestamp of last update (UTC).
-        parent: Parent Category object (if any).
+        parent: Parent Category (or None for root).
         children: Child Category objects.
         cards: Associated Card objects.
     """
@@ -228,9 +229,12 @@ class Category(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     slug: Mapped[str] = mapped_column(String(280), nullable=False, unique=True, index=True)
+    description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     parent_id: Mapped[Optional[int]] = mapped_column(
-        Integer, ForeignKey("categories.id", ondelete="SET NULL"), nullable=True,
+        Integer, ForeignKey("categories.id", ondelete="SET NULL"), nullable=True, index=True,
     )
+    meta_title: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    meta_description: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, default=_utcnow,
     )
@@ -240,7 +244,7 @@ class Category(Base):
 
     parent: Mapped[Optional["Category"]] = relationship(
         "Category",
-        remote_side="Category.id",
+        remote_side=[id],
         back_populates="children",
     )
     children: Mapped[List["Category"]] = relationship(

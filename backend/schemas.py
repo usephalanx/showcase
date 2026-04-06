@@ -1,7 +1,7 @@
 """Pydantic schemas for the Kanban application.
 
 Defines request/response schemas for all domain models:
-Board, Column, Card, and Category.
+Board, Column, Card, Category, and SEO meta.
 """
 
 from __future__ import annotations
@@ -13,7 +13,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 # ---------------------------------------------------------------------------
-# Category schemas  (declared first so Card schemas can reference them)
+# Category schemas
 # ---------------------------------------------------------------------------
 
 
@@ -26,9 +26,23 @@ class CategoryCreate(BaseModel):
         max_length=255,
         description="Human-readable category name.",
     )
+    description: Optional[str] = Field(
+        None,
+        description="Optional description of the category.",
+    )
     parent_id: Optional[int] = Field(
         None,
-        description="Optional parent category ID for hierarchy.",
+        description="ID of the parent category (null for root).",
+    )
+    meta_title: Optional[str] = Field(
+        None,
+        max_length=255,
+        description="Optional SEO meta title override.",
+    )
+    meta_description: Optional[str] = Field(
+        None,
+        max_length=500,
+        description="Optional SEO meta description override.",
     )
 
 
@@ -44,23 +58,60 @@ class CategoryUpdate(BaseModel):
         max_length=255,
         description="Human-readable category name.",
     )
+    description: Optional[str] = Field(
+        None,
+        description="Optional description of the category.",
+    )
     parent_id: Optional[int] = Field(
         None,
-        description="Optional parent category ID for hierarchy.",
+        description="ID of the parent category (null for root).",
+    )
+    meta_title: Optional[str] = Field(
+        None,
+        max_length=255,
+        description="Optional SEO meta title override.",
+    )
+    meta_description: Optional[str] = Field(
+        None,
+        max_length=500,
+        description="Optional SEO meta description override.",
     )
 
 
 class CategoryResponse(BaseModel):
-    """Schema for category API responses."""
+    """Schema for category API responses (flat, without children)."""
 
     model_config = ConfigDict(from_attributes=True)
 
     id: int
     name: str
     slug: str
+    description: Optional[str] = None
     parent_id: Optional[int] = None
+    meta_title: Optional[str] = None
+    meta_description: Optional[str] = None
     created_at: datetime
     updated_at: datetime
+
+
+class CategoryTreeResponse(BaseModel):
+    """Schema for category API responses with nested children tree."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    name: str
+    slug: str
+    description: Optional[str] = None
+    parent_id: Optional[int] = None
+    meta_title: Optional[str] = None
+    meta_description: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
+    children: List[CategoryTreeResponse] = Field(
+        default_factory=list,
+        description="Child categories forming a tree.",
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -77,9 +128,13 @@ class CardCreate(BaseModel):
         max_length=255,
         description="Card title.",
     )
+    column_id: int = Field(
+        ...,
+        description="ID of the parent column.",
+    )
     description: Optional[str] = Field(
         None,
-        description="Optional detailed description (supports Markdown).",
+        description="Optional detailed description.",
     )
     position: int = Field(
         0,
@@ -96,6 +151,10 @@ class CardCreate(BaseModel):
         max_length=500,
         description="Optional SEO meta description override.",
     )
+    category_ids: Optional[List[int]] = Field(
+        None,
+        description="List of category IDs to associate.",
+    )
 
 
 class CardUpdate(BaseModel):
@@ -109,6 +168,10 @@ class CardUpdate(BaseModel):
         min_length=1,
         max_length=255,
         description="Card title.",
+    )
+    column_id: Optional[int] = Field(
+        None,
+        description="ID of the parent column (for moving cards).",
     )
     description: Optional[str] = Field(
         None,
@@ -129,28 +192,9 @@ class CardUpdate(BaseModel):
         max_length=500,
         description="Optional SEO meta description override.",
     )
-
-
-class CardMove(BaseModel):
-    """Schema for moving a card to a different column and/or position."""
-
-    column_id: int = Field(
-        ...,
-        description="Target column ID to move the card into.",
-    )
-    position: int = Field(
-        ...,
-        ge=0,
-        description="Target position within the destination column.",
-    )
-
-
-class CardCategoryAction(BaseModel):
-    """Schema for associating a category with a card."""
-
-    category_id: int = Field(
-        ...,
-        description="ID of the category to associate.",
+    category_ids: Optional[List[int]] = Field(
+        None,
+        description="List of category IDs to associate.",
     )
 
 
@@ -310,4 +354,42 @@ class BoardResponse(BaseModel):
     columns: List[ColumnResponse] = Field(
         default_factory=list,
         description="Columns belonging to this board.",
+    )
+
+
+# ---------------------------------------------------------------------------
+# SEO Meta schemas
+# ---------------------------------------------------------------------------
+
+
+class SEOMetaResponse(BaseModel):
+    """Schema for computed SEO meta tags."""
+
+    title: str = Field(
+        ...,
+        description="Computed page title (meta title).",
+    )
+    description: str = Field(
+        ...,
+        description="Computed meta description.",
+    )
+    og_title: str = Field(
+        ...,
+        description="Open Graph og:title tag.",
+    )
+    og_description: str = Field(
+        ...,
+        description="Open Graph og:description tag.",
+    )
+    canonical_url: str = Field(
+        ...,
+        description="Canonical URL for the page.",
+    )
+    og_type: str = Field(
+        "website",
+        description="Open Graph og:type tag.",
+    )
+    page_type: str = Field(
+        ...,
+        description="The resource type (board, card, category).",
     )
