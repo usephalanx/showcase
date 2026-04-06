@@ -1,15 +1,16 @@
-import React from 'react';
-
 /**
  * Root application component.
  *
- * Serves as the entry point for the Todo frontend application.
+ * Serves as the top-level layout shell.  Child page components and
+ * routing will be added in subsequent tasks.
  */
+
+import React from 'react';
+
 const App: React.FC = () => {
   return (
     <div>
       <h1>Todo App</h1>
-      <p>Welcome to the Todo application.</p>
     </div>
   );
 };

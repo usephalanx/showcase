@@ -1,33 +1,31 @@
-"""Tests for ARCHITECTURE.md documentation structure.
+"""Tests for the ARCHITECTURE.md documentation file.
 
-Verifies that the architecture document exists, contains all required
-sections, documents all API endpoints, and references all frontend
+Validates that the architecture document exists, contains all required
+sections, references every API endpoint, and mentions all frontend
 components.
 """
-
-from __future__ import annotations
 
 from pathlib import Path
 
 import pytest
 
-ARCHITECTURE_PATH = Path(__file__).resolve().parent.parent / "ARCHITECTURE.md"
+REPO_ROOT = Path(__file__).resolve().parent.parent
+ARCHITECTURE_PATH = REPO_ROOT / "ARCHITECTURE.md"
 
 
-@pytest.fixture()
-def architecture_content() -> str:
-    """Read and return the ARCHITECTURE.md file content."""
-    assert ARCHITECTURE_PATH.exists(), f"{ARCHITECTURE_PATH} does not exist"
+def _read_architecture() -> str:
+    """Read and return the full content of ARCHITECTURE.md."""
     return ARCHITECTURE_PATH.read_text(encoding="utf-8")
 
 
 def test_architecture_md_exists() -> None:
-    """ARCHITECTURE.md should exist at the repository root."""
-    assert ARCHITECTURE_PATH.exists()
+    """ARCHITECTURE.md must exist at the repository root."""
+    assert ARCHITECTURE_PATH.exists(), "ARCHITECTURE.md not found at repo root"
 
 
-def test_architecture_md_has_required_sections(architecture_content: str) -> None:
-    """ARCHITECTURE.md should contain all 8 required section headings."""
+def test_architecture_md_has_required_sections() -> None:
+    """ARCHITECTURE.md must contain all eight section headings."""
+    content = _read_architecture()
     required_sections = [
         "## 1. Overview",
         "## 2. Backend Architecture",
@@ -39,13 +37,12 @@ def test_architecture_md_has_required_sections(architecture_content: str) -> Non
         "## 8. Development Workflow",
     ]
     for section in required_sections:
-        assert section in architecture_content, (
-            f"Missing section: {section}"
-        )
+        assert section in content, f"Missing section: {section}"
 
 
-def test_architecture_md_has_all_endpoints(architecture_content: str) -> None:
-    """ARCHITECTURE.md should document all five REST endpoints."""
+def test_architecture_md_has_all_endpoints() -> None:
+    """ARCHITECTURE.md must document every REST endpoint."""
+    content = _read_architecture()
     endpoints = [
         "GET /tasks",
         "GET /tasks/{id}",
@@ -54,43 +51,38 @@ def test_architecture_md_has_all_endpoints(architecture_content: str) -> None:
         "DELETE /tasks/{id}",
     ]
     for endpoint in endpoints:
-        assert endpoint in architecture_content, (
-            f"Missing endpoint: {endpoint}"
-        )
+        assert endpoint in content, f"Missing endpoint: {endpoint}"
 
 
-def test_architecture_md_has_all_components(architecture_content: str) -> None:
-    """ARCHITECTURE.md should reference all frontend components."""
+def test_architecture_md_has_all_components() -> None:
+    """ARCHITECTURE.md must mention all planned React components."""
+    content = _read_architecture()
     components = [
         "App",
         "HomePage",
         "TaskList",
         "TaskCard",
-        "StatusBadge",
         "TaskForm",
+        "StatusBadge",
     ]
     for component in components:
-        assert component in architecture_content, (
-            f"Missing component: {component}"
-        )
+        assert component in content, f"Missing component: {component}"
 
 
-def test_architecture_md_has_status_values(architecture_content: str) -> None:
-    """ARCHITECTURE.md should document all three status values."""
+def test_architecture_md_status_values() -> None:
+    """ARCHITECTURE.md must reference all three status values."""
+    content = _read_architecture()
     for status in ["todo", "in-progress", "done"]:
-        assert status in architecture_content, (
-            f"Missing status value: {status}"
-        )
+        assert status in content, f"Missing status value: {status}"
 
 
-def test_architecture_md_cors_uses_http(architecture_content: str) -> None:
-    """CORS origin should use http (not https) for localhost."""
-    assert "http://localhost:5173" in architecture_content
+def test_architecture_md_cors_origin() -> None:
+    """CORS origin must use http (not https) for localhost."""
+    content = _read_architecture()
+    assert "http://localhost:5173" in content, "Missing CORS origin http://localhost:5173"
 
 
-def test_architecture_md_mentions_due_date_nullable(
-    architecture_content: str,
-) -> None:
-    """ARCHITECTURE.md should indicate due_date is nullable."""
-    lower = architecture_content.lower()
-    assert "nullable" in lower or "optional" in lower or "null" in lower
+def test_architecture_md_due_date_nullable() -> None:
+    """due_date must be documented as nullable."""
+    content = _read_architecture()
+    assert "NULLABLE" in content or "null" in content, "due_date nullable documentation missing"

@@ -2,8 +2,8 @@
 
 ## Prerequisites
 
-- [Docker](https://docs.docker.com/get-docker/) (v20+ recommended)
-- [Docker Compose](https://docs.docker.com/compose/install/) (v2+ recommended)
+- [Docker](https://docs.docker.com/get-docker/) (≥ 20.10)
+- [Docker Compose](https://docs.docker.com/compose/install/) (≥ 2.0)
 
 ## Quick Start
 
@@ -11,12 +11,13 @@
 docker compose up --build
 ```
 
-This single command builds and starts both the backend and frontend services.
+Once the containers are running:
 
-- **Frontend**: http://localhost:5173
-- **Backend API**: http://localhost:8000
-- **API Docs (Swagger)**: http://localhost:8000/docs
-- **API Docs (ReDoc)**: http://localhost:8000/redoc
+| Service | URL |
+|---------|-----|
+| **Frontend** | http://localhost:5173 |
+| **Backend API** | http://localhost:8000 |
+| **API Docs (Swagger)** | http://localhost:8000/docs |
 
 ## Stopping the Application
 
@@ -24,23 +25,8 @@ This single command builds and starts both the backend and frontend services.
 docker compose down
 ```
 
-This stops and removes all containers. The SQLite database file (`todo.db`)
-persists in the backend volume between restarts.
-
-## Manual Setup (without Docker)
-
-### Backend
+To also remove the database volume:
 
 ```bash
-cd backend
-pip install fastapi uvicorn sqlalchemy pydantic
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
-```
-
-### Frontend
-
-```bash
-cd frontend
-npm install
-npm run dev
+docker compose down -v
 ```
