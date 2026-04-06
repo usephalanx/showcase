@@ -1,295 +1,647 @@
-# Kanban Website — Architecture Plan
+# Kanban Website with SEO & Taxonomy — Architecture Plan
 
 ## Tech Stack
 
 ### Backend
 - **Framework**: FastAPI (Python 3.11+)
-- **ORM**: SQLAlchemy 2.0 (async-compatible, used synchronously with SQLite)
-- **Database**: SQLite (file-based, `kanban.db`)
-- **Migrations**: Alembic
-- **Slug Generation**: python-slugify
-- **Validation**: Pydantic v2
+- **Database**: SQLite via SQLAlchemy 2.0 (async with aiosqlite)
+- **ORM**: SQLAlchemy with Alembic for migrations
+- **Validation**: Pydantic v2 schemas
+- **Server**: Uvicorn (ASGI)
+- **Testing**: pytest + httpx (async test client)
 
 ### Frontend
-- **Framework**: React 18 + TypeScript
-- **Build Tool**: Vite
-- **Routing**: React Router v6
-- **SEO**: React Helmet Async
-- **Styling**: TailwindCSS
-- **Drag & Drop**: @dnd-kit/core
+- **Framework**: React 18 with TypeScript
+- **Build Tool**: Vite 5
+- **Routing**: React Router DOM v6
+- **SEO**: React Helmet Async (per-page meta tags, Open Graph, JSON-LD structured data)
+- **Drag & Drop**: @dnd-kit/core + @dnd-kit/sortable
+- **State Management**: React Context + useReducer for board state; React Query (TanStack Query) for server state
+- **Styling**: CSS Modules (no external UI library)
+- **Testing**: Vitest + React Testing Library
+
+### DevOps
+- **Containerization**: Docker + Docker Compose
+- **Proxy**: Vite dev server proxies `/api` to FastAPI backend
+- **Linting**: ESLint + Prettier (frontend), Ruff (backend)
 
 ## Project Structure
 
 ```
 /
-├── backend/
-│   ├── alembic/
-│   │   ├── versions/
-│   │   ├── env.py
-│   │   └── script.py.mako
-│   ├── alembic.ini
-│   ├── database.py          # Engine, session factory, Base
-│   ├── models.py             # SQLAlchemy ORM models
-│   ├── schemas.py            # Pydantic request/response schemas
-│   ├── main.py               # FastAPI app, lifespan, route includes
-│   ├── routers/
-│   │   ├── boards.py
-│   │   ├── columns.py
-│   │   ├── cards.py
-│   │   └── categories.py
-│   ├── services/
-│   │   ├── board_service.py
-│   │   ├── column_service.py
-│   │   ├── card_service.py
-│   │   └── category_service.py
-│   ├── utils/
-│   │   └── slug.py           # Slug generation with collision handling
-│   └── requirements.txt
-├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── layout/
-│   │   │   │   ├── Header.tsx
-│   │   │   │   ├── Footer.tsx
-│   │   │   │   ├── Sidebar.tsx
-│   │   │   │   └── Layout.tsx
-│   │   │   ├── board/
-│   │   │   │   ├── BoardList.tsx
-│   │   │   │   ├── BoardCard.tsx
-│   │   │   │   ├── BoardDetail.tsx
-│   │   │   │   ├── BoardForm.tsx
-│   │   │   │   └── BoardEmptyState.tsx
-│   │   │   ├── column/
-│   │   │   │   ├── ColumnContainer.tsx
-│   │   │   │   ├── ColumnHeader.tsx
-│   │   │   │   └── ColumnForm.tsx
-│   │   │   ├── card/
-│   │   │   │   ├── CardItem.tsx
-│   │   │   │   ├── CardDetail.tsx
-│   │   │   │   ├── CardForm.tsx
-│   │   │   │   └── CardModal.tsx
-│   │   │   ├── category/
-│   │   │   │   ├── CategoryTree.tsx
-│   │   │   │   ├── CategoryBadge.tsx
-│   │   │   │   └── CategoryFilter.tsx
-│   │   │   ├── seo/
-│   │   │   │   ├── MetaTags.tsx
-│   │   │   │   └── JsonLd.tsx
-│   │   │   └── common/
-│   │   │       ├── LoadingSpinner.tsx
-│   │   │       ├── ErrorBoundary.tsx
-│   │   │       ├── ConfirmDialog.tsx
-│   │   │       └── Breadcrumbs.tsx
-│   │   ├── pages/
-│   │   │   ├── HomePage.tsx
-│   │   │   ├── BoardPage.tsx
-│   │   │   ├── CardPage.tsx
-│   │   │   ├── CategoryPage.tsx
-│   │   │   └── NotFoundPage.tsx
-│   │   ├── hooks/
-│   │   │   ├── useBoards.ts
-│   │   │   ├── useCards.ts
-│   │   │   └── useCategories.ts
-│   │   ├── api/
-│   │   │   └── client.ts
-│   │   ├── types/
-│   │   │   └── index.ts
-│   │   ├── App.tsx
-│   │   └── main.tsx
-│   ├── index.html
-│   ├── package.json
-│   ├── tsconfig.json
-│   ├── vite.config.ts
-│   └── tailwind.config.js
-├── tests/
-│   ├── test_models.py
-│   ├── test_database.py
-│   ├── test_slug.py
-│   └── conftest.py
 ├── PLANNING.md
 ├── README.md
-└── docker-compose.yml
+├── docker-compose.yml
+├── backend/
+│   ├── Dockerfile
+│   ├── pyproject.toml
+│   ├── alembic.ini
+│   ├── alembic/
+│   │   ├── env.py
+│   │   └── versions/
+│   ├── app/
+│   │   ├── __init__.py
+│   │   ├── main.py
+│   │   ├── config.py
+│   │   ├── database.py
+│   │   ├── models/
+│   │   │   ├── __init__.py
+│   │   │   ├── board.py
+│   │   │   ├── column.py
+│   │   │   ├── card.py
+│   │   │   ├── category.py
+│   │   │   └── tag.py
+│   │   ├── schemas/
+│   │   │   ├── __init__.py
+│   │   │   ├── board.py
+│   │   │   ├── column.py
+│   │   │   ├── card.py
+│   │   │   ├── category.py
+│   │   │   └── tag.py
+│   │   ├── routers/
+│   │   │   ├── __init__.py
+│   │   │   ├── boards.py
+│   │   │   ├── columns.py
+│   │   │   ├── cards.py
+│   │   │   ├── categories.py
+│   │   │   └── tags.py
+│   │   ├── services/
+│   │   │   ├── __init__.py
+│   │   │   ├── board_service.py
+│   │   │   ├── column_service.py
+│   │   │   ├── card_service.py
+│   │   │   ├── category_service.py
+│   │   │   └── tag_service.py
+│   │   └── utils/
+│   │       ├── __init__.py
+│   │       └── slug.py
+│   └── tests/
+│       ├── __init__.py
+│       ├── conftest.py
+│       ├── test_boards.py
+│       ├── test_columns.py
+│       ├── test_cards.py
+│       ├── test_categories.py
+│       └── test_tags.py
+├── frontend/
+│   ├── Dockerfile
+│   ├── package.json
+│   ├── tsconfig.json
+│   ├── tsconfig.node.json
+│   ├── vite.config.ts
+│   ├── index.html
+│   ├── public/
+│   │   ├── favicon.ico
+│   │   └── og-default.png
+│   └── src/
+│       ├── main.tsx
+│       ├── App.tsx
+│       ├── App.module.css
+│       ├── vite-env.d.ts
+│       ├── types/
+│       │   ├── index.ts
+│       │   ├── board.ts
+│       │   ├── column.ts
+│       │   ├── card.ts
+│       │   ├── category.ts
+│       │   └── tag.ts
+│       ├── api/
+│       │   ├── client.ts
+│       │   ├── boards.ts
+│       │   ├── columns.ts
+│       │   ├── cards.ts
+│       │   ├── categories.ts
+│       │   └── tags.ts
+│       ├── hooks/
+│       │   ├── useBoards.ts
+│       │   ├── useBoard.ts
+│       │   ├── useCards.ts
+│       │   ├── useCategories.ts
+│       │   └── useTags.ts
+│       ├── context/
+│       │   ├── BoardContext.tsx
+│       │   └── ThemeContext.tsx
+│       ├── pages/
+│       │   ├── HomePage.tsx
+│       │   ├── BoardPage.tsx
+│       │   ├── BoardListPage.tsx
+│       │   ├── CategoryPage.tsx
+│       │   ├── CategoryListPage.tsx
+│       │   ├── TagPage.tsx
+│       │   ├── TagListPage.tsx
+│       │   └── NotFoundPage.tsx
+│       ├── components/
+│       │   ├── layout/
+│       │   │   ├── Header.tsx
+│       │   │   ├── Footer.tsx
+│       │   │   ├── Sidebar.tsx
+│       │   │   └── PageLayout.tsx
+│       │   ├── board/
+│       │   │   ├── BoardCard.tsx
+│       │   │   ├── BoardForm.tsx
+│       │   │   ├── BoardHeader.tsx
+│       │   │   └── BoardEmptyState.tsx
+│       │   ├── column/
+│       │   │   ├── Column.tsx
+│       │   │   ├── ColumnHeader.tsx
+│       │   │   ├── ColumnForm.tsx
+│       │   │   └── ColumnList.tsx
+│       │   ├── card/
+│       │   │   ├── Card.tsx
+│       │   │   ├── CardDetail.tsx
+│       │   │   ├── CardForm.tsx
+│       │   │   └── CardList.tsx
+│       │   ├── category/
+│       │   │   ├── CategoryTree.tsx
+│       │   │   ├── CategoryBadge.tsx
+│       │   │   └── CategoryForm.tsx
+│       │   ├── tag/
+│       │   │   ├── TagBadge.tsx
+│       │   │   ├── TagList.tsx
+│       │   │   └── TagForm.tsx
+│       │   ├── seo/
+│       │   │   ├── SEOHead.tsx
+│       │   │   └── JsonLd.tsx
+│       │   └── common/
+│       │       ├── Button.tsx
+│       │       ├── Modal.tsx
+│       │       ├── ConfirmDialog.tsx
+│       │       ├── LoadingSpinner.tsx
+│       │       ├── ErrorBoundary.tsx
+│       │       └── EmptyState.tsx
+│       └── utils/
+│           ├── slug.ts
+│           ├── constants.ts
+│           └── helpers.ts
+└── scripts/
+    └── validate_planning.py
 ```
 
 ## Data Models
 
 ### Board
-| Field            | Type         | Constraints                        |
-|------------------|--------------|------------------------------------|
-| id               | Integer      | PK, autoincrement                  |
-| title            | String(255)  | NOT NULL                           |
-| slug             | String(280)  | NOT NULL, UNIQUE, indexed          |
-| description      | Text         | nullable                           |
-| meta_title       | String(255)  | nullable                           |
-| meta_description | String(500)  | nullable                           |
-| created_at       | DateTime     | NOT NULL, default=utcnow           |
-| updated_at       | DateTime     | NOT NULL, default=utcnow, onupdate |
+| Field        | Type         | Constraints                          |
+|-------------|-------------|--------------------------------------|
+| id          | Integer     | Primary Key, Auto-increment          |
+| title       | String(255) | NOT NULL                             |
+| slug        | String(280) | NOT NULL, UNIQUE, INDEX              |
+| description | Text        | nullable                             |
+| position    | Integer     | NOT NULL, DEFAULT 0                  |
+| created_at  | DateTime    | NOT NULL, DEFAULT utcnow             |
+| updated_at  | DateTime    | NOT NULL, DEFAULT utcnow, ON UPDATE  |
 
-Relationships: `columns` → Column (one-to-many, cascade delete)
+Relationships:
+- `columns`: One-to-Many → Column (cascade delete)
 
 ### Column
-| Field    | Type        | Constraints                        |
-|----------|-------------|------------------------------------|
-| id       | Integer     | PK, autoincrement                  |
-| board_id | Integer     | FK → boards.id, NOT NULL, indexed  |
-| title    | String(255) | NOT NULL                           |
-| position | Integer     | NOT NULL, default=0                |
+| Field      | Type         | Constraints                          |
+|-----------|-------------|--------------------------------------|
+| id        | Integer     | Primary Key, Auto-increment          |
+| board_id  | Integer     | Foreign Key → boards.id, NOT NULL    |
+| title     | String(255) | NOT NULL                             |
+| position  | Float       | NOT NULL, DEFAULT 0                  |
+| color     | String(7)   | nullable (hex color, e.g., #FF5733)  |
+| created_at| DateTime    | NOT NULL, DEFAULT utcnow             |
+| updated_at| DateTime    | NOT NULL, DEFAULT utcnow, ON UPDATE  |
 
-Relationships: `board` → Board (many-to-one), `cards` → Card (one-to-many, cascade delete)
-Constraints: UniqueConstraint(board_id, position)
+Relationships:
+- `board`: Many-to-One → Board
+- `cards`: One-to-Many → Card (cascade delete)
+
+Note on `position` as Float: We use fractional positioning for efficient drag-and-drop reordering. When a column is moved between two others with positions 1.0 and 2.0, its new position becomes 1.5. Reindexing (normalizing back to integers) occurs when the gap between adjacent positions falls below 0.001.
 
 ### Card
-| Field       | Type         | Constraints                        |
-|-------------|--------------|------------------------------------|
-| id          | Integer      | PK, autoincrement                  |
-| column_id   | Integer      | FK → columns.id, NOT NULL, indexed |
-| title       | String(255)  | NOT NULL                           |
-| description | Text         | nullable                           |
-| slug        | String(280)  | NOT NULL, UNIQUE, indexed          |
-| position    | Integer      | NOT NULL, default=0                |
-| created_at  | DateTime     | NOT NULL, default=utcnow           |
-| updated_at  | DateTime     | NOT NULL, default=utcnow, onupdate |
+| Field       | Type         | Constraints                          |
+|------------|-------------|--------------------------------------|
+| id         | Integer     | Primary Key, Auto-increment          |
+| column_id  | Integer     | Foreign Key → columns.id, NOT NULL   |
+| category_id| Integer     | Foreign Key → categories.id, nullable|
+| title      | String(255) | NOT NULL                             |
+| slug       | String(280) | NOT NULL, UNIQUE, INDEX              |
+| description| Text        | nullable                             |
+| position   | Float       | NOT NULL, DEFAULT 0                  |
+| priority   | String(20)  | nullable (low, medium, high, urgent) |
+| due_date   | DateTime    | nullable                             |
+| created_at | DateTime    | NOT NULL, DEFAULT utcnow             |
+| updated_at | DateTime    | NOT NULL, DEFAULT utcnow, ON UPDATE  |
 
-Relationships: `column` → Column (many-to-one), `categories` → Category (many-to-many via CardCategory)
+Relationships:
+- `column`: Many-to-One → Column
+- `category`: Many-to-One → Category (SET NULL on delete)
+- `tags`: Many-to-Many → Tag (via card_tags association table)
 
 ### Category
-| Field       | Type         | Constraints                             |
-|-------------|--------------|------------------------------------------|
-| id          | Integer      | PK, autoincrement                        |
-| name        | String(255)  | NOT NULL                                 |
-| slug        | String(280)  | NOT NULL, UNIQUE, indexed                |
-| description | Text         | nullable                                 |
-| parent_id   | Integer      | FK → categories.id, nullable, indexed    |
+| Field      | Type         | Constraints                          |
+|-----------|-------------|--------------------------------------|
+| id        | Integer     | Primary Key, Auto-increment          |
+| parent_id | Integer     | Foreign Key → categories.id, nullable|
+| name      | String(255) | NOT NULL                             |
+| slug      | String(280) | NOT NULL, UNIQUE, INDEX              |
+| description| Text        | nullable                             |
+| color     | String(7)   | nullable (hex color)                 |
+| created_at| DateTime    | NOT NULL, DEFAULT utcnow             |
+| updated_at| DateTime    | NOT NULL, DEFAULT utcnow, ON UPDATE  |
 
-Relationships: `parent` → Category (self-referential), `children` → Category (one-to-many), `cards` → Card (many-to-many via CardCategory)
-Max nesting depth: 5 levels (enforced at application layer)
+Relationships:
+- `parent`: Many-to-One → Category (self-referential)
+- `children`: One-to-Many → Category (cascade delete)
+- `cards`: One-to-Many → Card
 
-### CardCategory (Junction Table)
-| Field       | Type    | Constraints                          |
-|-------------|---------|--------------------------------------|
-| card_id     | Integer | FK → cards.id, PK                   |
-| category_id | Integer | FK → categories.id, PK              |
+Max nesting depth: 5 levels. Enforced at the API/service layer, not database. When creating/updating a category with a parent_id, the service walks up the parent chain and rejects if depth exceeds 5.
 
-Cascade: DELETE on both foreign keys
+### Tag
+| Field      | Type         | Constraints                          |
+|-----------|-------------|--------------------------------------|
+| id        | Integer     | Primary Key, Auto-increment          |
+| name      | String(100) | NOT NULL, UNIQUE                     |
+| slug      | String(120) | NOT NULL, UNIQUE, INDEX              |
+| color     | String(7)   | nullable (hex color)                 |
+| created_at| DateTime    | NOT NULL, DEFAULT utcnow             |
+
+Relationships:
+- `cards`: Many-to-Many → Card (via card_tags association table)
+
+### card_tags (Association Table)
+| Field   | Type    | Constraints                       |
+|--------|---------|-----------------------------------|
+| card_id| Integer | Foreign Key → cards.id, PK        |
+| tag_id | Integer | Foreign Key → tags.id, PK         |
+
+Composite primary key on (card_id, tag_id). CASCADE delete on both foreign keys.
 
 ## API Endpoints
 
+All endpoints are prefixed with `/api/v1`.
+
 ### Boards
-- `GET    /api/v1/boards`                    — List all boards
-- `POST   /api/v1/boards`                    — Create a board
-- `GET    /api/v1/boards/{slug}`             — Get board by slug
-- `PUT    /api/v1/boards/{slug}`             — Update board
-- `DELETE /api/v1/boards/{slug}`             — Delete board
-- `GET    /api/v1/boards/{slug}/columns`     — List columns for a board
+| Method | Path                         | Description                  | Status Codes     |
+|--------|------------------------------|------------------------------|------------------|
+| GET    | /api/v1/boards               | List all boards              | 200              |
+| POST   | /api/v1/boards               | Create a new board           | 201, 422         |
+| GET    | /api/v1/boards/{board_slug}  | Get board by slug            | 200, 404         |
+| PUT    | /api/v1/boards/{board_slug}  | Update board                 | 200, 404, 422    |
+| DELETE | /api/v1/boards/{board_slug}  | Delete board + cascades      | 204, 404         |
+| PATCH  | /api/v1/boards/reorder       | Reorder boards               | 200, 422         |
 
 ### Columns
-- `POST   /api/v1/boards/{slug}/columns`    — Create column in board
-- `GET    /api/v1/columns/{id}`              — Get column by ID
-- `PUT    /api/v1/columns/{id}`              — Update column
-- `DELETE /api/v1/columns/{id}`              — Delete column
-- `PATCH  /api/v1/columns/{id}/move`         — Reorder column
+| Method | Path                                              | Description                  | Status Codes     |
+|--------|---------------------------------------------------|------------------------------|------------------|
+| GET    | /api/v1/boards/{board_slug}/columns               | List columns for board       | 200, 404         |
+| POST   | /api/v1/boards/{board_slug}/columns               | Create column in board       | 201, 404, 422    |
+| GET    | /api/v1/boards/{board_slug}/columns/{column_id}   | Get column by ID             | 200, 404         |
+| PUT    | /api/v1/boards/{board_slug}/columns/{column_id}   | Update column                | 200, 404, 422    |
+| DELETE | /api/v1/boards/{board_slug}/columns/{column_id}   | Delete column + cascade cards| 204, 404         |
+| PATCH  | /api/v1/boards/{board_slug}/columns/reorder       | Reorder columns              | 200, 422         |
 
 ### Cards
-- `GET    /api/v1/columns/{id}/cards`        — List cards in column
-- `POST   /api/v1/columns/{id}/cards`        — Create card in column
-- `GET    /api/v1/cards/{slug}`              — Get card by slug
-- `PUT    /api/v1/cards/{slug}`              — Update card
-- `DELETE /api/v1/cards/{slug}`              — Delete card
-- `PATCH  /api/v1/cards/{slug}/move`         — Move card to column/position
-- `POST   /api/v1/cards/{slug}/categories`   — Add category to card
-- `DELETE /api/v1/cards/{slug}/categories/{category_id}` — Remove category
+| Method | Path                                              | Description                          | Status Codes     |
+|--------|---------------------------------------------------|--------------------------------------|------------------|
+| GET    | /api/v1/cards                                     | List all cards (with filters)        | 200              |
+| POST   | /api/v1/columns/{column_id}/cards                 | Create card in column                | 201, 404, 422    |
+| GET    | /api/v1/cards/{card_slug}                         | Get card by slug                     | 200, 404         |
+| PUT    | /api/v1/cards/{card_slug}                         | Update card                          | 200, 404, 422    |
+| DELETE | /api/v1/cards/{card_slug}                         | Delete card                          | 204, 404         |
+| PATCH  | /api/v1/cards/{card_slug}/move                    | Move card to another column          | 200, 404, 422    |
+| PATCH  | /api/v1/columns/{column_id}/cards/reorder         | Reorder cards within column          | 200, 422         |
+| POST   | /api/v1/cards/{card_slug}/tags/{tag_id}           | Add tag to card                      | 200, 404         |
+| DELETE | /api/v1/cards/{card_slug}/tags/{tag_id}           | Remove tag from card                 | 200, 404         |
 
 ### Categories
-- `GET    /api/v1/categories`                — List all (flat or tree)
-- `POST   /api/v1/categories`                — Create category
-- `GET    /api/v1/categories/{slug}`         — Get category by slug
-- `PUT    /api/v1/categories/{slug}`         — Update category
-- `DELETE /api/v1/categories/{slug}`         — Delete category
-- `GET    /api/v1/categories/{slug}/cards`   — Cards in category
+| Method | Path                                    | Description                          | Status Codes     |
+|--------|-----------------------------------------|--------------------------------------|------------------|
+| GET    | /api/v1/categories                      | List categories (flat or tree)       | 200              |
+| POST   | /api/v1/categories                      | Create category                      | 201, 422         |
+| GET    | /api/v1/categories/{category_slug}      | Get category by slug                 | 200, 404         |
+| PUT    | /api/v1/categories/{category_slug}      | Update category                      | 200, 404, 422    |
+| DELETE | /api/v1/categories/{category_slug}      | Delete category (children cascade)   | 204, 404         |
+| GET    | /api/v1/categories/{category_slug}/cards| List cards in category               | 200, 404         |
+
+### Tags
+| Method | Path                          | Description                  | Status Codes     |
+|--------|-------------------------------|------------------------------|------------------|
+| GET    | /api/v1/tags                  | List all tags                | 200              |
+| POST   | /api/v1/tags                  | Create tag                   | 201, 422         |
+| GET    | /api/v1/tags/{tag_slug}       | Get tag by slug              | 200, 404         |
+| PUT    | /api/v1/tags/{tag_slug}       | Update tag                   | 200, 404, 422    |
+| DELETE | /api/v1/tags/{tag_slug}       | Delete tag                   | 204, 404         |
+| GET    | /api/v1/tags/{tag_slug}/cards | List cards with tag          | 200, 404         |
+
+**Total: 26 API endpoints**
+
+### Query Parameters (for GET list endpoints)
+- `?search=<term>` — full-text search on title/description
+- `?category=<slug>` — filter by category
+- `?tag=<slug>` — filter by tag
+- `?priority=<level>` — filter by priority
+- `?sort=<field>` — sort by field (created_at, updated_at, position, title)
+- `?order=asc|desc` — sort direction
+- `?page=<n>&per_page=<n>` — pagination (default: page=1, per_page=50)
+
+### Request/Response Schema Examples
+
+**POST /api/v1/boards — Request:**
+```json
+{
+  "title": "Sprint 42",
+  "description": "Two-week sprint starting Jan 15"
+}
+```
+
+**POST /api/v1/boards — Response (201):**
+```json
+{
+  "id": 1,
+  "title": "Sprint 42",
+  "slug": "sprint-42",
+  "description": "Two-week sprint starting Jan 15",
+  "position": 0,
+  "created_at": "2024-01-15T00:00:00Z",
+  "updated_at": "2024-01-15T00:00:00Z",
+  "columns": []
+}
+```
+
+**PATCH /api/v1/cards/{card_slug}/move — Request:**
+```json
+{
+  "target_column_id": 5,
+  "position": 2.5
+}
+```
 
 ## URL Structure
 
 ### Frontend Routes (SEO-friendly)
-- `/`                          — Home / board listing
-- `/boards/:slug`              — Board detail (Kanban view)
-- `/cards/:slug`               — Card detail page
-- `/categories`                — Category listing
-- `/categories/:slug`          — Category detail with cards
+| Route                        | Page Component      | Description                      |
+|------------------------------|---------------------|----------------------------------|
+| `/`                          | HomePage            | Landing page, featured boards    |
+| `/boards`                    | BoardListPage       | List of all boards               |
+| `/boards/:boardSlug`         | BoardPage           | Kanban board view                |
+| `/categories`                | CategoryListPage    | List/tree of categories          |
+| `/categories/:categorySlug`  | CategoryPage        | Category detail with cards       |
+| `/tags`                      | TagListPage         | List of all tags                 |
+| `/tags/:tagSlug`             | TagPage             | Tag detail with cards            |
+| `*`                          | NotFoundPage        | 404 page                         |
 
-### Canonical URLs
-Every page has a `<link rel="canonical">` pointing to its SEO URL.
-Slugs are generated from titles using python-slugify with collision appending (-1, -2, etc.).
+### Canonical URL Strategy
+- Every page sets a `<link rel="canonical">` via React Helmet
+- Board pages: `https://domain.com/boards/sprint-42`
+- Card detail modals use the board URL as canonical (cards don't have standalone pages)
+- Categories: `https://domain.com/categories/engineering`
+- Tags: `https://domain.com/tags/frontend`
 
 ## Frontend Components
 
-See Project Structure above for the full component tree. Key page-level components:
+Complete component file listing with their paths:
 
-1. `Layout.tsx` — wrapper with Header, Sidebar, Footer
-2. `HomePage.tsx` — board grid with MetaTags
-3. `BoardPage.tsx` — Kanban view with drag-and-drop columns/cards
-4. `CardPage.tsx` — card detail with categories, breadcrumbs
-5. `CategoryPage.tsx` — category tree + filtered cards
-6. `NotFoundPage.tsx` — 404 with navigation
-7. `MetaTags.tsx` — React Helmet wrapper for per-page meta
-8. `JsonLd.tsx` — structured data output
-9. `BoardEmptyState.tsx` — shown when board has no columns
-10. `CategoryTree.tsx` — recursive tree rendering (max 5 levels displayed)
-11. `CardModal.tsx` — quick-view modal for cards
-12. `Breadcrumbs.tsx` — navigation breadcrumbs with structured data
-13. `ColumnContainer.tsx` — droppable column with card list
-14. `CardItem.tsx` — draggable card in column
-15. `CategoryBadge.tsx` — pill/badge display of category
-16. `ErrorBoundary.tsx` — error boundary wrapper
+1. `src/App.tsx` — Root application component with route definitions
+2. `src/main.tsx` — Entry point with BrowserRouter, HelmetProvider
+3. `src/pages/HomePage.tsx` — Landing page with board overview
+4. `src/pages/BoardPage.tsx` — Full kanban board view
+5. `src/pages/BoardListPage.tsx` — Grid/list of all boards
+6. `src/pages/CategoryPage.tsx` — Category detail page
+7. `src/pages/CategoryListPage.tsx` — Category tree/list page
+8. `src/pages/TagPage.tsx` — Tag detail with associated cards
+9. `src/pages/TagListPage.tsx` — All tags overview
+10. `src/pages/NotFoundPage.tsx` — 404 error page
+11. `src/components/layout/Header.tsx` — Top navigation bar
+12. `src/components/layout/Footer.tsx` — Site footer
+13. `src/components/layout/Sidebar.tsx` — Category/tag navigation sidebar
+14. `src/components/layout/PageLayout.tsx` — Shared page layout wrapper
+15. `src/components/board/BoardCard.tsx` — Board preview card for list views
+16. `src/components/board/BoardForm.tsx` — Create/edit board form
+17. `src/components/board/BoardHeader.tsx` — Board page header with title/actions
+18. `src/components/board/BoardEmptyState.tsx` — Empty board placeholder
+19. `src/components/column/Column.tsx` — Single column container (droppable)
+20. `src/components/column/ColumnHeader.tsx` — Column title bar with actions
+21. `src/components/column/ColumnForm.tsx` — Create/edit column form
+22. `src/components/column/ColumnList.tsx` — Horizontal column layout (sortable)
+23. `src/components/card/Card.tsx` — Single card (draggable)
+24. `src/components/card/CardDetail.tsx` — Card detail modal/panel
+25. `src/components/card/CardForm.tsx` — Create/edit card form
+26. `src/components/card/CardList.tsx` — Vertical card list within column
+27. `src/components/category/CategoryTree.tsx` — Recursive category tree
+28. `src/components/category/CategoryBadge.tsx` — Inline category label
+29. `src/components/category/CategoryForm.tsx` — Create/edit category form
+30. `src/components/tag/TagBadge.tsx` — Inline tag pill/chip
+31. `src/components/tag/TagList.tsx` — Horizontal tag list
+32. `src/components/tag/TagForm.tsx` — Create/edit tag form
+33. `src/components/seo/SEOHead.tsx` — Reusable Helmet wrapper for meta tags
+34. `src/components/seo/JsonLd.tsx` — JSON-LD structured data injector
+35. `src/components/common/Button.tsx` — Reusable button component
+36. `src/components/common/Modal.tsx` — Modal dialog
+37. `src/components/common/ConfirmDialog.tsx` — Confirmation dialog
+38. `src/components/common/LoadingSpinner.tsx` — Loading indicator
+39. `src/components/common/ErrorBoundary.tsx` — React error boundary
+40. `src/components/common/EmptyState.tsx` — Generic empty state placeholder
+
+### Component Props Interfaces (Key Components)
+
+```typescript
+interface SEOHeadProps {
+  title: string;
+  description?: string;
+  canonicalUrl?: string;
+  ogType?: 'website' | 'article';
+  ogImage?: string;
+  jsonLd?: Record<string, unknown>;
+}
+
+interface ColumnProps {
+  column: ColumnType;
+  boardSlug: string;
+  onCardMove: (cardId: number, targetColumnId: number, position: number) => void;
+  onCardCreate: (columnId: number, data: CardCreateInput) => void;
+}
+
+interface CardProps {
+  card: CardType;
+  isDragging?: boolean;
+  onClick: (card: CardType) => void;
+}
+
+interface CategoryTreeProps {
+  categories: CategoryType[];
+  selectedSlug?: string;
+  maxDepth?: number; // default: 5
+  onSelect: (category: CategoryType) => void;
+}
+
+interface BoardFormProps {
+  initialData?: BoardType;
+  onSubmit: (data: BoardCreateInput | BoardUpdateInput) => void;
+  onCancel: () => void;
+}
+```
 
 ## Meta Tag Strategy
 
-### Per-Page Titles
-- Home: `"Kanban Boards — {AppName}"`
-- Board: `"{board.meta_title || board.title} — {AppName}"`
-- Card: `"{card.title} — {board.title} — {AppName}"`
-- Category: `"{category.name} — Categories — {AppName}"`
+### Per-Page Title Templates
+- **Home**: `Kanban Board — Organize Your Projects`
+- **Board List**: `All Boards — Kanban Board`
+- **Board Detail**: `{board.title} — Kanban Board`
+- **Category List**: `Categories — Kanban Board`
+- **Category Detail**: `{category.name} — Categories — Kanban Board`
+- **Tag List**: `Tags — Kanban Board`
+- **Tag Detail**: `{tag.name} — Tags — Kanban Board`
+- **404**: `Page Not Found — Kanban Board`
 
 ### Open Graph Tags
-Every page outputs:
-- `og:title`, `og:description`, `og:url`, `og:type` (website)
-- `og:image` — default fallback to `/og-default.png` if no custom image
+Every page includes:
+```html
+<meta property="og:title" content="{page title}" />
+<meta property="og:description" content="{page description}" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="{canonical URL}" />
+<meta property="og:image" content="{og image or default}" />
+<meta property="og:site_name" content="Kanban Board" />
+```
 
-### JSON-LD Structured Data
-- Board pages: `ItemList` with cards as `ListItem`
-- Card pages: `CreativeWork` with category as `about`
-- Breadcrumbs: `BreadcrumbList` on every page
-
-### React Helmet Async
-Used on every page component to inject `<head>` tags.
-For crawlers, React Helmet is sufficient for Google (which renders JS). For social media crawlers, consider adding prerendering middleware later.
+Default `og:image` falls back to `/og-default.png` (a branded 1200×630 image stored in `public/`).
 
 ### Canonical URLs
-Every page includes `<link rel="canonical" href="{full_url}">` via React Helmet.
+Every page sets `<link rel="canonical" href="{full URL}" />` via React Helmet Async.
+
+### Description Generation
+- **Board**: First 160 characters of `board.description`, or auto-generated: `"Kanban board '{board.title}' with {columnCount} columns and {cardCount} cards."`
+- **Category**: First 160 characters of `category.description`, or `"Browse {cardCount} cards in the {category.name} category."`
+- **Tag**: `"Cards tagged with '{tag.name}' — {cardCount} cards."`
+
+### JSON-LD Structured Data
+
+Board pages emit `CollectionPage` structured data:
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "Sprint 42",
+  "description": "Two-week sprint starting Jan 15",
+  "url": "https://domain.com/boards/sprint-42",
+  "numberOfItems": 24,
+  "dateCreated": "2024-01-15T00:00:00Z",
+  "dateModified": "2024-01-20T12:00:00Z"
+}
+```
+
+Category pages emit `ItemList` structured data for cards within the category.
+
+### SEO for Client-Side Rendering
+Since this is an SPA rendered with React, we rely on React Helmet Async for meta tag injection. Modern search engine crawlers (Googlebot, Bingbot) execute JavaScript and can read Helmet-injected tags. For social media crawlers (Facebook, Twitter) that may not execute JS, we document a future enhancement path:
+- **Phase 1 (current)**: React Helmet Async — sufficient for Google/Bing indexing
+- **Phase 2 (future)**: Optional prerendering via `prerender-spa-plugin` or a lightweight SSR proxy for social media previews
 
 ## State Management
 
-- **Server State**: React Query (TanStack Query) for API data fetching, caching, and invalidation
-- **UI State**: React useState/useReducer for local component state
-- **Drag & Drop State**: @dnd-kit internal state with optimistic updates
-- **Optimistic Updates**: On card move, immediately update UI and send PATCH; on failure, rollback to previous state
+### Server State (TanStack Query / React Query)
+- All API data fetched and cached via React Query
+- Query keys follow convention: `['boards']`, `['boards', slug]`, `['boards', slug, 'columns']`, etc.
+- Stale time: 30 seconds for lists, 60 seconds for detail views
+- Mutations use `useMutation` with optimistic updates and rollback on error
+
+### Client State (React Context + useReducer)
+- **BoardContext**: Manages the currently viewed board state, drag-and-drop state, active card selection
+- **ThemeContext**: Light/dark mode preference (persisted to localStorage)
+
+### Drag-and-Drop State Management
+- @dnd-kit provides drag state management internally
+- On drag end, the handler:
+  1. Computes new position using fractional positioning (average of neighbors)
+  2. Optimistically updates local state
+  3. Fires API mutation (PATCH reorder or move endpoint)
+  4. On error, rolls back to previous state via React Query cache invalidation
+
+### Optimistic Update Conflict Resolution
+- Each entity includes an `updated_at` timestamp
+- On PUT/PATCH, the client sends `If-Unmodified-Since` header with last known `updated_at`
+- Server returns 409 Conflict if the entity was modified since that timestamp
+- Client shows a conflict dialog: "This item was modified by another session. Reload to see changes?"
 
 ## Database Indexes
 
-- `boards.slug` — UNIQUE index
-- `boards.created_at` — index for ordering
-- `columns.board_id` — index for board lookups
-- `columns.(board_id, position)` — unique composite index
-- `cards.slug` — UNIQUE index
-- `cards.column_id` — index for column lookups
-- `cards.created_at` — index for ordering
-- `categories.slug` — UNIQUE index
-- `categories.parent_id` — index for tree queries
-- `card_categories.(card_id, category_id)` — composite PK
+### boards
+- PRIMARY KEY on `id`
+- UNIQUE INDEX on `slug`
+- INDEX on `position` (for ordered listing)
+
+### columns
+- PRIMARY KEY on `id`
+- INDEX on `board_id` (foreign key lookups)
+- COMPOSITE INDEX on `(board_id, position)` (ordered column listing per board)
+
+### cards
+- PRIMARY KEY on `id`
+- UNIQUE INDEX on `slug`
+- INDEX on `column_id` (foreign key lookups)
+- INDEX on `category_id` (category filtering)
+- COMPOSITE INDEX on `(column_id, position)` (ordered card listing per column)
+- INDEX on `priority` (priority filtering)
+- INDEX on `due_date` (due date filtering/sorting)
+- INDEX on `created_at` (date sorting)
+
+### categories
+- PRIMARY KEY on `id`
+- UNIQUE INDEX on `slug`
+- INDEX on `parent_id` (tree traversal)
+
+### tags
+- PRIMARY KEY on `id`
+- UNIQUE INDEX on `slug`
+- UNIQUE INDEX on `name`
+
+### card_tags
+- COMPOSITE PRIMARY KEY on `(card_id, tag_id)`
+- INDEX on `tag_id` (reverse lookups: cards by tag)
+
+## Slug Generation Strategy
+
+Slugs are auto-generated from the `title` (or `name` for categories/tags) field:
+
+1. Convert to lowercase
+2. Replace spaces and special characters with hyphens
+3. Remove consecutive hyphens
+4. Trim leading/trailing hyphens
+5. Truncate to 255 characters
+
+### Collision Handling
+When a slug already exists in the database:
+1. Append `-1` to the slug
+2. If `-1` exists, try `-2`, `-3`, etc.
+3. Query: `SELECT slug FROM {table} WHERE slug LIKE '{base_slug}%'`
+4. Find highest existing suffix number, use next
+
+Example: `sprint-42`, `sprint-42-1`, `sprint-42-2`
+
+Slugs are regenerated on title update. Old slugs are NOT preserved (no redirect table in v1).
+
+## Cascade Behaviors
+
+| Parent Deleted | Child Behavior                                    |
+|---------------|---------------------------------------------------|
+| Board         | All columns deleted → all cards in those columns deleted → card_tags entries deleted |
+| Column        | All cards in column deleted → card_tags entries deleted |
+| Card          | card_tags entries deleted                          |
+| Category      | Children categories deleted (recursive cascade). Cards in deleted category: category_id SET NULL |
+| Tag           | card_tags entries for this tag deleted. Cards themselves are NOT deleted |
+
+## Performance Limits
+
+| Resource               | Maximum | Enforcement       |
+|-----------------------|---------|--------------------|
+| Boards                | 100     | API validation     |
+| Columns per board     | 20      | API validation     |
+| Cards per column      | 500     | API validation     |
+| Cards per board       | 5000    | API validation     |
+| Categories (total)    | 500     | API validation     |
+| Category nesting depth| 5       | Service layer      |
+| Tags (total)          | 1000    | API validation     |
+| Tags per card         | 20      | API validation     |
+| Title length          | 255     | Schema validation  |
+| Description length    | 10000   | Schema validation  |
 
 ## Docker Setup
 
+### docker-compose.yml
 ```yaml
-# docker-compose.yml
 version: '3.8'
 services:
   backend:
@@ -297,46 +649,47 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - db-data:/app/data
+      - ./backend:/app
+      - sqlite-data:/app/data
     environment:
-      - DATABASE_URL=sqlite:///data/kanban.db
+      - DATABASE_URL=sqlite+aiosqlite:///./data/kanban.db
+      - CORS_ORIGINS=http://localhost:5173
+
   frontend:
     build: ./frontend
     ports:
-      - "3000:3000"
+      - "5173:5173"
+    volumes:
+      - ./frontend/src:/app/src
     depends_on:
       - backend
+
 volumes:
-  db-data:
+  sqlite-data:
 ```
 
-## Edge Cases & Decisions
+### Backend Dockerfile
+```dockerfile
+FROM python:3.11-slim
+WORKDIR /app
+COPY pyproject.toml .
+RUN pip install -e .
+COPY . .
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+```
 
-### Slug Collision
-When generating a slug, query the database for existing slugs with the same base.
-Append `-1`, `-2`, etc. incrementally until a unique slug is found.
+### Frontend Dockerfile
+```dockerfile
+FROM node:20-alpine
+WORKDIR /app
+COPY package.json .
+RUN npm install
+COPY . .
+CMD ["npm", "run", "dev", "--", "--host"]
+```
 
-### Category Max Depth
-Enforced at 5 levels in application code. The API returns 400 if creating a category
-that would exceed this depth. The frontend renders up to 5 levels in CategoryTree.
-
-### Cascade Behavior
-- Deleting a Board cascades to its Columns and their Cards
-- Deleting a Column cascades to its Cards
-- Deleting a Card removes CardCategory associations
-- Deleting a Category with children: option to reassign children to parent or delete subtree (API parameter)
-
-### Position Strategy
-Positions are integer-based. On reorder, affected items are reindexed with position = index * 1000
-to leave gaps. If positions run out of gaps, a full reindex of the container is performed.
-
-### Concurrent Editing
-Optimistic updates with version checking. Each Card/Column has an `updated_at` timestamp.
-On update, if `updated_at` doesn't match the expected value, return 409 Conflict.
-
-### Performance Limits
-- Max 100 boards per instance
-- Max 20 columns per board
-- Max 500 cards per column
-- Max 50 categories total
-- Enforced at API layer with 422 responses
+### Production Considerations
+- Frontend built as static files (`npm run build`) and served via Nginx or from FastAPI's StaticFiles
+- SQLite suitable for single-server deployment; for multi-server, migrate to PostgreSQL
+- Environment variables for all configuration (no hardcoded secrets)
+- Health check endpoint: `GET /api/v1/health` → `{"status": "ok"}`
