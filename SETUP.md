@@ -1,33 +1,67 @@
 # Setup Instructions
 
-## Prerequisites
+## Frontend
 
-- Python 3.11+
-- pip
+### Prerequisites
+- Node.js >= 18
+- npm >= 9
 
-## Backend Setup
+### Install Dependencies
 
 ```bash
-# Create and activate a virtual environment
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Run the development server
-cd backend
-uvicorn app.main:app --reload --port 8000
+cd frontend
+npm install
 ```
 
-## Running Tests
+### Run Development Server
+
+```bash
+cd frontend
+npm run dev
+```
+
+### Run Tests
+
+```bash
+cd frontend
+npm test
+```
+
+### Build for Production
+
+```bash
+cd frontend
+npm run build
+```
+
+## Backend
+
+### Prerequisites
+- Python >= 3.11
+- pip
+
+### Install Dependencies
 
 ```bash
 cd backend
-python -m pytest tests/ -v
+pip install -r requirements.txt
+```
+
+### Run Development Server
+
+```bash
+cd backend
+uvicorn app.main:app --reload
+```
+
+### Run Tests
+
+```bash
+cd backend
+python -m pytest
 ```
 
 ## Notes
 
-- The SQLite database file (`tasks.db`) is auto-created on first startup.
-- Do **not** commit generated files: `__pycache__/`, `*.egg-info/`, `.venv/`, `tasks.db`.
+- Do NOT commit generated lock files (package-lock.json, poetry.lock, etc.) — generate them locally via the install commands above.
+- Do NOT commit node_modules/, __pycache__/, .venv/, dist/, or build/ directories.
