@@ -1,33 +1,38 @@
-# Frontend Setup
+# Backend Setup
 
 ## Prerequisites
 
-- Node.js >= 18
-- npm >= 9
+- Python 3.10+
+- pip
 
-## Install Dependencies
-
-```bash
-cd frontend
-npm install
-```
-
-This will generate `package-lock.json` and `node_modules/` — both are gitignored
-and must not be committed.
-
-## Development Server
+## Installation
 
 ```bash
-npm run dev
+# Create and activate a virtual environment
+python -m venv .venv
+source .venv/bin/activate  # Linux/macOS
+# .venv\Scripts\activate   # Windows
+
+# Install dependencies
+pip install -r requirements.txt
 ```
 
-The dev server starts at http://localhost:5173 with API requests proxied to
-http://localhost:8000.
-
-## Production Build
+## Running the application
 
 ```bash
-npm run build
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-Output is written to `frontend/dist/`.
+The API will be available at http://localhost:8000.
+
+## Running tests
+
+```bash
+python -m pytest tests/ -v
+```
+
+## Notes
+
+- The SQLite database file (`todos.db`) is created automatically on first startup.
+- CORS is configured to allow requests from `http://localhost:5173` (Vite dev server).
+- Do **not** commit generated files: `todos.db`, `__pycache__/`, `.venv/`, `*.egg-info/`.
