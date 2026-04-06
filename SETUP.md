@@ -2,14 +2,14 @@
 
 ## Prerequisites
 
-- Python 3.10+
+- Python 3.11+
 - pip
 
 ## Installation
 
 ```bash
 cd backend
-pip install fastapi uvicorn sqlalchemy python-slugify pydantic
+pip install fastapi uvicorn sqlalchemy python-slugify pydantic alembic
 pip install pytest httpx  # for testing
 ```
 
@@ -31,15 +31,11 @@ python -m pytest tests/ -v
 
 ```bash
 cd backend
-alembic revision --autogenerate -m "description"
 alembic upgrade head
 ```
 
-## Auto-generated Files (Do Not Commit)
+## Environment Variables
 
-- `__pycache__/`
-- `*.egg-info/`
-- `.venv/`
-- `poetry.lock`
-- `Pipfile.lock`
-- `kanban.db` (SQLite database file)
+| Variable       | Default              | Description          |
+|---------------|----------------------|----------------------|
+| DATABASE_URL  | sqlite:///kanban.db  | Database connection  |

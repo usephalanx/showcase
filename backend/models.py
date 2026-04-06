@@ -142,7 +142,7 @@ class Column(Base):
 
     def __repr__(self) -> str:
         """Return developer-friendly string representation."""
-        return f"<Column(id={self.id}, title='{self.title}', position={self.position})>"
+        return f"<Column(id={self.id}, title='{self.title}')>"
 
 
 # ---------------------------------------------------------------------------
@@ -157,8 +157,11 @@ class Card(Base):
         id: Primary key.
         column_id: Foreign key to the parent column.
         title: Card title.
-        description: Optional rich-text description.
+        slug: SEO-friendly URL slug (unique).
+        description: Optional detailed description.
         position: Ordering position within the column.
+        meta_title: Optional SEO meta title override.
+        meta_description: Optional SEO meta description override.
         created_at: Timestamp of creation (UTC).
         updated_at: Timestamp of last update (UTC).
         column: Parent Column object.
@@ -172,10 +175,13 @@ class Card(Base):
         Integer, ForeignKey("columns.id", ondelete="CASCADE"), nullable=False, index=True,
     )
     title: Mapped[str] = mapped_column(String(255), nullable=False)
+    slug: Mapped[str] = mapped_column(String(280), nullable=False, unique=True, index=True)
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     position: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    meta_title: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    meta_description: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), nullable=False, default=_utcnow,
+        DateTime(timezone=True), nullable=False, default=_utcnow, index=True,
     )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, default=_utcnow, onupdate=_utcnow,
@@ -186,11 +192,12 @@ class Card(Base):
         "Category",
         secondary=card_categories,
         back_populates="cards",
+        lazy="selectin",
     )
 
     def __repr__(self) -> str:
         """Return developer-friendly string representation."""
-        return f"<Card(id={self.id}, title='{self.title}')>"
+        return f"<Card(id={self.id}, slug='{self.slug}')>"
 
 
 # ---------------------------------------------------------------------------
@@ -199,16 +206,19 @@ class Card(Base):
 
 
 class Category(Base):
-    """A hierarchical taxonomy category for cards.
+    """A hierarchical taxonomy for cards.
+
+    Supports self-referential parent-child relationships for
+    nested categorisation.
 
     Attributes:
         id: Primary key.
-        name: Category display name.
+        name: Category name.
         slug: SEO-friendly URL slug (unique).
-        parent_id: Optional self-referential FK for nesting.
+        parent_id: Optional FK to parent category.
         created_at: Timestamp of creation (UTC).
         updated_at: Timestamp of last update (UTC).
-        parent: Parent Category (if nested).
+        parent: Parent Category object (if any).
         children: Child Category objects.
         cards: Associated Card objects.
     """
