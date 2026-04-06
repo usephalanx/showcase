@@ -15,7 +15,11 @@ export interface Agent {
   specialties: string[];
   propertiesCount: number;
   rating: number;
-  socialLinks?: Record<string, string>;
+  socialLinks: {
+    linkedin?: string;
+    twitter?: string;
+    facebook?: string;
+  };
 }
 
 export interface Neighborhood {
@@ -27,11 +31,10 @@ export interface Neighborhood {
   description: string;
   image: string;
   averagePrice: number;
-  propertyCount: number;
-  walkScore?: number;
-  transitScore?: number;
+  walkScore: number;
+  transitScore: number;
   highlights: string[];
-  featuredProperties?: string[];
+  featuredProperties: string[];
 }
 
 export interface Property {
@@ -47,7 +50,7 @@ export interface Property {
   bedrooms: number;
   bathrooms: number;
   squareFeet: number;
-  lotSize?: number;
+  lotSize: number;
   yearBuilt: number;
   description: string;
   features: string[];
@@ -56,6 +59,7 @@ export interface Property {
   neighborhood: string;
   listingDate: string;
   status: PropertyStatus;
+  isFeatured?: boolean;
 }
 
 export interface ContactFormData {
