@@ -13,10 +13,10 @@ export interface Agent {
   specialties: string[];
   propertiesCount: number;
   rating: number;
-  socialLinks?: {
+  socialLinks: {
     linkedin?: string;
     twitter?: string;
-    facebook?: string;
+    instagram?: string;
   };
 }
 
@@ -33,13 +33,13 @@ export interface Property {
   bedrooms: number;
   bathrooms: number;
   squareFeet: number;
-  lotSize?: string;
+  lotSize: string;
   yearBuilt: number;
   description: string;
   features: string[];
   images: string[];
-  agent: Agent;
-  neighborhood?: string;
+  agent: string;
+  neighborhood: string;
   listingDate: string;
   status: PropertyStatus;
 }
