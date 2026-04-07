@@ -27,6 +27,9 @@ def run_server(port: int = 8000, directory: str = ".") -> None:
         directory=directory,
     )
 
+    # Allow quick restart without waiting for TIME_WAIT to expire
+    socketserver.TCPServer.allow_reuse_address = True
+
     with socketserver.TCPServer(("0.0.0.0", port), handler) as httpd:
         print(f"Serving on http://0.0.0.0:{port}")
         httpd.serve_forever()

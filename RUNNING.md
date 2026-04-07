@@ -2,10 +2,16 @@
 
 ## Prerequisites
 
+### With Docker
+
 * [Docker](https://docs.docker.com/get-docker/) (v20+ recommended)
 * [Docker Compose](https://docs.docker.com/compose/install/) (v2+)
 
-## Quick Start
+### Without Docker
+
+* [Python 3](https://www.python.org/downloads/) (3.8 or later)
+
+## Quick Start (Docker)
 
 ```bash
 # 1. Clone the repository and enter the directory
@@ -19,18 +25,29 @@ open http://localhost:8000   # macOS
 # or visit http://localhost:8000 manually
 ```
 
+## Quick Start (Without Docker)
+
+```bash
+# 1. Clone the repository and enter the directory
+git clone <repo-url> && cd <repo-directory>
+
+# 2. Start the server
+python server.py
+
+# 3. Open http://localhost:8000 in your browser
+```
+
 ## Stop the App
+
+### Docker
 
 ```bash
 docker compose down
 ```
 
-## Running Without Docker
+### Without Docker
 
-```bash
-python server.py
-# Then open http://localhost:8000
-```
+Press `Ctrl+C` in the terminal where `server.py` is running.
 
 ## Running Tests
 

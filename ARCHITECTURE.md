@@ -2,42 +2,51 @@
 
 ## Overview
 
-This project is a single static HTML page served by Python's built-in
-HTTP server.  There are no frameworks, no databases, and no build steps.
+This is a minimal "Hello World" web application consisting of a single
+static HTML page served by Python's built-in HTTP server.  No external
+frameworks, databases, or build tools are required.
 
 ## File Structure
 
-| File                  | Purpose                                                        |
-|-----------------------|----------------------------------------------------------------|
-| `index.html`          | Static HTML page displaying "Hello World" on a white background|
-| `server.py`           | Python HTTP server using `http.server` from the standard lib   |
-| `Dockerfile`          | Container image definition (Python 3.12-slim base)             |
-| `docker-compose.yml`  | One-command orchestration via Docker Compose                   |
-| `RUNNING.md`          | Instructions to build and run the application                  |
-| `ARCHITECTURE.md`     | This file – documents architecture and design decisions        |
-| `tests/test_server.py`| Automated tests verifying the server and HTML content          |
+```
+.
+├── index.html           # Static HTML page displaying "Hello World"
+├── server.py            # Python HTTP server (stdlib only)
+├── Dockerfile           # Container image definition
+├── docker-compose.yml   # One-command container orchestration
+├── RUNNING.md           # Instructions for running the application
+├── ARCHITECTURE.md      # This file – architecture documentation
+└── tests/
+    └── test_server.py   # Automated tests for the server
+```
 
 ## Technology Choices
 
-* **Python 3 standard library** – `http.server.SimpleHTTPRequestHandler`
-  provides a zero-dependency static file server.
-* **No framework** – the app serves a single static page; adding Flask,
-  FastAPI, or similar would be unnecessary overhead.
-* **No database** – there is no dynamic data to persist.
+| Component      | Choice                                  | Rationale                                         |
+| -------------- | --------------------------------------- | ------------------------------------------------- |
+| Web server     | `http.server` (Python standard library) | Zero dependencies; ships with every Python 3 install |
+| Containerisation | Docker + Docker Compose               | Reproducible environment; single-command startup   |
+| Frontend       | Plain HTML + inline CSS                 | No build step needed for a single static page      |
+| Testing        | `unittest` (Python standard library)    | No extra test runner required                      |
 
 ## How It Works
 
-1. `server.py` starts an HTTP server on port **8000**, bound to
-   `0.0.0.0`, serving files from the working directory.
-2. When a browser requests `/`, the server returns `index.html`.
-3. `index.html` uses minimal inline CSS to centre the text "Hello World"
-   both vertically and horizontally on a white (`#ffffff`) background.
+1. `server.py` starts a `TCPServer` on `0.0.0.0:8000` using
+   `SimpleHTTPRequestHandler` pointed at the current working directory.
+2. When a browser requests `/`, the handler automatically serves
+   `index.html` as the directory index.
+3. `index.html` renders a centred "Hello World" heading on a white
+   background.
 
 ## Design Decisions
 
-* **Inline CSS** – a single `<style>` block keeps the project to one
-  HTML file, which is the simplest possible deployment unit.
-* **Flexbox centring** – `display: flex` with `justify-content` and
-  `align-items` is the most widely supported modern centring technique.
-* **`0.0.0.0` binding** – required so the server is reachable from the
-  host when running inside Docker.
+* **No framework** – A full web framework (Flask, FastAPI, etc.) would
+  be overkill for serving a single static file.  The standard library
+  provides everything needed.
+* **Bind to `0.0.0.0`** – Ensures the server is reachable from outside
+  a Docker container (where `127.0.0.1` would not be accessible from
+  the host).
+* **`allow_reuse_address = True`** – Prevents "Address already in use"
+  errors during quick restart cycles in development.
+* **`functools.partial`** – Used to pass the `directory` argument to
+  `SimpleHTTPRequestHandler` cleanly, avoiding a custom subclass.

@@ -2,7 +2,7 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-COPY index.html server.py /app/
+COPY index.html server.py ./
 
 EXPOSE 8000
 
