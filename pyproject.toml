@@ -1,3 +1,8 @@
+[project]
+name = "todo-app"
+version = "1.0.0"
+description = "A simple Todo application with React frontend and FastAPI backend"
+requires-python = ">=3.11"
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-v"
