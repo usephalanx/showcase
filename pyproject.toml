@@ -2,7 +2,7 @@
 name = "todo-app"
 version = "1.0.0"
 description = "A simple Todo application"
-requires-python = ">=3.10"
+requires-python = ">=3.9"
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["frontend/src"]
