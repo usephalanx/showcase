@@ -136,7 +136,7 @@ const ContactForm: React.FC<ContactFormProps> = ({
       </div>
 
       <div>
-        <Button label={submitButtonText} variant="primary" type="submit" />
+        <Button variant="primary" type="submit">{submitButtonText}</Button>
       </div>
     </form>
   );
