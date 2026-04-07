@@ -30,8 +30,8 @@ function TrustBadge({ icon, label }: TrustBadgeData) {
 export default function About({
   sectionId = 'about',
   sectionLabel,
-  bioText,
-  avatarImageUrl,
+  bioText = 'With over 10 years in luxury residential real estate, Maddie helps buyers and sellers navigate the market with confidence and care.',
+  avatarImageUrl = 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&q=80',
   avatarAlt = 'Professional headshot',
   trustBadges = [
     { icon: "🏆", label: "Licensed Agent" },

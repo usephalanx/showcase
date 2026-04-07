@@ -20,13 +20,13 @@ export interface HeroProps {
 }
 
 const Hero: React.FC<HeroProps> = ({
-  headline,
-  subheading,
-  backgroundImageUrl,
-  primaryCtaLabel,
-  primaryCtaHref,
-  secondaryCtaLabel,
-  secondaryCtaHref,
+  headline = 'Your Dream Home Starts Here',
+  subheading = "Expert real estate guidance with a personal touch — I'm Maddie, and I'm here to make your journey seamless.",
+  backgroundImageUrl = 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1600&q=80',
+  primaryCtaLabel = 'View My Listings',
+  primaryCtaHref = '#recent-sales',
+  secondaryCtaLabel = 'Get In Touch',
+  secondaryCtaHref = '#contact',
   backgroundAlt = 'Luxury home exterior',
 }) => {
   return (
