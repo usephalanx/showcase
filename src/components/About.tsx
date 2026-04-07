@@ -33,7 +33,11 @@ export default function About({
   bioText,
   avatarImageUrl,
   avatarAlt = 'Professional headshot',
-  trustBadges,
+  trustBadges = [
+    { icon: "🏆", label: "Licensed Agent" },
+    { icon: "🏠", label: "200+ Homes Sold" },
+    { icon: "⭐", label: "5★ Rated" },
+  ],
 }: AboutProps) {
   return (
     <section

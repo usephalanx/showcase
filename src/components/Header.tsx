@@ -12,7 +12,16 @@ export interface HeaderProps {
   ctaHref: string;
 }
 
-const Header: React.FC<HeaderProps> = ({ logoText, navLinks, ctaText, ctaHref }) => {
+const Header: React.FC<HeaderProps> = ({
+  logoText = "Maddie",
+  navLinks = [
+    { label: "About", href: "#about" },
+    { label: "Recent Sales", href: "#recent-sales" },
+    { label: "Contact", href: "#contact" },
+  ],
+  ctaText = "Contact Maddie",
+  ctaHref = "#contact",
+}) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
