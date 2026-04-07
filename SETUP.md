@@ -2,46 +2,42 @@
 
 ## Prerequisites
 
-- Node.js >= 18.x
-- npm >= 9.x (or pnpm / yarn)
+- Node.js >= 18
+- npm >= 9
 
-## Installation
+## Install Dependencies
 
 ```bash
-# Navigate to project root
-cd .
-
-# Install dependencies
 npm install
 ```
 
-## Development
+This will generate `package-lock.json` and `node_modules/` — both are
+git-ignored and must not be hand-written.
+
+## Development Server
 
 ```bash
-# Start the Vite dev server on port 3000
 npm run dev
 ```
 
-## Build
+Opens the dev server at `http://localhost:3000`.
+
+## Run Tests
 
 ```bash
-# Create production build in dist/
-npm run build
+npm test
+```
 
-# Preview production build locally
+## Production Build
+
+```bash
+npm run build
+```
+
+Output is written to `dist/`.
+
+## Preview Production Build
+
+```bash
 npm run preview
 ```
-
-## Testing
-
-```bash
-# Run config validation tests (requires Python 3.8+ with pytest)
-pip install pytest
-pytest tests/
-```
-
-## Notes
-
-- Do NOT commit `node_modules/`, `dist/`, or lock files (`package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`).
-- Lock files are generated automatically by your package manager during `npm install`.
-- The `tsconfig.json` and `tsconfig.node.json` files are hand-written and should be committed.

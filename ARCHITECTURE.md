@@ -1,46 +1,47 @@
-# Maddie Real Estate Landing Page — Architecture Document
+# Maddie | Luxury Real Estate — Architecture Document
 
 ## Overview
 
-A single-page luxury real estate landing page built with React, Vite, TypeScript, and Tailwind CSS. The page showcases a real estate agent's brand, recent sales, and contact information with a warm, elegant aesthetic.
+A single-page luxury real estate landing page built with React, TypeScript,
+Tailwind CSS, and Vite. The design emphasizes elegance through a refined
+color palette, premium typography, and smooth interactions.
 
 ---
 
 ## File & Folder Structure
 
 ```
-/
-├── index.html                  # Root HTML with Google Fonts & meta tags
-├── package.json                # Dependencies and scripts
-├── vite.config.js              # Vite config with React plugin & path aliases
-├── tailwind.config.js          # Tailwind design tokens
-├── postcss.config.js           # PostCSS plugins (tailwindcss, autoprefixer)
-├── tsconfig.json               # TypeScript compiler options
-├── tsconfig.node.json          # TypeScript config for Node (Vite config)
-├── ARCHITECTURE.md             # This file
-├── SETUP.md                    # Setup instructions
+├── index.html
+├── package.json
+├── tsconfig.json
+├── tailwind.config.js
+├── postcss.config.js
+├── vite.config.ts
+├── ARCHITECTURE.md
+├── SETUP.md
+├── public/
+│   └── vite.svg
 ├── src/
-│   ├── main.tsx                # React entry point
-│   ├── App.tsx                 # Root application component
-│   ├── index.css               # Global styles & Tailwind directives
-│   ├── vite-env.d.ts           # Vite client type declarations
+│   ├── main.tsx              # React entry point
+│   ├── App.tsx               # Root component
+│   ├── index.css             # Global styles & Tailwind directives
 │   ├── components/
-│   │   ├── Header.tsx          # Fixed navigation bar
-│   │   ├── Hero.tsx            # Full-width hero section
-│   │   ├── About.tsx           # About / agent profile section
-│   │   ├── RecentSales.tsx     # Property cards grid
-│   │   ├── PropertyCard.tsx    # Individual property card
-│   │   ├── Contact.tsx         # Contact form / CTA section
-│   │   ├── Footer.tsx          # Site footer
-│   │   └── ScrollToTop.tsx     # Scroll-to-top utility button
-│   ├── hooks/
-│   │   └── useSmoothScroll.ts  # Hook for smooth scroll-to-id navigation
+│   │   ├── Header.tsx        # Navigation bar
+│   │   ├── Hero.tsx          # Hero section with CTA
+│   │   ├── About.tsx         # Agent profile / about section
+│   │   ├── RecentSales.tsx   # Property cards grid
+│   │   ├── PropertyCard.tsx  # Individual property card
+│   │   ├── Contact.tsx       # Contact form section
+│   │   └── Footer.tsx        # Site footer
 │   ├── utils/
-│   │   └── scrollTo.ts         # Utility function for smooth scrolling
+│   │   └── scrollTo.ts       # Smooth scroll-to-id utility
 │   └── types/
-│       └── index.ts            # Shared TypeScript interfaces
+│       └── index.ts          # Shared TypeScript interfaces
 └── tests/
-    └── test_config.py          # Validation tests for config files
+    ├── setup.ts              # Test setup (jsdom, jest-dom)
+    ├── test_index_html.test.ts
+    ├── test_main.test.tsx
+    └── test_index_css.test.ts
 ```
 
 ---
@@ -49,19 +50,13 @@ A single-page luxury real estate landing page built with React, Vite, TypeScript
 
 ```
 App
-├── Header
-│   └── Nav links (smooth scroll anchors)
-├── Hero
-│   └── CTA Button
-├── About
-│   └── Profile image + bio text
-├── RecentSales
-│   └── PropertyCard[] (grid of 3–6 cards)
-├── Contact
-│   └── Contact form / CTA
-├── Footer
-│   └── Social links, copyright
-└── ScrollToTop
+├── Header (sticky nav, logo, nav links, CTA button)
+├── Hero (background image, headline, sub-headline, dual CTAs)
+├── About (agent photo, bio, statistics row)
+├── RecentSales (section heading, PropertyCard[] grid)
+│   └── PropertyCard (image, address, price, beds/baths/sqft)
+├── Contact (form: name, email, phone, message, submit)
+└── Footer (logo, links, social icons, copyright)
 ```
 
 ---
@@ -70,88 +65,86 @@ App
 
 ### Color Palette
 
-| Token             | Hex       | Usage                                |
-|-------------------|-----------|--------------------------------------|
-| cream             | `#FDF8F0` | Primary background                   |
-| cream-light       | `#FFFDF7` | Card backgrounds, subtle contrast    |
-| cream-dark        | `#F5EDE0` | Borders, dividers                    |
-| slate-900         | `#1E293B` | Primary headings                     |
-| slate-700         | `#334155` | Body text                            |
-| slate-500         | `#64748B` | Secondary text                       |
-| slate-400         | `#94A3B8` | Muted text, placeholders             |
-| gold              | `#C9A84C` | Primary accent                       |
-| gold-light        | `#D4B968` | Hover states                         |
-| gold-lighter      | `#E8D5A3` | Subtle accent backgrounds            |
-| gold-dark         | `#B8943F` | Active states                        |
-| warm-white        | `#FAF7F2` | Alternate section background         |
+| Token          | Hex       | Usage                          |
+| -------------- | --------- | ------------------------------ |
+| cream          | `#FFFDF7` | Page background                |
+| cream-dark     | `#FFF8F0` | Card backgrounds, alternation  |
+| slate-900      | `#0F172A` | Heading text                   |
+| slate-700      | `#334155` | Body text                      |
+| slate-500      | `#64748B` | Secondary/muted text           |
+| slate-400      | `#94A3B8` | Placeholder, borders           |
+| gold           | `#C8A951` | Primary accent, buttons        |
+| gold-dark      | `#B8963E` | Hover states                   |
+| gold-medium    | `#D4B968` | Gradient mid-point             |
+| gold-light     | `#E8D5A3` | Gradient highlight, decorative |
 
-### Typography
+### Gold Gradient
 
-| Element        | Font Family       | Weights          | Sizes (desktop)       |
-|----------------|-------------------|------------------|-----------------------|
-| h1             | Playfair Display  | 700              | 4xl–6xl               |
-| h2             | Playfair Display  | 600, 700         | 3xl–4xl               |
-| h3             | Playfair Display  | 500, 600         | 2xl–3xl               |
-| h4–h6          | Playfair Display  | 500              | xl–2xl                |
-| body           | Inter             | 300, 400, 500    | base–lg               |
-| button         | Inter             | 500, 600         | sm–base               |
-| caption        | Inter             | 400              | sm                    |
+```css
+background: linear-gradient(135deg, #C8A951 0%, #E8D5A3 50%, #D4B968 100%);
+```
 
-Fonts are loaded via Google Fonts CDN in `index.html`.
+---
 
-### Responsive Breakpoints
+## Typography
 
-| Breakpoint | Min Width | Usage                          |
-|------------|-----------|--------------------------------|
-| sm         | 640px     | Mobile landscape               |
-| md         | 768px     | Tablet portrait                |
-| lg         | 1024px    | Tablet landscape / small laptop|
-| xl         | 1280px    | Desktop                        |
-| 2xl        | 1536px    | Large desktop                  |
+| Role     | Font Family       | Weights            |
+| -------- | ----------------- | ------------------ |
+| Headings | Playfair Display  | 400, 500, 600, 700 |
+| Body     | Inter             | 300, 400, 500, 600, 700 |
 
-These are Tailwind defaults — no overrides needed.
+Fonts are loaded via Google Fonts `<link>` in `index.html` with
+`preconnect` hints for optimal loading.
+
+---
+
+## Responsive Breakpoints
+
+| Name | Min Width | Usage                      |
+| ---- | --------- | -------------------------- |
+| sm   | 640px     | Tablet portrait            |
+| md   | 768px     | Tablet landscape           |
+| lg   | 1024px    | Desktop                    |
+| xl   | 1280px    | Large desktop              |
 
 ---
 
 ## Section Order
 
-1. **Header / Nav** — Fixed top bar with logo and smooth-scroll nav links
-2. **Hero** — Full-viewport hero with background image, heading, and CTA
-3. **About / Profile** — Agent photo + bio with split layout
-4. **Recent Sales** — Grid of property cards with images, price, details
-5. **Contact** — Contact form or CTA block
-6. **Footer** — Branding, social links, legal
-
----
-
-## Image Strategy
-
-Curated Unsplash images (free to use):
-
-- **Hero**: `https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1920&q=80` (luxury home exterior)
-- **About**: `https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&q=80` (professional portrait)
-- **Property 1**: `https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&q=80`
-- **Property 2**: `https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600&q=80`
-- **Property 3**: `https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=600&q=80`
+1. **Header / Navigation** — Sticky top, glass-morphism effect
+2. **Hero** — Full-viewport, background image, gradient overlay
+3. **About / Profile** — Two-column layout (image + bio)
+4. **Recent Sales** — 3-column responsive grid of property cards
+5. **Contact** — Centered form with gold accent border
+6. **Footer** — Dark background, multi-column links
 
 ---
 
 ## Smooth Scroll Implementation
 
-1. `html { scroll-behavior: smooth; }` in `index.html` and `src/index.css`
-2. `scrollTo.ts` utility: `document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })`
-3. `useSmoothScroll` hook wraps the utility for use in nav links
-4. Each section has an `id` attribute matching the nav link href
+1. CSS `scroll-behavior: smooth` on `<html>` element
+2. React utility `scrollTo(id: string)` that calls
+   `document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })`
+3. Navigation links use `href="#section-id"` with `onClick` calling the
+   scroll utility for enhanced control
+
+---
+
+## Curated Image Sources (Unsplash)
+
+- **Hero**: Luxury home exterior — `https://images.unsplash.com/photo-1600596542815-ffad4c1539a9`
+- **About**: Professional headshot — `https://images.unsplash.com/photo-1573496359142-b8d87734a5a2`
+- **Property 1**: Modern villa — `https://images.unsplash.com/photo-1600585154340-be6161a56a0c`
+- **Property 2**: Penthouse — `https://images.unsplash.com/photo-1600607687939-ce8a6c25118c`
+- **Property 3**: Estate — `https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea`
 
 ---
 
 ## Tailwind Customizations
 
-See `tailwind.config.js` for the full configuration. Key extensions:
+See `tailwind.config.js` for full configuration. Key extensions:
 
-- **colors**: cream, gold, warm-white palettes added alongside Tailwind slate
-- **fontFamily**: `playfair` → `['Playfair Display', 'serif']`, `inter` → `['Inter', 'sans-serif']`
-- **spacing**: `18` (4.5rem), `88` (22rem), `128` (32rem) for hero/section sizing
-- **maxWidth**: `8xl` (88rem) for wide section containers
-- **animation**: `fade-in`, `slide-up` for entrance animations
-- **keyframes**: Custom keyframes for the above animations
+- Custom color tokens (cream, gold variants)
+- Font family aliases (`font-playfair`, `font-inter`)
+- `max-w-8xl` (88rem) for wide section containers
+- Custom spacing values for fine-tuned layouts
