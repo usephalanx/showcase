@@ -3,6 +3,9 @@
 Provides a class-based store backed by a Python dict with an
 auto-incrementing integer ID counter.  Storage is ephemeral and
 resets when the process restarts.
+
+A module-level ``storage`` instance is provided for convenient use
+across the application.
 """
 
 from __future__ import annotations
@@ -122,3 +125,6 @@ class TodoStorage:
             return False
         del self._todos[todo_id]
         return True
+
+
+storage = TodoStorage()
