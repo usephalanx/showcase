@@ -1,0 +1,21 @@
+[project]
+name = "todo-app"
+version = "1.0.0"
+description = "Todo application with FastAPI backend and React frontend"
+requires-python = ">=3.9"
+dependencies = [
+    "fastapi",
+    "uvicorn[standard]",
+    "pydantic",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-timeout",
+    "httpx",
+]
+
+[tool.pytest.ini_options]
+timeout = 30
+testpaths = ["tests"]
