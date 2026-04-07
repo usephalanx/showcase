@@ -1,25 +1,18 @@
 /**
- * Core domain types for the Todo application.
- */
-
-/**
- * Represents a single todo item in the application.
+ * Core Todo item interface used throughout the application.
  */
 export interface Todo {
-  /** Unique identifier for the todo. */
+  /** Unique identifier for the todo item. */
   id: string;
-  /** The user-facing text content of the todo. */
+  /** The display text of the todo item. */
   text: string;
-  /** Whether this todo has been marked as done. */
+  /** Whether the todo has been completed. */
   completed: boolean;
-  /** Unix timestamp (ms) of when the todo was created. */
+  /** Timestamp (ms since epoch) when the todo was created. */
   createdAt: number;
 }
 
 /**
- * The three possible filter states for viewing todos.
- * - 'all': show every todo
- * - 'active': show only incomplete todos
- * - 'completed': show only completed todos
+ * Union type representing the available filter modes for the todo list.
  */
-export type TodoFilter = 'all' | 'active' | 'completed';
+export type FilterType = 'all' | 'active' | 'completed';

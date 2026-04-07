@@ -1,73 +1,74 @@
-/**
- * Pure helper functions for creating, transforming, and filtering Todo items.
- *
- * Every function in this module is side-effect-free (apart from the
- * non-deterministic id/timestamp generation in `generateId` and `createTodo`).
- */
-
-import { Todo, TodoFilter } from '../types/todo';
+import type { Todo, FilterType } from '../types/todo';
 
 /**
- * Generate a unique string identifier.
+ * Generate a unique identifier string.
  *
- * Combines the current timestamp (base-36) with a random suffix to
- * produce ids that are practically collision-free for client-side use.
+ * Uses `crypto.randomUUID()` when available (modern browsers / Node 19+),
+ * falling back to a timestamp + random-number approach.
  *
- * @returns A unique string id.
+ * @returns A unique string suitable for use as a Todo id.
  */
 export function generateId(): string {
-  return Date.now().toString(36) + Math.random().toString(36).substring(2, 9);
+  if (
+    typeof crypto !== 'undefined' &&
+    typeof crypto.randomUUID === 'function'
+  ) {
+    return crypto.randomUUID();
+  }
+  // Fallback for environments without crypto.randomUUID
+  return `${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 9)}`;
 }
 
 /**
- * Create a new Todo from the given text.
+ * Create a new Todo object from the given text.
  *
- * The returned todo is always incomplete (`completed: false`) and has
- * its `createdAt` set to the current time.
+ * The new todo is incomplete by default and stamped with the current time.
  *
- * @param text - The user-facing content of the todo.
- * @returns A fully populated Todo object.
+ * @param text - The display text for the todo. Will be trimmed.
+ * @returns A fully-formed Todo object.
+ * @throws {Error} If text is empty or whitespace-only after trimming.
  */
 export function createTodo(text: string): Todo {
+  const trimmed = text.trim();
+  if (trimmed.length === 0) {
+    throw new Error('Todo text must not be empty');
+  }
   return {
     id: generateId(),
-    text,
+    text: trimmed,
     completed: false,
     createdAt: Date.now(),
   };
 }
 
 /**
- * Return a copy of the given todo with `completed` flipped.
+ * Return a new Todo with the `completed` field toggled.
  *
- * The original todo is not mutated.
+ * This is a pure function — the original todo is not mutated.
  *
  * @param todo - The todo to toggle.
- * @returns A new Todo with the opposite completion state.
+ * @returns A new Todo object with `completed` flipped.
  */
 export function toggleTodo(todo: Todo): Todo {
-  return {
-    ...todo,
-    completed: !todo.completed,
-  };
+  return { ...todo, completed: !todo.completed };
 }
 
 /**
- * Return the subset of `todos` that match the given `filter`.
+ * Filter an array of todos by the given filter type.
  *
- * - `'all'`       → every todo
- * - `'active'`    → only incomplete todos
- * - `'completed'` → only completed todos
+ * - `'all'`       → returns every todo.
+ * - `'active'`    → returns only todos where `completed` is `false`.
+ * - `'completed'` → returns only todos where `completed` is `true`.
  *
- * The input array is never mutated.
+ * This is a pure function — the original array is not mutated.
  *
- * @param todos  - The full list of todos. Defaults to an empty array.
- * @param filter - Which subset to return.
- * @returns A (possibly empty) array of matching todos.
+ * @param todos  - The full list of todos.  Defaults to `[]` if not provided.
+ * @param filter - The filter mode to apply.  Defaults to `'all'`.
+ * @returns A new array containing only the matching todos.
  */
 export function filterTodos(
   todos: Todo[] = [],
-  filter: TodoFilter,
+  filter: FilterType = 'all',
 ): Todo[] {
   switch (filter) {
     case 'active':
@@ -76,6 +77,6 @@ export function filterTodos(
       return todos.filter((todo) => todo.completed);
     case 'all':
     default:
-      return todos;
+      return [...todos];
   }
 }
