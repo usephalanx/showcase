@@ -1,0 +1,5 @@
+Metadata-Version: 2.4
+Name: todo-app
+Version: 1.0.0
+Summary: A simple Todo application with React frontend and FastAPI backend
+Requires-Python: >=3.11

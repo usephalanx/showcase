@@ -1,11 +1,8 @@
-# Architecture — React Todo Application
+# Architecture – React Todo Application
 
-## Overview
-
-A single-page Todo application built with React, TypeScript, and Vite.
-State is managed locally via React hooks with optional `localStorage`
-persistence. There is no backend dependency for the frontend — it runs
-entirely in the browser.
+This document describes the component tree, TypeScript interfaces, file
+structure, state management strategy, and data flow for the React + Vite +
+TypeScript Todo single-page application.
 
 ---
 
@@ -13,55 +10,58 @@ entirely in the browser.
 
 ```
 src/
-├── main.tsx                        # Entry point — mounts <App />
-├── App.tsx                         # Root shell — renders <TodoPage />
-├── index.css                       # Global reset & base styles
-├── setupTests.ts                   # Vitest / jest-dom setup
+├── App.tsx                          # Root shell – renders TodoPage
+├── main.tsx                         # Vite entry point – mounts <App />
+├── vite-env.d.ts                    # Vite client type declarations
+├── index.css                        # Global styles
+│
 ├── types/
-│   └── todo.ts                     # Todo interface & FilterType
+│   └── todo.ts                      # Todo interface & FilterType union
+│
 ├── hooks/
-│   ├── useTodos.ts                 # Core todo state + CRUD operations
-│   ├── useLocalStorage.ts          # Generic localStorage hook
+│   ├── useTodos.ts                  # Custom hook – CRUD + localStorage
 │   └── __tests__/
-│       └── useTodos.test.ts        # Unit tests for useTodos
+│       └── useTodos.test.ts         # Hook unit tests
+│
 ├── components/
-│   ├── TodoItem.tsx                # Single todo row
-│   ├── TodoInput.tsx               # New-todo text input + add button
-│   ├── TodoList.tsx                # Renders list of TodoItem (or empty state)
-│   ├── TodoFilter.tsx              # Filter buttons (all / active / completed)
+│   ├── TodoInput.tsx                # Text input + Add button
+│   ├── TodoItem.tsx                 # Single todo row (checkbox, text, delete)
+│   ├── TodoList.tsx                 # Renders list of TodoItem or empty state
+│   ├── TodoFilter.tsx               # All / Active / Completed filter buttons
 │   └── __tests__/
-│       ├── TodoItem.test.tsx        # TodoItem unit tests
-│       ├── TodoInput.test.tsx       # TodoInput unit tests
-│       ├── TodoList.test.tsx        # TodoList unit tests
-│       └── TodoFilter.test.tsx      # TodoFilter unit tests
+│       ├── TodoInput.test.tsx
+│       ├── TodoItem.test.tsx
+│       ├── TodoList.test.tsx
+│       └── TodoFilter.test.tsx
+│
 └── pages/
-    ├── TodoPage.tsx                # Main page assembler
+    ├── TodoPage.tsx                 # Main assembler – owns state, composes UI
     └── __tests__/
-        └── TodoPage.test.tsx       # Integration test for full flow
+        └── TodoPage.test.tsx
 ```
 
 ---
 
-## Data Model
+## TypeScript Interfaces
 
-### `Todo` Interface
+### `Todo` (src/types/todo.ts)
 
-```typescript
+```ts
 export interface Todo {
-  /** Unique identifier generated via crypto.randomUUID(). */
+  /** Unique identifier – generated via crypto.randomUUID(). */
   id: string;
-  /** The todo item text content. */
+  /** User-supplied text for the todo item. */
   text: string;
-  /** Whether the todo has been completed. */
+  /** Whether the item has been completed. */
   completed: boolean;
-  /** Unix-epoch timestamp (ms) when the todo was created. */
+  /** Unix-epoch millisecond timestamp of creation. */
   createdAt: number;
 }
 ```
 
-### `FilterType`
+### `FilterType` (src/types/todo.ts)
 
-```typescript
+```ts
 export type FilterType = 'all' | 'active' | 'completed';
 ```
 
@@ -71,165 +71,171 @@ export type FilterType = 'all' | 'active' | 'completed';
 
 ```
 <App>
-  └── <TodoPage>
-        ├── <TodoInput onAdd={addTodo} />
-        ├── <TodoFilter
-        │     currentFilter={filter}
-        │     onFilterChange={setFilter}
-        │     counts={{ all, active, completed }}
-        │   />
-        └── <TodoList
-              todos={filteredTodos}
-              onToggle={toggleTodo}
-              onDelete={deleteTodo}
-            />
-              └── <TodoItem
-                    todo={todo}
-                    onToggle={onToggle}
-                    onDelete={onDelete}
-                  /> (× N)
+  └── <TodoPage>               ← owns todos[] and filter state
+        ├── <TodoInput />      ← calls onAdd(text)
+        ├── <TodoFilter />     ← calls onFilterChange(filter)
+        └── <TodoList>         ← receives filtered todos[]
+              └── <TodoItem /> ← calls onToggle(id), onDelete(id)
 ```
 
 ---
 
 ## Component Props Interfaces
 
-### `TodoInput`
+### TodoInput
 
-```typescript
-export interface TodoInputProps {
-  /** Callback invoked with trimmed text when the user submits a new todo. */
+```ts
+interface TodoInputProps {
   onAdd: (text: string) => void;
 }
 ```
 
-**Behaviour:**
-- Trims whitespace before submission.
-- Rejects empty strings (does not call `onAdd`).
+- Trims whitespace before calling `onAdd`.
+- Rejects empty / whitespace-only strings.
 - Clears the input field after successful submission.
 - Submits on Enter key press or button click.
 
-### `TodoItem`
+### TodoItem
 
-```typescript
-export interface TodoItemProps {
-  /** The todo to render. */
+```ts
+interface TodoItemProps {
   todo: Todo;
-  /** Callback invoked with the todo id when the checkbox is toggled. */
   onToggle: (id: string) => void;
-  /** Callback invoked with the todo id when the delete button is clicked. */
   onDelete: (id: string) => void;
 }
 ```
 
-**Behaviour:**
-- Completed todos display text with a line-through style.
-- Checkbox reflects `todo.completed`.
+- Renders a checkbox bound to `todo.completed`.
+- Applies `text-decoration: line-through` when completed.
+- Provides a Delete button.
 
-### `TodoList`
+### TodoList
 
-```typescript
-export interface TodoListProps {
-  /** Array of todos to display. Defaults to []. */
-  todos?: Todo[];
-  /** Callback forwarded to each TodoItem for toggling. */
+```ts
+interface TodoListProps {
+  todos: Todo[];              // defaults to [] internally
   onToggle: (id: string) => void;
-  /** Callback forwarded to each TodoItem for deletion. */
   onDelete: (id: string) => void;
 }
 ```
 
-**Behaviour:**
-- When `todos` is empty, renders a friendly empty-state message: "No todos yet. Add one above!"
-- Maps over `todos` (defaulting to `[]`) and renders a `<TodoItem>` for each.
+- When `todos` is empty, renders an informational empty-state message.
+- Maps over `todos` rendering a `<TodoItem>` for each.
 
-### `TodoFilter`
+### TodoFilter
 
-```typescript
-export interface FilterCounts {
-  all: number;
-  active: number;
-  completed: number;
-}
-
-export interface TodoFilterProps {
-  /** The currently selected filter. */
+```ts
+interface TodoFilterProps {
   currentFilter: FilterType;
-  /** Callback invoked when the user selects a different filter. */
   onFilterChange: (filter: FilterType) => void;
-  /** Count of todos in each category. */
-  counts: FilterCounts;
+  counts: {
+    all: number;
+    active: number;
+    completed: number;
+  };
 }
 ```
 
-**Behaviour:**
 - Renders three buttons: All, Active, Completed.
-- Visually highlights the active filter button.
-- Displays count next to each label.
+- Highlights the currently active filter.
+- Displays counts beside each label.
 
 ---
 
 ## State Management
 
-### `useTodos` Hook
+All application state lives in `TodoPage` via React `useState` hooks:
 
-```typescript
-interface UseTodosReturn {
+| State      | Type          | Initial Value                     |
+| ---------- | ------------- | --------------------------------- |
+| `todos`    | `Todo[]`      | Loaded from localStorage or `[]`  |
+| `filter`   | `FilterType`  | `'all'`                           |
+
+### Custom Hook – `useTodos`
+
+Encapsulates CRUD operations and localStorage persistence:
+
+```ts
+function useTodos(): {
   todos: Todo[];
   addTodo: (text: string) => void;
   toggleTodo: (id: string) => void;
   deleteTodo: (id: string) => void;
 }
-
-function useTodos(): UseTodosReturn;
 ```
 
-**Implementation details:**
-- Stores todos in `useState<Todo[]>`.
-- Persists to `localStorage` via `useLocalStorage` hook.
-- `addTodo` **prepends** new todos (most recent first).
-- Uses `crypto.randomUUID()` for id generation.
+- **addTodo** – prepends (most recent first) a new `Todo` with
+  `crypto.randomUUID()` id.
+- **toggleTodo** – flips the `completed` boolean for the given id.
+- **deleteTodo** – removes the todo with the given id.
+- On every state change, persists `todos` to `localStorage`.
+- On initialisation, reads from `localStorage`; falls back to `[]` if
+  storage is unavailable or data is corrupt.
 
-### `useLocalStorage` Hook
+### localStorage Resilience
 
-```typescript
-function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T | ((prev: T) => T)) => void];
-```
+`localStorage` may throw in the following scenarios:
+- Quota exceeded (especially in Safari private browsing).
+- Security restrictions (iframe sandboxing, certain enterprise policies).
 
-**Edge cases:**
-- If `localStorage.getItem` throws (private browsing, quota exceeded), falls back to `initialValue`.
-- If `localStorage.setItem` throws, state still updates in-memory (logs warning to console).
-- Parses stored JSON; falls back to `initialValue` on parse errors.
+The `useTodos` hook wraps all `localStorage` calls in try/catch and
+gracefully falls back to in-memory-only state. No error is surfaced to
+the user.
 
 ---
 
 ## Data Flow
 
-1. `TodoPage` calls `useTodos()` to get `todos` and mutation functions.
-2. `TodoPage` manages `filter` state via `useState<FilterType>('all')`.
-3. `TodoPage` derives `filteredTodos` from `todos` + `filter`.
-4. `TodoPage` computes `counts` for `TodoFilter`.
-5. Child components receive data and callbacks via props — no prop drilling beyond one level.
+1. User types in `<TodoInput>` and presses Enter / clicks Add.
+2. `TodoInput` trims the text and calls `onAdd(trimmedText)`.
+3. `TodoPage` (via `useTodos.addTodo`) prepends a new `Todo` to state.
+4. React re-renders; `TodoPage` filters `todos` by `filter` and passes
+   the result to `<TodoList>`.
+5. `<TodoList>` maps over filtered todos, rendering `<TodoItem>` for each.
+6. User interactions (checkbox toggle, delete button) propagate back up
+   via `onToggle` / `onDelete` callbacks.
+7. After every state mutation, `useEffect` persists `todos` to
+   `localStorage`.
 
 ---
 
 ## Styling Approach
 
-- Plain CSS in `src/index.css` (global styles) plus component-level CSS as needed.
-- No CSS-in-JS library — keeps dependencies minimal.
-- Responsive layout with max-width container centered on the page.
+Plain CSS via `src/index.css`. No CSS-in-JS library or CSS modules are
+required for this scope. Class names follow a flat BEM-lite convention:
+
+- `.todo-page`
+- `.todo-input`
+- `.todo-list`
+- `.todo-item`
+- `.todo-item.completed`
+- `.todo-filters`
+- `.todo-filters .active`
+- `.empty-message`
 
 ---
 
-## Test Strategy
+## Edge Cases
 
-| File | Key Tests |
-|---|---|
-| `TodoItem.test.tsx` | Renders text, checkbox calls onToggle, delete calls onDelete, completed has line-through |
-| `TodoInput.test.tsx` | Renders input+button, calls onAdd with trimmed text, clears after submit, rejects empty, Enter key submits |
-| `TodoList.test.tsx` | Renders all todos, shows empty message when no todos |
-| `TodoFilter.test.tsx` | Renders three buttons, highlights active filter, calls onFilterChange, displays counts |
-| `useTodos.test.ts` | addTodo adds to list, toggleTodo flips completed, deleteTodo removes |
-| `TodoPage.test.tsx` | Full integration flow: add → toggle → delete → filter |
+| Scenario                        | Behaviour                                     |
+| ------------------------------- | --------------------------------------------- |
+| Empty todo list                 | `<TodoList>` shows "No todos to show."        |
+| Whitespace-only input           | `<TodoInput>` rejects silently (no-op)        |
+| localStorage unavailable        | Falls back to in-memory state                 |
+| localStorage data corrupt       | Discards stored data, starts with `[]`        |
+| `crypto.randomUUID` unavailable | Fallback: `Date.now() + Math.random()` suffix |
 
-All tests use **Vitest** + **@testing-library/react** + **@testing-library/jest-dom**.
+---
+
+## Test Plan
+
+All tests use **Vitest** + **React Testing Library**.
+
+| Test File                                  | Key Cases                                                   |
+| ------------------------------------------ | ----------------------------------------------------------- |
+| `src/components/__tests__/TodoItem.test`   | Renders text, checkbox calls onToggle, delete calls onDelete, completed has line-through |
+| `src/components/__tests__/TodoInput.test`  | Renders input+button, calls onAdd trimmed, clears after submit, rejects empty, Enter submits |
+| `src/components/__tests__/TodoList.test`   | Renders all todos, shows empty message when none            |
+| `src/components/__tests__/TodoFilter.test` | Renders 3 buttons, highlights active, calls onFilterChange, shows counts |
+| `src/hooks/__tests__/useTodos.test`        | addTodo adds, toggleTodo flips, deleteTodo removes          |
+| `src/pages/__tests__/TodoPage.test`        | Full flow: add → toggle → delete → filter                   |
