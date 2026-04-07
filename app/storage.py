@@ -5,7 +5,8 @@ auto-incrementing integer ID counter.  Storage is ephemeral and
 resets when the process restarts.
 
 A module-level ``storage`` instance is provided for convenient use
-across the application.
+across the application.  The instance is pre-populated with a handful
+of seed todos so the demo is never empty on first launch.
 """
 
 from __future__ import annotations
@@ -127,4 +128,42 @@ class TodoStorage:
         return True
 
 
-storage = TodoStorage()
+def _build_seeded_storage() -> TodoStorage:
+    """Create a TodoStorage instance pre-populated with demo items.
+
+    Seed items give new users something to see immediately when they
+    start the application for the first time.
+
+    Returns:
+        A TodoStorage containing a few example todo items.
+    """
+    store = TodoStorage()
+
+    seed_items: List[TodoCreate] = [
+        TodoCreate(
+            title="Buy groceries",
+            description="Milk, eggs, bread, and fresh vegetables",
+        ),
+        TodoCreate(
+            title="Read FastAPI documentation",
+            description="Review the official tutorial and advanced user guide",
+        ),
+        TodoCreate(
+            title="Write unit tests",
+            description="Achieve at least 90% coverage on the API routes",
+        ),
+    ]
+
+    for item in seed_items:
+        store.create(item)
+
+    # Mark the second item as completed to showcase mixed state
+    store.update(
+        2,
+        TodoUpdate(completed=True),
+    )
+
+    return store
+
+
+storage: TodoStorage = _build_seeded_storage()
