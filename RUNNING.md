@@ -1,33 +1,45 @@
-# Running the Todo API
+# Running the Todo App
 
-## Prerequisites
-
-- Python 3.10 or later
-
-## Install dependencies
+## Quick Start (Docker)
 
 ```bash
-pip install fastapi uvicorn pydantic
+# 1. Build and start the application
+docker compose up --build
+
+# 2. The API is now available at:
+#    http://localhost:8000
+
+# 3. Interactive API documentation (Swagger UI):
+#    http://localhost:8000/docs
 ```
 
-For running the test suite you will also need:
+## Running Tests
 
 ```bash
-pip install httpx pytest
+# Run the full test suite inside the running container
+docker compose exec app pytest -v
 ```
 
-## Start the server
+## Running Locally (without Docker)
 
 ```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+# 1. Create a virtual environment
+python -m venv .venv
+source .venv/bin/activate   # Linux / macOS
+# .venv\Scripts\activate    # Windows
+
+# 2. Install dependencies
+pip install -r requirements.txt
+
+# 3. Start the development server
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
+# 4. Run tests
+pytest -v
 ```
 
-The API will be available at <http://localhost:8000>.
+## Notes
 
-Interactive docs are served at <http://localhost:8000/docs>.
-
-## Run the tests
-
-```bash
-pytest tests/
-```
+- **No authentication** is required — this is a public Todo API.
+- The database is **SQLite in-memory** so all data is lost on restart.
+- API docs are auto-generated at `/docs` (Swagger) and `/redoc` (ReDoc).
