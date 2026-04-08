@@ -1,8 +1,8 @@
 /**
  * Root application component.
  *
- * Renders a simple "Hello World" heading. This serves as the base
- * component upon which the rest of the UI will be built.
+ * Renders a simple "Hello World" heading. Serves as the top-level
+ * component mounted by main.tsx.
  */
 function App(): JSX.Element {
   return <h1>Hello World</h1>;

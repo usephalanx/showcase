@@ -2,53 +2,45 @@
 
 ## Tech Stack
 
-- **UI Library:** React 18
-- **Build Tool:** Vite 5
-- **Language:** TypeScript 5 (strict mode)
-- **Test Runner:** Vitest 2 with jsdom environment
-- **Test Utilities:** React Testing Library, jest-dom matchers
+- **React 18** — UI library
+- **Vite 5** — Build tool and dev server
+- **TypeScript 5** — Type-safe JavaScript
+- **Vitest + React Testing Library** — Unit testing
 
 ## File Structure
 
 ```
-├── ARCHITECTURE.md          # This file – architecture overview
-├── package.json             # Project metadata, dependencies, npm scripts
-├── tsconfig.json            # TypeScript compiler configuration
-├── vite.config.ts           # Vite + Vitest configuration
-├── index.html               # HTML entry point (served by Vite)
+├── index.html              # HTML entry point with div#root
+├── package.json            # Dependencies, scripts, metadata
+├── tsconfig.json           # TypeScript compiler configuration
+├── vite.config.ts          # Vite + Vitest configuration
+├── SETUP.md                # Instructions to install and run
 ├── src/
-│   ├── main.tsx             # Application entry – mounts React tree into DOM
-│   ├── App.tsx              # Root component – renders Hello World heading
-│   └── App.test.tsx         # Unit tests for the App component
-├── SETUP.md                 # Instructions for installing and running
-└── (backend files)          # Existing FastAPI backend (main.py, routes.py, etc.)
+│   ├── main.tsx            # Application entry point (mounts React tree)
+│   ├── App.tsx             # Root component rendering <h1>Hello World</h1>
+│   └── App.test.tsx        # Unit tests for the App component
 ```
-
-## Component Hierarchy
-
-```
-<React.StrictMode>
-  └── <App />
-        └── <h1>Hello World</h1>
-```
-
-### App Component Contract
-
-- **Props:** none
-- **State:** none
-- **Side effects:** none
-- **Renders:** a single `<h1>` element with the text content `Hello World`
 
 ## Entry Point
 
-`src/main.tsx` imports the `App` component and mounts it into the `<div id="root">`
-element in `index.html` using `ReactDOM.createRoot` wrapped in `<React.StrictMode>`.
+`src/main.tsx` is the application entry point. It:
 
-## Build & Test Commands
+1. Imports `React` and `ReactDOM` (client).
+2. Imports the root `<App />` component.
+3. Calls `ReactDOM.createRoot()` targeting `document.getElementById('root')`.
+4. Renders `<App />` wrapped in `<React.StrictMode>`.
 
-| Command         | Description                              |
-| --------------- | ---------------------------------------- |
-| `npm run dev`   | Start Vite dev server with HMR           |
-| `npm run build` | Type-check with `tsc` then build for prod|
-| `npm run preview`| Preview the production build locally    |
-| `npm run test`  | Run Vitest in single-run mode            |
+## App Component
+
+- Default-exported function component named `App`.
+- Renders a single `<h1>` element with the text "Hello World".
+- No props, no state, no side effects.
+
+## Build Commands
+
+| Command         | Description                        |
+| --------------- | ---------------------------------- |
+| `npm run dev`   | Start Vite dev server              |
+| `npm run build` | Type-check then build for prod     |
+| `npm run preview` | Preview production build locally |
+| `npm run test`  | Run Vitest unit tests              |

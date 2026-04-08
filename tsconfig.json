@@ -2,7 +2,6 @@
   "compilerOptions": {
     "target": "ES2020",
     "module": "ESNext",
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "moduleResolution": "bundler",
     "jsx": "react-jsx",
     "strict": true,
@@ -10,9 +9,9 @@
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
     "allowImportingTsExtensions": true,
+    "noEmit": true,
     "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true
+    "isolatedModules": true
   },
   "include": ["src"],
   "exclude": ["node_modules"]
