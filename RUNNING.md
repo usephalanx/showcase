@@ -3,31 +3,80 @@
 ## Prerequisites
 
 - Python 3.10 or later
+- pip (Python package manager)
+- (Optional) Docker & Docker Compose
 
-## Install dependencies
+---
 
-```bash
-pip install fastapi uvicorn pydantic
-```
+## Option 1 — Local Setup
 
-For running the test suite you will also need:
-
-```bash
-pip install httpx pytest
-```
-
-## Start the server
+### 1. Install Dependencies
 
 ```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+pip install -r requirements.txt
 ```
 
-The API will be available at <http://localhost:8000>.
-
-Interactive docs are served at <http://localhost:8000/docs>.
-
-## Run the tests
+### 2. Run the Server
 
 ```bash
-pytest tests/
+uvicorn app.main:app --reload
 ```
+
+The API is available at **http://localhost:8000**.
+
+Interactive API documentation (Swagger UI) is at **http://localhost:8000/docs**.
+
+Alternative ReDoc documentation is at **http://localhost:8000/redoc**.
+
+### 3. Seed Sample Data
+
+To populate the database with sample todo items for quick testing:
+
+```bash
+python seed_data.py
+```
+
+This inserts several example todos so you can immediately exercise the
+API without manually creating items first.  Run it **after** the server
+has started at least once (so the database tables exist), or the script
+will create the tables itself.
+
+### 4. Run Tests
+
+```bash
+pytest -v
+```
+
+---
+
+## Option 2 — Docker
+
+### 1. Build & Start
+
+```bash
+docker compose up --build
+```
+
+The API is available at **http://localhost:8000**.
+
+Interactive API documentation (Swagger UI) is at **http://localhost:8000/docs**.
+
+### 2. Run Tests (inside the container)
+
+```bash
+docker compose exec app pytest -v
+```
+
+---
+
+## Notes
+
+- **No authentication** is required — this is a public Todo API.
+- The database is **SQLite in-memory** — all data is lost when the
+  process restarts.
+- CORS is configured to allow all origins (`*`) for development
+  convenience.
+- The seed script connects to the same in-memory database **only when
+  run inside the same process** (e.g., during tests).  When running
+  against a live server, use the API endpoints or switch to a
+  file-based SQLite URL.
