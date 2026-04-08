@@ -5,7 +5,7 @@ description = "A simple Todo REST API with in-memory storage."
 requires-python = ">=3.11"
 dependencies = [
     "fastapi>=0.115.0",
-    "uvicorn[standard]>=0.32.0",
+    "uvicorn>=0.30.0",
     "pydantic>=2.0.0",
 ]
 

@@ -10,14 +10,9 @@ docker compose up --build
 
 The API will be available at **http://localhost:8000**.
 
-## API Documentation
+Swagger documentation is at **http://localhost:8000/docs**.
 
-FastAPI auto-generates interactive API docs:
-
-- **Swagger UI:** http://localhost:8000/docs
-- **ReDoc:** http://localhost:8000/redoc
-
-## Running Without Docker
+## Local Development (without Docker)
 
 ### Prerequisites
 
@@ -30,22 +25,26 @@ FastAPI auto-generates interactive API docs:
 pip install fastapi uvicorn pydantic
 ```
 
-### Start the Server
+### Run the Server
 
 ```bash
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+uvicorn app.main:app --reload
 ```
 
-## Running Tests
+### Run Tests
 
 ```bash
 pip install pytest httpx
 pytest tests/ -v
 ```
 
-## Health Check
+## Endpoints
 
-```bash
-curl http://localhost:8000/health
-# {"status": "ok"}
-```
+| Method   | URL             | Description       |
+| -------- | --------------- | ----------------- |
+| `GET`    | `/todos`        | List all todos    |
+| `GET`    | `/todos/{id}`   | Get one todo      |
+| `POST`   | `/todos`        | Create a todo     |
+| `PUT`    | `/todos/{id}`   | Update a todo     |
+| `DELETE` | `/todos/{id}`   | Delete a todo     |
+| `GET`    | `/health`       | Health check      |
