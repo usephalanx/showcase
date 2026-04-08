@@ -25,6 +25,15 @@ class TodoStore:
         self._counter += 1
         return self._counter
 
+    def reset(self) -> None:
+        """Clear all stored todos and reset the ID counter.
+
+        Intended for use in test fixtures to ensure a clean state
+        between test cases.
+        """
+        self._todos.clear()
+        self._counter = 0
+
     def add(
         self,
         title: str,
@@ -93,19 +102,17 @@ class TodoStore:
             completed: New completion status (if provided).
 
         Returns:
-            A copy of the updated todo dict, or None if the ID was not found.
+            A copy of the updated todo dict, or None if not found.
         """
         todo = self._todos.get(todo_id)
         if todo is None:
             return None
-
         if title is not None:
             todo["title"] = title
         if description is not None:
             todo["description"] = description
         if completed is not None:
             todo["completed"] = completed
-
         return dict(todo)
 
     def delete(self, todo_id: int) -> bool:
@@ -115,17 +122,9 @@ class TodoStore:
             todo_id: The integer ID of the todo to delete.
 
         Returns:
-            True if the todo was found and removed, False otherwise.
+            True if the todo was found and deleted, False otherwise.
         """
         if todo_id in self._todos:
             del self._todos[todo_id]
             return True
         return False
-
-    def reset(self) -> None:
-        """Clear all todos and reset the ID counter to zero.
-
-        Useful for test isolation.
-        """
-        self._todos.clear()
-        self._counter = 0
