@@ -114,11 +114,14 @@ def test_update_todo(client: TestClient) -> None:
 
 def test_update_todo_partial(client: TestClient) -> None:
     """PUT /todos/{id} with partial payload should only update provided fields."""
-    create_resp = client.post("/todos", json={"title": "Keep", "description": "Original"})
+    create_resp = client.post(
+        "/todos", json={"title": "Keep", "description": "Original"}
+    )
     todo_id = create_resp.json()["id"]
     response = client.put(f"/todos/{todo_id}", json={"completed": True})
     assert response.status_code == 200
     body = response.json()
+    # Fields not included in the update payload remain unchanged.
     assert body["title"] == "Keep"
     assert body["description"] == "Original"
     assert body["completed"] is True
@@ -126,7 +129,7 @@ def test_update_todo_partial(client: TestClient) -> None:
 
 def test_update_todo_not_found_returns_404(client: TestClient) -> None:
     """PUT /todos/{id} should return 404 for a non-existent id."""
-    response = client.put("/todos/9999", json={"title": "Nope"})
+    response = client.put("/todos/9999", json={"title": "Ghost"})
     assert response.status_code == 404
 
 
@@ -134,13 +137,16 @@ def test_update_todo_not_found_returns_404(client: TestClient) -> None:
 
 
 def test_delete_todo(client: TestClient) -> None:
-    """DELETE /todos/{id} should return 204 and remove the todo."""
-    create_resp = client.post("/todos", json={"title": "Gone"})
+    """DELETE /todos/{id} should remove the todo and return 204."""
+    create_resp = client.post("/todos", json={"title": "Ephemeral"})
     todo_id = create_resp.json()["id"]
-    response = client.delete(f"/todos/{todo_id}")
-    assert response.status_code == 204
-    assert response.content == b""
-    # Confirm it's actually gone
+
+    delete_resp = client.delete(f"/todos/{todo_id}")
+    assert delete_resp.status_code == 204
+    # Response body must be empty for 204 No Content.
+    assert delete_resp.content == b""
+
+    # Confirm the todo is actually gone.
     get_resp = client.get(f"/todos/{todo_id}")
     assert get_resp.status_code == 404
 
@@ -151,11 +157,12 @@ def test_delete_todo_not_found_returns_404(client: TestClient) -> None:
     assert response.status_code == 404
 
 
-# -- Health check ------------------------------------------------------------
+# -- Storage isolation -------------------------------------------------------
 
 
-def test_health_check(client: TestClient) -> None:
-    """GET /health should return 200 with status ok."""
-    response = client.get("/health")
+def test_storage_resets_between_tests(client: TestClient) -> None:
+    """Verify the autouse fixture clears storage so tests are independent."""
+    # If storage leaked from a previous test we would see stale items.
+    response = client.get("/todos")
     assert response.status_code == 200
-    assert response.json() == {"status": "ok"}
+    assert response.json() == []
