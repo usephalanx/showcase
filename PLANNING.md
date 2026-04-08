@@ -2,63 +2,73 @@
 
 ## Overview
 
-A simple RESTful Todo API built with FastAPI, using an in-memory dictionary
-as the persistence layer. Designed for development and testing purposes.
+A lightweight RESTful Todo API built with **FastAPI** and backed by an
+in-memory Python dictionary.  Designed for learning, prototyping, and
+automated testing — not for production persistence.
 
 ## Data Model
 
-### Todo Item
+### Todo
 
-| Field       | Type            | Required | Default | Notes                      |
-|-------------|-----------------|----------|---------|----------------------------|
-| id          | int             | auto     | —       | Auto-incremented integer   |
-| title       | str             | yes      | —       | Min length 1               |
-| description | Optional[str]   | no       | None    | Free-text description      |
-| completed   | bool            | no       | False   | Completion flag            |
-| created_at  | str (ISO 8601)  | auto     | —       | UTC timestamp at creation  |
+| Field        | Type            | Default         | Notes                        |
+|--------------|-----------------|-----------------|------------------------------|
+| id           | int             | auto-increment  | Primary key, assigned by store |
+| title        | str             | *(required)*    | Must be at least 1 character |
+| description  | Optional[str]   | None            | Free-text description        |
+| completed    | bool            | False           | Completion status            |
+| created_at   | str (ISO 8601)  | UTC now         | Set once at creation time    |
 
 ## API Endpoints
 
-| Method | Path             | Status | Description              |
-|--------|------------------|--------|--------------------------|
-| GET    | /                | 200    | Health / welcome message |
-| POST   | /todos           | 201    | Create a new todo        |
-| GET    | /todos           | 200    | List all todos           |
-| GET    | /todos/{todo_id} | 200    | Get a single todo        |
-| PUT    | /todos/{todo_id} | 200    | Update an existing todo  |
-| DELETE | /todos/{todo_id} | 204    | Delete a todo            |
+| Method | Path              | Request Body | Success Status | Response Body        |
+|--------|-------------------|--------------|----------------|----------------------|
+| GET    | `/`               | —            | 200            | `{"message": "..."}` |
+| POST   | `/todos`          | TodoCreate   | 201            | TodoResponse         |
+| GET    | `/todos`          | —            | 200            | List[TodoResponse]   |
+| GET    | `/todos/{todo_id}`| —            | 200            | TodoResponse         |
+| PUT    | `/todos/{todo_id}`| TodoUpdate   | 200            | TodoResponse         |
+| DELETE | `/todos/{todo_id}`| —            | 204            | *(empty)*            |
 
 ### Error Responses
 
-- **404 Not Found** — returned by GET /todos/{id}, PUT /todos/{id}, and
-  DELETE /todos/{id} when the requested todo does not exist.
-- **422 Unprocessable Entity** — returned by FastAPI when the request body
-  fails Pydantic validation.
+- **404 Not Found** — returned by GET, PUT, DELETE when `todo_id` does
+  not exist. Body: `{"detail": "Todo not found"}`.
+- **422 Unprocessable Entity** — returned automatically by FastAPI when
+  the request body fails Pydantic validation.
 
 ## Project Structure
 
 ```
 .
-├── main.py          # FastAPI app entry point, mounts router
+├── main.py          # FastAPI app creation, router mounting, uvicorn entry point
+├── routes.py        # APIRouter with all five CRUD endpoints
 ├── models.py        # Pydantic request/response schemas
 ├── storage.py       # In-memory TodoStore class
-├── routes.py        # APIRouter with all CRUD handlers
+├── requirements.txt # Python dependency pins
 ├── conftest.py      # Root pytest configuration
-├── requirements.txt # Pinned Python dependencies
 ├── tests/
-│   ├── __init__.py
-│   └── test_routes.py  # Full endpoint test suite
-└── PLANNING.md      # This file
+│   ├── test_main.py # Tests for the root endpoint and app wiring
+│   └── ...          # Additional test modules
+├── PLANNING.md      # This file
+└── RUNNING.md       # How to install and run
 ```
 
 ## Design Decisions
 
-1. **In-memory store** — chosen for simplicity; no external dependencies.
-   Data is lost on restart, which is acceptable for dev/test.
-2. **Auto-increment ID** — a simple counter in `TodoStore` ensures unique,
-   predictable IDs without external libraries.
-3. **Partial updates via PUT** — only fields supplied in the request body
-   are changed; `None` values are skipped.
-4. **DELETE returns 204** — follows REST conventions; no body is returned.
-5. **Store instance on the router module** — keeps the store accessible for
-   both route handlers and test fixtures (via import + `.reset()`).
+1. **In-memory storage** — chosen for simplicity; no external database
+   dependency.  The `TodoStore` class encapsulates all state so it can
+   be swapped for a persistent backend later.
+
+2. **Auto-incrementing integer IDs** — simple, predictable, easy to test.
+   A production system might use UUIDs.
+
+3. **Module-level store instance in routes.py** — the store is
+   instantiated once when the module is imported.  Tests reset it via
+   `store.reset()` to ensure isolation.
+
+4. **Partial updates via PUT with optional fields** — `TodoUpdate` has
+   all-optional fields; only non-`None` values are applied.  This keeps
+   the endpoint count low while supporting partial changes.
+
+5. **204 No Content for DELETE** — follows REST conventions; the
+   response body is empty on successful deletion.

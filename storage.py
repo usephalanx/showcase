@@ -60,29 +60,26 @@ class TodoStore:
             "created_at": now,
         }
         self._todos[todo_id] = todo
-        return dict(todo)
-
-    def get(self, todo_id: int) -> Optional[dict]:
-        """Retrieve a single todo by its ID.
-
-        Args:
-            todo_id: The integer ID of the todo.
-
-        Returns:
-            A copy of the todo dict, or None if not found.
-        """
-        todo = self._todos.get(todo_id)
-        if todo is None:
-            return None
-        return dict(todo)
+        return todo
 
     def get_all(self) -> List[dict]:
         """Return a list of all stored todos.
 
         Returns:
-            A list of todo dictionaries (copies).
+            A list of todo dictionaries ordered by insertion.
         """
-        return [dict(t) for t in self._todos.values()]
+        return list(self._todos.values())
+
+    def get(self, todo_id: int) -> Optional[dict]:
+        """Retrieve a single todo by its ID.
+
+        Args:
+            todo_id: The unique identifier of the todo.
+
+        Returns:
+            The todo dictionary, or ``None`` if not found.
+        """
+        return self._todos.get(todo_id)
 
     def update(
         self,
@@ -93,16 +90,16 @@ class TodoStore:
     ) -> Optional[dict]:
         """Partially update an existing todo.
 
-        Only non-None arguments overwrite the stored values.
+        Only non-``None`` arguments are applied to the stored record.
 
         Args:
-            todo_id: The integer ID of the todo to update.
-            title: New title, or None to keep existing.
-            description: New description, or None to keep existing.
-            completed: New completion status, or None to keep existing.
+            todo_id: The unique identifier of the todo to update.
+            title: New title (if provided).
+            description: New description (if provided).
+            completed: New completion status (if provided).
 
         Returns:
-            The updated todo dict, or None if not found.
+            The updated todo dictionary, or ``None`` if not found.
         """
         todo = self._todos.get(todo_id)
         if todo is None:
@@ -115,16 +112,16 @@ class TodoStore:
         if completed is not None:
             todo["completed"] = completed
 
-        return dict(todo)
+        return todo
 
     def delete(self, todo_id: int) -> bool:
         """Remove a todo by its ID.
 
         Args:
-            todo_id: The integer ID of the todo to remove.
+            todo_id: The unique identifier of the todo to remove.
 
         Returns:
-            True if the todo existed and was deleted, False otherwise.
+            ``True`` if the todo was found and removed, ``False`` otherwise.
         """
         if todo_id in self._todos:
             del self._todos[todo_id]

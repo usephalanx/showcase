@@ -1,226 +1,231 @@
-"""Unit and integration tests for the Todo FastAPI application.
+"""Tests for the main FastAPI application entry point.
 
-Uses FastAPI's TestClient to exercise all CRUD endpoints and verify
-correct status codes, response bodies, and 404 handling.  The
-in-memory store is reset before every test via a pytest fixture.
+Covers:
+- The root endpoint returns the expected welcome message.
+- The todo router is correctly mounted (basic smoke tests).
+- CRUD lifecycle through the API.
 """
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 import pytest
 from fastapi.testclient import TestClient
 
-# Ensure the project root is on sys.path so that 'main', 'routes',
-# 'storage', and 'models' can be imported.
-_PROJECT_ROOT = str(Path(__file__).resolve().parent.parent)
-if _PROJECT_ROOT not in sys.path:
-    sys.path.insert(0, _PROJECT_ROOT)
-
-from main import app  # noqa: E402
-from routes import store  # noqa: E402
+from main import app
+from routes import store
 
 
 @pytest.fixture(autouse=True)
 def _reset_store() -> None:
-    """Reset the in-memory todo store before each test."""
+    """Reset the in-memory store before every test."""
     store.reset()
 
 
-client = TestClient(app)
+@pytest.fixture()
+def client() -> TestClient:
+    """Return a TestClient bound to the FastAPI app."""
+    return TestClient(app)
 
 
 # ------------------------------------------------------------------
-# Helper
-# ------------------------------------------------------------------
-
-def _create_todo(
-    title: str = "Test todo",
-    description: str | None = None,
-    completed: bool = False,
-) -> dict:
-    """Post a new todo and return the parsed JSON response."""
-    payload: dict = {"title": title}
-    if description is not None:
-        payload["description"] = description
-    if completed:
-        payload["completed"] = completed
-    response = client.post("/todos", json=payload)
-    return response.json()
-
-
-# ------------------------------------------------------------------
-# POST /todos
+# Root endpoint
 # ------------------------------------------------------------------
 
 
-def test_create_todo_minimal() -> None:
-    """Creating a todo with only a title should succeed with 201."""
-    response = client.post("/todos", json={"title": "Buy milk"})
-    assert response.status_code == 201
-    body = response.json()
-    assert body["title"] == "Buy milk"
-    assert body["completed"] is False
-    assert body["description"] is None
-    assert "id" in body
-    assert "created_at" in body
+class TestRootEndpoint:
+    """Tests for GET /."""
 
+    def test_root_returns_200(self, client: TestClient) -> None:
+        """GET / should return 200."""
+        response = client.get("/")
+        assert response.status_code == 200
 
-def test_create_todo_with_description() -> None:
-    """Creating a todo with a title and description should succeed."""
-    response = client.post(
-        "/todos",
-        json={"title": "Read book", "description": "Chapter 5"},
-    )
-    assert response.status_code == 201
-    body = response.json()
-    assert body["title"] == "Read book"
-    assert body["description"] == "Chapter 5"
-    assert body["completed"] is False
-
-
-def test_create_todo_with_completed_flag() -> None:
-    """Creating a todo that is already completed should honour the flag."""
-    response = client.post(
-        "/todos",
-        json={"title": "Done task", "completed": True},
-    )
-    assert response.status_code == 201
-    assert response.json()["completed"] is True
-
-
-def test_create_todo_empty_title_rejected() -> None:
-    """An empty title should be rejected (422 validation error)."""
-    response = client.post("/todos", json={"title": ""})
-    assert response.status_code == 422
+    def test_root_message(self, client: TestClient) -> None:
+        """GET / should return the expected JSON message."""
+        response = client.get("/")
+        assert response.json() == {"message": "Todo API is running"}
 
 
 # ------------------------------------------------------------------
-# GET /todos
+# Create todo
 # ------------------------------------------------------------------
 
 
-def test_list_todos_empty() -> None:
-    """Listing todos when the store is empty should return an empty list."""
-    response = client.get("/todos")
-    assert response.status_code == 200
-    assert response.json() == []
+class TestCreateTodo:
+    """Tests for POST /todos."""
 
+    def test_create_returns_201(self, client: TestClient) -> None:
+        """POST /todos should return 201 on success."""
+        response = client.post("/todos", json={"title": "Buy milk"})
+        assert response.status_code == 201
 
-def test_list_todos_multiple() -> None:
-    """Listing todos should return all created items."""
-    _create_todo(title="First")
-    _create_todo(title="Second")
-    response = client.get("/todos")
-    assert response.status_code == 200
-    body = response.json()
-    assert len(body) == 2
-    titles = {t["title"] for t in body}
-    assert titles == {"First", "Second"}
+    def test_create_returns_todo(self, client: TestClient) -> None:
+        """POST /todos should return the created todo with an id."""
+        response = client.post(
+            "/todos", json={"title": "Walk the dog", "description": "In the park"}
+        )
+        data = response.json()
+        assert data["id"] == 1
+        assert data["title"] == "Walk the dog"
+        assert data["description"] == "In the park"
+        assert data["completed"] is False
+        assert "created_at" in data
 
+    def test_create_without_title_returns_422(self, client: TestClient) -> None:
+        """POST /todos with missing title should return 422."""
+        response = client.post("/todos", json={})
+        assert response.status_code == 422
 
-# ------------------------------------------------------------------
-# GET /todos/{id}
-# ------------------------------------------------------------------
-
-
-def test_get_single_todo() -> None:
-    """Retrieving a todo by ID should return the correct item."""
-    created = _create_todo(title="Specific todo", description="details")
-    todo_id = created["id"]
-    response = client.get(f"/todos/{todo_id}")
-    assert response.status_code == 200
-    body = response.json()
-    assert body["id"] == todo_id
-    assert body["title"] == "Specific todo"
-    assert body["description"] == "details"
-
-
-def test_get_todo_not_found() -> None:
-    """Requesting a non-existent todo should return 404."""
-    response = client.get("/todos/9999")
-    assert response.status_code == 404
-    assert response.json()["detail"] == "Todo not found"
+    def test_create_with_empty_title_returns_422(self, client: TestClient) -> None:
+        """POST /todos with an empty title string should return 422."""
+        response = client.post("/todos", json={"title": ""})
+        assert response.status_code == 422
 
 
 # ------------------------------------------------------------------
-# PUT /todos/{id}
+# List todos
 # ------------------------------------------------------------------
 
 
-def test_update_todo_title() -> None:
-    """Updating only the title should leave other fields unchanged."""
-    created = _create_todo(title="Old title")
-    todo_id = created["id"]
-    response = client.put(f"/todos/{todo_id}", json={"title": "New title"})
-    assert response.status_code == 200
-    body = response.json()
-    assert body["title"] == "New title"
-    assert body["completed"] is False  # unchanged
+class TestListTodos:
+    """Tests for GET /todos."""
 
+    def test_list_empty(self, client: TestClient) -> None:
+        """GET /todos should return an empty list when no todos exist."""
+        response = client.get("/todos")
+        assert response.status_code == 200
+        assert response.json() == []
 
-def test_update_todo_completed() -> None:
-    """Updating the completed flag should be reflected in the response."""
-    created = _create_todo(title="Task")
-    todo_id = created["id"]
-    response = client.put(f"/todos/{todo_id}", json={"completed": True})
-    assert response.status_code == 200
-    assert response.json()["completed"] is True
-
-
-def test_update_todo_description() -> None:
-    """Updating the description should work."""
-    created = _create_todo(title="Task")
-    todo_id = created["id"]
-    response = client.put(
-        f"/todos/{todo_id}", json={"description": "new desc"}
-    )
-    assert response.status_code == 200
-    assert response.json()["description"] == "new desc"
-
-
-def test_update_todo_not_found() -> None:
-    """Updating a non-existent todo should return 404."""
-    response = client.put("/todos/9999", json={"title": "Nope"})
-    assert response.status_code == 404
-    assert response.json()["detail"] == "Todo not found"
+    def test_list_after_create(self, client: TestClient) -> None:
+        """GET /todos should include todos that were previously created."""
+        client.post("/todos", json={"title": "First"})
+        client.post("/todos", json={"title": "Second"})
+        response = client.get("/todos")
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data) == 2
+        assert data[0]["title"] == "First"
+        assert data[1]["title"] == "Second"
 
 
 # ------------------------------------------------------------------
-# DELETE /todos/{id}
+# Get single todo
 # ------------------------------------------------------------------
 
 
-def test_delete_todo() -> None:
-    """Deleting an existing todo should succeed and remove it."""
-    created = _create_todo(title="To be deleted")
-    todo_id = created["id"]
+class TestGetTodo:
+    """Tests for GET /todos/{todo_id}."""
 
-    response = client.delete(f"/todos/{todo_id}")
-    assert response.status_code == 200
-    assert response.json()["detail"] == "Todo deleted successfully"
+    def test_get_existing(self, client: TestClient) -> None:
+        """GET /todos/{id} should return the todo when it exists."""
+        client.post("/todos", json={"title": "Test"})
+        response = client.get("/todos/1")
+        assert response.status_code == 200
+        assert response.json()["title"] == "Test"
 
-    # Confirm it's gone
-    get_response = client.get(f"/todos/{todo_id}")
-    assert get_response.status_code == 404
-
-
-def test_delete_todo_not_found() -> None:
-    """Deleting a non-existent todo should return 404."""
-    response = client.delete("/todos/9999")
-    assert response.status_code == 404
-    assert response.json()["detail"] == "Todo not found"
+    def test_get_not_found(self, client: TestClient) -> None:
+        """GET /todos/{id} should return 404 for a non-existent id."""
+        response = client.get("/todos/999")
+        assert response.status_code == 404
+        assert response.json()["detail"] == "Todo not found"
 
 
 # ------------------------------------------------------------------
-# Store isolation
+# Update todo
 # ------------------------------------------------------------------
 
 
-def test_store_reset_between_tests() -> None:
-    """Verify the store is empty at the start of each test (fixture works)."""
-    response = client.get("/todos")
-    assert response.status_code == 200
-    assert response.json() == []
+class TestUpdateTodo:
+    """Tests for PUT /todos/{todo_id}."""
+
+    def test_update_title(self, client: TestClient) -> None:
+        """PUT /todos/{id} should update the title."""
+        client.post("/todos", json={"title": "Old title"})
+        response = client.put("/todos/1", json={"title": "New title"})
+        assert response.status_code == 200
+        assert response.json()["title"] == "New title"
+
+    def test_update_completed(self, client: TestClient) -> None:
+        """PUT /todos/{id} should update the completed flag."""
+        client.post("/todos", json={"title": "Task"})
+        response = client.put("/todos/1", json={"completed": True})
+        assert response.status_code == 200
+        assert response.json()["completed"] is True
+
+    def test_update_description(self, client: TestClient) -> None:
+        """PUT /todos/{id} should update the description."""
+        client.post("/todos", json={"title": "Task"})
+        response = client.put("/todos/1", json={"description": "Details"})
+        assert response.status_code == 200
+        assert response.json()["description"] == "Details"
+
+    def test_update_not_found(self, client: TestClient) -> None:
+        """PUT /todos/{id} should return 404 for a non-existent id."""
+        response = client.put("/todos/999", json={"title": "Nope"})
+        assert response.status_code == 404
+
+
+# ------------------------------------------------------------------
+# Delete todo
+# ------------------------------------------------------------------
+
+
+class TestDeleteTodo:
+    """Tests for DELETE /todos/{todo_id}."""
+
+    def test_delete_existing(self, client: TestClient) -> None:
+        """DELETE /todos/{id} should return 204 when the todo exists."""
+        client.post("/todos", json={"title": "To remove"})
+        response = client.delete("/todos/1")
+        assert response.status_code == 204
+
+    def test_delete_removes_todo(self, client: TestClient) -> None:
+        """After DELETE, GET should return 404 for the same id."""
+        client.post("/todos", json={"title": "To remove"})
+        client.delete("/todos/1")
+        response = client.get("/todos/1")
+        assert response.status_code == 404
+
+    def test_delete_not_found(self, client: TestClient) -> None:
+        """DELETE /todos/{id} should return 404 for a non-existent id."""
+        response = client.delete("/todos/999")
+        assert response.status_code == 404
+
+
+# ------------------------------------------------------------------
+# Full lifecycle
+# ------------------------------------------------------------------
+
+
+class TestLifecycle:
+    """End-to-end CRUD lifecycle test."""
+
+    def test_full_crud_cycle(self, client: TestClient) -> None:
+        """Create, read, update, and delete a todo through the API."""
+        # Create
+        create_resp = client.post(
+            "/todos", json={"title": "Lifecycle", "description": "Full test"}
+        )
+        assert create_resp.status_code == 201
+        todo_id = create_resp.json()["id"]
+
+        # Read
+        get_resp = client.get(f"/todos/{todo_id}")
+        assert get_resp.status_code == 200
+        assert get_resp.json()["title"] == "Lifecycle"
+
+        # Update
+        put_resp = client.put(
+            f"/todos/{todo_id}", json={"completed": True, "title": "Done"}
+        )
+        assert put_resp.status_code == 200
+        assert put_resp.json()["completed"] is True
+        assert put_resp.json()["title"] == "Done"
+
+        # Delete
+        del_resp = client.delete(f"/todos/{todo_id}")
+        assert del_resp.status_code == 204
+
+        # Verify gone
+        gone_resp = client.get(f"/todos/{todo_id}")
+        assert gone_resp.status_code == 404
