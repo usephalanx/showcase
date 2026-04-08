@@ -93,36 +93,38 @@ class TodoStore:
     ) -> Optional[dict]:
         """Partially update an existing todo.
 
-        Only non-None arguments are applied.
+        Only non-None arguments overwrite the stored values.
 
         Args:
             todo_id: The integer ID of the todo to update.
-            title: New title, if provided.
-            description: New description, if provided.
-            completed: New completion status, if provided.
+            title: New title, or None to keep existing.
+            description: New description, or None to keep existing.
+            completed: New completion status, or None to keep existing.
 
         Returns:
-            The updated todo dict, or None if the ID does not exist.
+            The updated todo dict, or None if not found.
         """
         todo = self._todos.get(todo_id)
         if todo is None:
             return None
+
         if title is not None:
             todo["title"] = title
         if description is not None:
             todo["description"] = description
         if completed is not None:
             todo["completed"] = completed
+
         return dict(todo)
 
     def delete(self, todo_id: int) -> bool:
         """Remove a todo by its ID.
 
         Args:
-            todo_id: The integer ID of the todo to delete.
+            todo_id: The integer ID of the todo to remove.
 
         Returns:
-            True if the todo was found and deleted, False otherwise.
+            True if the todo existed and was deleted, False otherwise.
         """
         if todo_id in self._todos:
             del self._todos[todo_id]

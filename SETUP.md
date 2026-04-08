@@ -2,34 +2,27 @@
 
 ## Prerequisites
 
-- Python 3.10+
+- Python 3.10 or later
 
-## Install dependencies
-
-```bash
-python -m pip install -r requirements.txt
-```
-
-## Run the application
+## Install Dependencies
 
 ```bash
-python main.py
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+pip install -r requirements.txt
 ```
 
-Or with uvicorn directly:
+## Run the Server
 
 ```bash
-uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+uvicorn main:app --reload
 ```
 
-## Run tests
+The API will be available at http://127.0.0.1:8000.
+Interactive docs at http://127.0.0.1:8000/docs.
+
+## Run Tests
 
 ```bash
-python -m pytest tests/ -v
+pytest tests/ -v
 ```
-
-## API documentation
-
-Once running, visit:
-- Swagger UI: http://localhost:8000/docs
-- ReDoc: http://localhost:8000/redoc
