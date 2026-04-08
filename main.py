@@ -5,6 +5,7 @@ Creates the FastAPI app and mounts the Todo CRUD router.
 
 from __future__ import annotations
 
+import uvicorn
 from fastapi import FastAPI
 
 from routes import router
@@ -21,4 +22,8 @@ app.include_router(router)
 @app.get("/", tags=["root"])
 async def root() -> dict:
     """Return a welcome message at the API root."""
-    return {"message": "Welcome to the Todo API"}
+    return {"message": "Todo API is running"}
+
+
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

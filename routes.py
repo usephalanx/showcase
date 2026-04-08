@@ -13,7 +13,7 @@ Pydantic models from models.py.
 
 from __future__ import annotations
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Response
 
 from models import TodoCreate, TodoResponse, TodoUpdate
 from storage import TodoStore
@@ -75,9 +75,11 @@ async def update_todo(todo_id: int, payload: TodoUpdate) -> TodoResponse:
     return TodoResponse(**todo)
 
 
-@router.delete("/todos/{todo_id}", status_code=200, tags=["todos"])
-async def delete_todo(todo_id: int) -> dict:
+@router.delete("/todos/{todo_id}", status_code=204, tags=["todos"])
+async def delete_todo(todo_id: int) -> Response:
     """Delete a todo item by its ID.
+
+    Returns 204 No Content on success.
 
     Raises:
         HTTPException: 404 if the todo is not found.
@@ -85,4 +87,4 @@ async def delete_todo(todo_id: int) -> dict:
     deleted = store.delete(todo_id)
     if not deleted:
         raise HTTPException(status_code=404, detail="Todo not found")
-    return {"detail": "Todo deleted successfully"}
+    return Response(status_code=204)
