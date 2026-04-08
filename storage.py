@@ -88,9 +88,9 @@ class TodoStore:
         description: Optional[str] = None,
         completed: Optional[bool] = None,
     ) -> Optional[dict]:
-        """Partially update an existing todo.
+        """Update an existing todo with the supplied fields.
 
-        Only non-``None`` arguments are applied to the stored record.
+        Only non-``None`` arguments are applied, allowing partial updates.
 
         Args:
             todo_id: The unique identifier of the todo to update.
@@ -99,7 +99,7 @@ class TodoStore:
             completed: New completion status (if provided).
 
         Returns:
-            The updated todo dictionary, or ``None`` if not found.
+            The updated todo dictionary, or ``None`` if the ID was not found.
         """
         todo = self._todos.get(todo_id)
         if todo is None:
