@@ -16,3 +16,9 @@ app = FastAPI(
 )
 
 app.include_router(router)
+
+
+@app.get("/", tags=["root"])
+async def root() -> dict:
+    """Return a welcome message at the API root."""
+    return {"message": "Welcome to the Todo API"}
