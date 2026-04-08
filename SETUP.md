@@ -1,25 +1,35 @@
 # Setup Instructions
 
-## Install Dependencies
+## Prerequisites
+
+- Python 3.10+
+
+## Install dependencies
 
 ```bash
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 
-## Install Test Dependencies
+## Run the application
 
 ```bash
-pip install pytest httpx
+python main.py
 ```
 
-## Run Tests
+Or with uvicorn directly:
 
 ```bash
-pytest tests/ -v
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-## Run the Application
+## Run tests
 
 ```bash
-uvicorn main:app --reload
+python -m pytest tests/ -v
 ```
+
+## API documentation
+
+Once running, visit:
+- Swagger UI: http://localhost:8000/docs
+- ReDoc: http://localhost:8000/redoc

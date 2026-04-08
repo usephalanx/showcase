@@ -77,7 +77,7 @@ class TodoStore:
         return dict(todo)
 
     def get_all(self) -> List[dict]:
-        """Return a list of all todos ordered by ID ascending.
+        """Return a list of all stored todos.
 
         Returns:
             A list of todo dictionaries (copies).
@@ -91,18 +91,18 @@ class TodoStore:
         description: Optional[str] = None,
         completed: Optional[bool] = None,
     ) -> Optional[dict]:
-        """Update fields of an existing todo.
+        """Partially update an existing todo.
 
         Only non-None arguments are applied.
 
         Args:
             todo_id: The integer ID of the todo to update.
-            title: New title (if provided).
-            description: New description (if provided).
-            completed: New completion status (if provided).
+            title: New title, if provided.
+            description: New description, if provided.
+            completed: New completion status, if provided.
 
         Returns:
-            A copy of the updated todo dict, or None if not found.
+            The updated todo dict, or None if the ID does not exist.
         """
         todo = self._todos.get(todo_id)
         if todo is None:
