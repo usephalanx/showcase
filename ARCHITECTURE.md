@@ -2,128 +2,125 @@
 
 ## Overview
 
-A RESTful Todo API built with **FastAPI** using **in-memory storage**.
-Designed for simplicity and ease of testing.
+A simple RESTful Todo API built with **FastAPI** and **Pydantic v2**.  Data is
+stored in-memory (no database) and resets on process restart.  The API exposes
+standard CRUD operations on todo items.
 
 ## Technology Choices
 
-| Concern        | Choice                   |
-|----------------|-------------------------|
-| Framework      | FastAPI                  |
-| Validation     | Pydantic v2              |
-| Server         | Uvicorn                  |
-| Testing        | pytest + httpx           |
-| Storage        | In-memory Python dict    |
+| Component      | Technology            |
+|----------------|-----------------------|
+| Framework      | FastAPI               |
+| Validation     | Pydantic v2           |
+| Server         | Uvicorn               |
+| Testing        | pytest + httpx        |
+| Python         | 3.11+                 |
 
 ## Project Structure
 
 ```
-.
-├── app/
-│   ├── __init__.py
-│   ├── main.py          # FastAPI app, CORS, router inclusion
-│   ├── models.py         # Pydantic schemas
-│   ├── routes/
-│   │   ├── __init__.py
-│   │   └── todos.py      # /todos endpoint handlers
-│   └── storage.py        # In-memory storage module
-├── tests/
-│   ├── __init__.py
-│   ├── test_main.py      # App-level tests
-│   └── test_todos.py     # Todo CRUD tests
-├── pyproject.toml
-├── ARCHITECTURE.md
-└── RUNNING.md
+app/
+├── __init__.py           # Package marker
+├── main.py               # FastAPI application entry point
+├── models.py             # Pydantic request/response schemas
+├── storage.py            # In-memory storage backend
+└── routes/
+    ├── __init__.py       # Routes sub-package marker
+    └── todos.py          # CRUD route handlers for /todos
+tests/
+├── __init__.py           # Test package marker
+├── test_models.py        # Tests for Pydantic schemas
+└── test_storage.py       # Tests for in-memory storage
 ```
 
 ## Data Model
 
-### Todo Item
+Each todo item has the following fields:
 
-| Field         | Type   | Constraints                            |
-|---------------|--------|----------------------------------------|
-| `id`          | `int`  | Auto-generated, read-only              |
-| `title`       | `str`  | Required, min length 1                 |
-| `description` | `str`  | Optional, defaults to `""`             |
-| `completed`   | `bool` | Defaults to `False`                    |
+| Field         | Type   | Notes                                      |
+|---------------|--------|--------------------------------------------|
+| `id`          | `int`  | Auto-generated, read-only, unique          |
+| `title`       | `str`  | Required, minimum 1 character              |
+| `description` | `str`  | Optional, defaults to empty string `""`    |
+| `completed`   | `bool` | Defaults to `False` on creation            |
 
-### Pydantic Schemas
+The `id` field is **never** accepted in create or update requests — it is
+assigned by the storage layer.
 
-- **`TodoCreate`** — request body for `POST /todos`
-  - `title: str` (required)
-  - `description: str = ""`
+## Pydantic Schemas
 
-- **`TodoUpdate`** — request body for `PUT /todos/{id}`
-  - `title: str | None = None`
-  - `description: str | None = None`
-  - `completed: bool | None = None`
-  - All fields are **optional** to support partial updates.
+### `TodoCreate` (request body for POST)
 
-- **`TodoResponse`** — response body for all todo endpoints
-  - `id: int`
-  - `title: str`
-  - `description: str`
-  - `completed: bool`
+- `title`: `str` — required, min length 1
+- `description`: `str` — optional, defaults to `""`
 
-> The `id` field is **never** accepted in create or update requests.
+### `TodoUpdate` (request body for PUT)
+
+All fields are **optional** to support partial updates:
+
+- `title`: `Optional[str]` — min length 1 when provided
+- `description`: `Optional[str]`
+- `completed`: `Optional[bool]`
+
+### `TodoResponse` (response body)
+
+- `id`: `int`
+- `title`: `str`
+- `description`: `str`
+- `completed`: `bool`
 
 ## API Endpoints
 
-| Method   | Path              | Request Body  | Success Response          | Error Responses |
-|----------|-------------------|---------------|---------------------------|-----------------|
-| `GET`    | `/todos`          | —             | `200` `List[TodoResponse]`| —               |
-| `GET`    | `/todos/{id}`     | —             | `200` `TodoResponse`      | `404`           |
-| `POST`   | `/todos`          | `TodoCreate`  | `201` `TodoResponse`      | `422`           |
-| `PUT`    | `/todos/{id}`     | `TodoUpdate`  | `200` `TodoResponse`      | `404`           |
-| `DELETE` | `/todos/{id}`     | —             | `204` No Content          | `404`           |
+| Method   | Path             | Request Body | Response            | Status  |
+|----------|------------------|--------------|---------------------|---------|
+| `GET`    | `/todos`         | —            | `List[TodoResponse]`| `200`   |
+| `GET`    | `/todos/{id}`    | —            | `TodoResponse`      | `200`   |
+| `POST`   | `/todos`         | `TodoCreate` | `TodoResponse`      | `201`   |
+| `PUT`    | `/todos/{id}`    | `TodoUpdate` | `TodoResponse`      | `200`   |
+| `DELETE` | `/todos/{id}`    | —            | No body             | `204`   |
 
-### Notes
+### Error Responses
 
-- `DELETE` returns **204 No Content** with no response body on success.
-- `POST` returns **201 Created**.
-- `422 Unprocessable Entity` is returned when required fields (e.g. `title`) are missing.
+- `404 Not Found` — returned by GET (single), PUT, and DELETE when the
+  requested `id` does not exist.  Body: `{"detail": "Todo not found"}`.
+- `422 Unprocessable Entity` — returned when the request body fails
+  Pydantic validation (e.g. missing `title` on create).
 
 ## In-Memory Storage
 
-Storage lives in `app/storage.py` as module-level state:
+The storage layer (`app/storage.py`) uses a `TodoStorage` class:
 
-```python
-_todos: dict[int, dict] = {}
-_counter: int = 0
-```
+- **`_todos`**: `dict[int, dict]` — mapping of todo id → todo data dictionary.
+- **`_counter`**: `int` — auto-incrementing counter for generating unique ids.
 
-### Helper Functions
+### Storage API
 
-| Function                          | Returns              | Description                          |
-|-----------------------------------|----------------------|--------------------------------------|
-| `get_all() -> list[dict]`        | List of all todos    | Returns all stored todo dicts        |
-| `get_by_id(id: int) -> dict \| None` | Single todo or None | Lookup by id                         |
-| `create(data: dict) -> dict`     | Created todo         | Auto-assigns id, stores and returns  |
-| `update(id: int, data: dict) -> dict \| None` | Updated todo or None | Partial update of existing todo |
-| `delete(id: int) -> bool`        | True if deleted      | Returns False if id not found        |
+| Method                           | Returns               | Description                                  |
+|----------------------------------|-----------------------|----------------------------------------------|
+| `get_all()`                      | `list[dict]`          | Return all todos                             |
+| `get_by_id(todo_id: int)`        | `dict \| None`        | Return one todo or `None`                    |
+| `create(data: dict)`             | `dict`                | Create a todo with auto-assigned id          |
+| `update(todo_id: int, data: dict)` | `dict \| None`      | Partial update; `None` values are ignored    |
+| `delete(todo_id: int)`           | `bool`                | `True` if deleted, `False` if not found      |
+| `clear()`                        | `None`                | Reset store and counter (for tests)          |
 
-> **Note:** In-memory storage is **not persistent**. All data is lost on
-> server restart. This is intentional for this project scope.
+A module-level **singleton** instance `storage` is exported for use by route
+handlers.
 
-## Error Handling
-
-- `404 Not Found` — returned when a todo with the given id does not exist
-  (GET by id, PUT, DELETE).
-- `422 Unprocessable Entity` — returned when request validation fails
-  (e.g. missing required `title` on POST).
+> **Note:** Data is not persistent.  Restarting the server clears all todos.
 
 ## Testing Strategy
 
-All tests use `httpx.AsyncClient` or `fastapi.testclient.TestClient`.
+Tests are located in the `tests/` directory and run with `pytest`.
 
-| Test Function                            | Validates                                  |
-|------------------------------------------|--------------------------------------------|
-| `test_create_todo`                       | POST /todos creates and returns 201        |
-| `test_list_todos`                        | GET /todos returns list of all todos       |
-| `test_get_todo_by_id`                    | GET /todos/{id} returns the correct todo   |
-| `test_get_todo_not_found_returns_404`    | GET /todos/{id} returns 404 for bad id     |
-| `test_update_todo`                       | PUT /todos/{id} updates fields correctly   |
-| `test_update_todo_not_found_returns_404` | PUT /todos/{id} returns 404 for bad id     |
-| `test_delete_todo`                       | DELETE /todos/{id} returns 204             |
-| `test_delete_todo_not_found_returns_404` | DELETE /todos/{id} returns 404 for bad id  |
-| `test_create_todo_missing_title_returns_422` | POST /todos without title returns 422  |
+### Planned Test Functions
+
+- `test_create_todo` — POST creates a todo and returns 201
+- `test_list_todos` — GET /todos returns all items
+- `test_get_todo_by_id` — GET /todos/{id} returns the correct item
+- `test_get_todo_not_found_returns_404` — GET /todos/{id} with bad id → 404
+- `test_update_todo` — PUT /todos/{id} updates fields correctly
+- `test_update_todo_not_found_returns_404` — PUT /todos/{id} with bad id → 404
+- `test_delete_todo` — DELETE /todos/{id} returns 204
+- `test_delete_todo_not_found_returns_404` — DELETE /todos/{id} with bad id → 404
+- `test_create_todo_missing_title_returns_422` — POST without title → 422

@@ -11,7 +11,12 @@ from pydantic import BaseModel, Field
 
 
 class TodoCreate(BaseModel):
-    """Request body for creating a new todo item."""
+    """Request body for creating a new todo item.
+
+    Attributes:
+        title: Title of the todo item.  Must be at least 1 character.
+        description: Optional longer description.  Defaults to empty string.
+    """
 
     title: str = Field(..., min_length=1, description="Title of the todo item")
     description: str = Field(
@@ -23,7 +28,13 @@ class TodoCreate(BaseModel):
 class TodoUpdate(BaseModel):
     """Request body for updating an existing todo item.
 
-    All fields are optional to support partial updates.
+    All fields are optional to support partial updates.  Only fields
+    explicitly provided in the request body will be applied.
+
+    Attributes:
+        title: New title (optional).
+        description: New description (optional).
+        completed: New completion status (optional).
     """
 
     title: Optional[str] = Field(
@@ -38,7 +49,14 @@ class TodoUpdate(BaseModel):
 
 
 class TodoResponse(BaseModel):
-    """Response body representing a single todo item."""
+    """Response body representing a single todo item.
+
+    Attributes:
+        id: Unique auto-generated identifier.
+        title: Title of the todo item.
+        description: Longer description (may be empty string).
+        completed: Whether the todo has been completed.
+    """
 
     id: int
     title: str

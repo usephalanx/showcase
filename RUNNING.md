@@ -8,37 +8,44 @@ cd <repository-directory>
 docker compose up --build
 ```
 
-The API will be available at:
+The API will be available at **http://localhost:8000**.
 
-- **API base URL:** http://localhost:8000
-- **Swagger docs:** http://localhost:8000/docs
+## API Documentation
+
+FastAPI auto-generates interactive API docs:
+
+- **Swagger UI:** http://localhost:8000/docs
 - **ReDoc:** http://localhost:8000/redoc
 
-## Local Development (without Docker)
+## Running Without Docker
 
 ### Prerequisites
 
-- Python 3.10+
+- Python 3.11+
+- pip
 
 ### Install Dependencies
 
 ```bash
-pip install -e ".[dev]"
+pip install fastapi uvicorn pydantic
 ```
 
-### Run the Server
+### Start the Server
 
 ```bash
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-### Run Tests
+## Running Tests
 
 ```bash
-pytest
+pip install pytest httpx
+pytest tests/ -v
 ```
 
-## Environment Variables
+## Health Check
 
-No environment variables are required. The application uses in-memory
-storage by default.
+```bash
+curl http://localhost:8000/health
+# {"status": "ok"}
+```

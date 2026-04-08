@@ -11,6 +11,8 @@ from __future__ import annotations
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.routes.todos import router as todos_router
+
 app = FastAPI(
     title="Todo API",
     description="A simple Todo REST API with in-memory storage.",
@@ -27,6 +29,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ---------------------------------------------------------------------------
+# Routers
+# ---------------------------------------------------------------------------
+app.include_router(todos_router)
 
 
 @app.get("/health", tags=["health"])

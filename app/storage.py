@@ -42,7 +42,14 @@ class TodoStorage:
     def create(self, data: dict) -> dict:
         """Create a new todo from *data* and return it with an assigned id.
 
-        *data* should contain ``title`` and ``description`` keys.
+        *data* should contain ``title`` and optionally ``description`` keys.
+        The ``id`` is auto-generated and ``completed`` defaults to ``False``.
+
+        Args:
+            data: Dictionary with at least a ``title`` key.
+
+        Returns:
+            The newly created todo dictionary including its assigned ``id``.
         """
         todo_id = self._next_id()
         todo: dict = {
@@ -58,6 +65,13 @@ class TodoStorage:
         """Update an existing todo with the non-``None`` values in *data*.
 
         Returns the updated todo dict, or ``None`` if *todo_id* does not exist.
+
+        Args:
+            todo_id: The id of the todo to update.
+            data: Dictionary of fields to update.  ``None`` values are ignored.
+
+        Returns:
+            The updated todo dictionary, or ``None`` if not found.
         """
         todo = self._todos.get(todo_id)
         if todo is None:
@@ -70,7 +84,14 @@ class TodoStorage:
         return todo
 
     def delete(self, todo_id: int) -> bool:
-        """Delete a todo by *todo_id*.  Returns ``True`` if it existed."""
+        """Delete a todo by *todo_id*.  Returns ``True`` if it existed.
+
+        Args:
+            todo_id: The id of the todo to delete.
+
+        Returns:
+            ``True`` if the todo was found and deleted, ``False`` otherwise.
+        """
         if todo_id in self._todos:
             del self._todos[todo_id]
             return True
