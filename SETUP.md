@@ -1,25 +1,47 @@
 # Setup Instructions
 
+## Prerequisites
+
+- Node.js >= 18
+- npm >= 9
+
 ## Install Dependencies
 
 ```bash
-pip install -r requirements.txt
+npm install
 ```
 
-## Install Test Dependencies
+This generates `node_modules/` and `package-lock.json` (both are git-ignored
+and must not be hand-written).
+
+## Development
 
 ```bash
-pip install pytest httpx
+npm run dev
 ```
+
+Starts the Vite dev server with hot module replacement.
+
+## Build
+
+```bash
+npm run build
+```
+
+Runs TypeScript type-checking (`tsc`) then produces a production build in `dist/`.
+
+## Preview
+
+```bash
+npm run preview
+```
+
+Serves the production build locally for verification.
 
 ## Run Tests
 
 ```bash
-pytest tests/ -v
+npm run test
 ```
 
-## Run the Application
-
-```bash
-uvicorn main:app --reload
-```
+Runs Vitest in single-run mode with jsdom environment.
