@@ -1,15 +1,15 @@
-# Setup Notes
+# Setup
 
-## Generated / Lock Files
-
-The following files are **not** checked in and must be generated locally:
+After cloning the repository, install the Python dependencies:
 
 ```bash
-# Install project and dev dependencies (generates .venv, egg-info, etc.)
-pip install -e ".[dev]"
-
-# If using a lock-file workflow:
-pip freeze > requirements-lock.txt   # optional
+pip install -r requirements.txt
 ```
 
-Do **not** commit `__pycache__/`, `*.egg-info/`, `.venv/`, or `dist/`.
+No lock files are committed to the repository.  The `requirements.txt`
+file pins compatible version ranges.  To generate a fully pinned lock
+file for reproducible installs:
+
+```bash
+pip freeze > requirements-lock.txt
+```

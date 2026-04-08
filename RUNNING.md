@@ -22,13 +22,13 @@ Swagger documentation is at **http://localhost:8000/docs**.
 ### Install Dependencies
 
 ```bash
-pip install fastapi uvicorn pydantic httpx pytest
+pip install -r requirements.txt
 ```
 
-Or, if a `requirements.txt` is present:
+Or install packages directly:
 
 ```bash
-pip install -r requirements.txt
+pip install fastapi uvicorn pydantic httpx pytest
 ```
 
 ### Run the Server
@@ -48,6 +48,12 @@ in-memory).
 ### Run Tests
 
 ```bash
+pytest
+```
+
+Or with verbose output:
+
+```bash
 pytest tests/ -v
 ```
 
@@ -60,8 +66,8 @@ pytest tests/test_seed.py -v
 ## Seed Data
 
 The application ships with a small set of sample todos that are loaded
-automatically at startup.  You can also call the seed function
-programmatically:
+automatically at startup via the FastAPI lifespan handler in
+`app/main.py`.  You can also call the seed function programmatically:
 
 ```python
 from app.seed import seed_todos
@@ -77,6 +83,9 @@ storage.clear()
 seed_todos(storage)
 ```
 
+The seed function is **idempotent** — it only inserts data when the
+store is empty.
+
 ## Endpoints
 
 | Method   | URL             | Description       |
@@ -87,3 +96,8 @@ seed_todos(storage)
 | `PUT`    | `/todos/{id}`   | Update a todo     |
 | `DELETE` | `/todos/{id}`   | Delete a todo     |
 | `GET`    | `/health`       | Health check      |
+
+## Architecture
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) for detailed information about
+the data model, storage layer, and API design decisions.

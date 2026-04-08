@@ -10,11 +10,10 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-test = [
+dev = [
     "pytest",
     "httpx",
 ]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-filterwarnings = ["ignore::DeprecationWarning"]
