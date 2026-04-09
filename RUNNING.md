@@ -1,61 +1,50 @@
-# Running the Todo API
+# Running the Hello API
 
 ## Prerequisites
 
-- Python 3.10 or later
-- `pip` (Python package installer)
+- **Python 3.12+** (for local execution), or
+- **Docker** and **Docker Compose** (for containerised execution).
 
-## Install Dependencies
+---
 
-Install all project dependencies from the `requirements.txt` file:
+## Option 1 — Run Locally
 
 ```bash
+# 1. Create and activate a virtual environment
+python -m venv .venv
+source .venv/bin/activate   # Linux / macOS
+# .venv\Scripts\activate    # Windows
+
+# 2. Install dependencies
 pip install -r requirements.txt
+
+# 3. Start the server
+uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
-This will install:
+Open <http://localhost:8000> in your browser — you should see:
 
-- **FastAPI** — the async web framework powering the API
-- **Uvicorn** — the ASGI server used to run the application
-- **Pydantic** — data validation and serialization
-- **httpx** — HTTP client used by the test suite
-- **pytest** — test runner
-- **pytest-timeout** — timeout support for tests
-
-## Start the Server
-
-Run the application with Uvicorn:
-
-```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+```json
+{"message": "hello"}
 ```
 
-The API will be available at <http://localhost:8000>.
+Interactive API docs are available at <http://localhost:8000/docs>.
 
-Interactive API docs (Swagger UI) are served at <http://localhost:8000/docs>.
+---
 
-Alternative ReDoc documentation is available at <http://localhost:8000/redoc>.
-
-## Run the Tests
-
-Execute the full test suite with pytest:
-
-```bash
-pytest tests/
-```
-
-To run tests with verbose output:
-
-```bash
-pytest tests/ -v
-```
-
-## Docker (Optional)
-
-If you prefer to run the application in a container:
+## Option 2 — Run with Docker Compose
 
 ```bash
 docker compose up --build
 ```
 
-This will build the image and start the server on port 8000.
+The API will be available at <http://localhost:8000>.
+
+---
+
+## Running Tests
+
+```bash
+# Make sure dependencies are installed (see step 2 above)
+pytest tests/ -v
+```
