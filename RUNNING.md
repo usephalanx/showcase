@@ -15,12 +15,12 @@ renders a centered "Hello World" heading.
 
 ## Prerequisites
 
-- **Node.js** >= 20
+- **Node.js** >= 18
 - **npm** (bundled with Node.js)
 - **Python** >= 3.9 (for running the structural test suite)
 - **Docker** & **Docker Compose** (optional, for containerised development)
 
-## Quick Start (Local)
+## Getting Started
 
 ```bash
 npm install

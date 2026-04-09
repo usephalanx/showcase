@@ -1,12 +1,5 @@
 /**
- * Main App component — renders a centered "Hello World" heading.
- */
-
-/**
- * Root application component.
- *
- * Displays a vertically and horizontally centered "Hello World" heading
- * using inline styles for simplicity.
+ * Main App component that renders a centered "Hello World" heading.
  */
 function App(): JSX.Element {
   return (
