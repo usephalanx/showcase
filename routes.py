@@ -1,19 +1,22 @@
-"""API routes for Todo CRUD operations.
+"""API routes for Todo CRUD operations and Hello endpoint.
 
-Provides an APIRouter with five endpoints:
+Provides an APIRouter with endpoints:
+- GET    /hello       — return a greeting message
 - POST   /todos       — create a new todo
 - GET    /todos       — list all todos
 - GET    /todos/{id}  — retrieve a single todo
 - PUT    /todos/{id}  — update an existing todo
 - DELETE /todos/{id}  — delete a todo
 
-All endpoints use the in-memory TodoStore from storage.py and the
+All todo endpoints use the in-memory TodoStore from storage.py and the
 Pydantic models from models.py.
 """
 
 from __future__ import annotations
 
-from fastapi import APIRouter, HTTPException
+from typing import Optional
+
+from fastapi import APIRouter, HTTPException, Query
 
 from models import TodoCreate, TodoResponse, TodoUpdate
 from storage import TodoStore
@@ -22,6 +25,36 @@ router = APIRouter()
 
 # Module-level store instance shared by all route handlers.
 store = TodoStore()
+
+
+# ---------------------------------------------------------------------------
+# Hello endpoint
+# ---------------------------------------------------------------------------
+
+
+@router.get("/hello", tags=["hello"])
+async def hello(name: Optional[str] = Query(None, description="Name to greet")) -> dict:
+    """Return a JSON greeting message.
+
+    If the *name* query parameter is provided and non-empty, the greeting
+    addresses that name.  Otherwise it defaults to ``"World"``.
+
+    Args:
+        name: Optional name to include in the greeting.
+
+    Returns:
+        A dict with a single ``message`` key.
+    """
+    if name is None or name.strip() == "":
+        greeting_name = "World"
+    else:
+        greeting_name = name
+    return {"message": f"Hello, {greeting_name}!"}
+
+
+# ---------------------------------------------------------------------------
+# Todo endpoints
+# ---------------------------------------------------------------------------
 
 
 @router.post("/todos", response_model=TodoResponse, status_code=201, tags=["todos"])
