@@ -1,0 +1,24 @@
+.todoItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  list-style: none;
+}
+
+.todoText {
+  flex: 1;
+}
+
+.deleteButton {
+  background: #e74c3c;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+}
+
+.deleteButton:hover {
+  background: #c0392b;
+}
