@@ -1,16 +1,28 @@
-# Setup
+# Setup Instructions
 
-After cloning the repository, install JavaScript dependencies:
+The following lock and generated files are **not** committed to the
+repository and must be produced locally via the project's own toolchain.
+
+## Node.js dependencies
 
 ```bash
 npm install
 ```
 
-This will generate `package-lock.json` and the `node_modules/` directory.
+This generates:
+- `package-lock.json`
+- `node_modules/`
 
-To run Python tests:
+## TypeScript compilation check
 
 ```bash
-pip install pytest
-pytest tests/
+npx tsc --noEmit
 ```
+
+## Production build
+
+```bash
+npm run build
+```
+
+This generates the `dist/` directory.

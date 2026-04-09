@@ -1,11 +1,11 @@
-# Running the Hello World React Application
+# Running the Hello World React App
 
 ## Prerequisites
 
-- Node.js >= 18
-- npm >= 9
+- **Node.js** >= 18
+- **npm** >= 9
 
-## Install Dependencies
+## Setup
 
 ```bash
 npm install
@@ -17,13 +17,15 @@ npm install
 npm run dev
 ```
 
-The application will be available at [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Production Build
 
 ```bash
 npm run build
 ```
+
+The output is written to the `dist/` directory.
 
 ## Preview Production Build
 
@@ -33,7 +35,7 @@ npm run preview
 
 ## Running Tests
 
-Python structure tests (requires Python 3.8+ and pytest):
+Python structural tests (requires Python 3.8+ and pytest):
 
 ```bash
 pip install pytest
