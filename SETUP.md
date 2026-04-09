@@ -1,25 +1,16 @@
-# Setup Instructions
+# Setup
 
-## Install Dependencies
+After cloning the repository, install JavaScript dependencies:
 
 ```bash
-pip install -r requirements.txt
+npm install
 ```
 
-## Install Test Dependencies
+This generates `package-lock.json` and the `node_modules/` directory.
+
+To run the Python structure tests:
 
 ```bash
-pip install pytest httpx
-```
-
-## Run Tests
-
-```bash
-pytest tests/ -v
-```
-
-## Run the Application
-
-```bash
-uvicorn main:app --reload
+pip install pytest
+pytest tests/test_structure.py -v
 ```

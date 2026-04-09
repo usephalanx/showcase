@@ -1,33 +1,42 @@
-# Running the Todo API
+# Running the Hello World React Application
 
 ## Prerequisites
 
-- Python 3.10 or later
+- [Node.js](https://nodejs.org/) (v18 or later recommended)
+- npm (comes with Node.js)
 
-## Install dependencies
+## Setup
+
+Install project dependencies:
 
 ```bash
-pip install fastapi uvicorn pydantic
+npm install
 ```
 
-For running the test suite you will also need:
+## Development
+
+Start the Vite development server on port 3000:
 
 ```bash
-pip install httpx pytest
+npm run dev
 ```
 
-## Start the server
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## Build
+
+Run the TypeScript compiler and produce an optimised production build:
 
 ```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+npm run build
 ```
 
-The API will be available at <http://localhost:8000>.
+The output is written to the `dist/` directory.
 
-Interactive docs are served at <http://localhost:8000/docs>.
+## Preview
 
-## Run the tests
+Serve the production build locally:
 
 ```bash
-pytest tests/
+npm run preview
 ```
