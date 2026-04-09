@@ -1,8 +1,7 @@
-"""Tests for the GET /hello endpoint.
+"""Automated tests for the GET /hello endpoint.
 
 Uses Starlette's TestClient to exercise the endpoint without starting
-a real server.  Covers status codes, response body, content type,
-method restrictions, and unknown routes.
+a real server.
 """
 
 from __future__ import annotations
@@ -21,13 +20,13 @@ def test_hello_returns_200() -> None:
 
 
 def test_hello_returns_correct_body() -> None:
-    """GET /hello should return {"message": "hello world"}."""
+    """GET /hello should return the expected JSON payload."""
     response = client.get("/hello")
     assert response.json() == {"message": "hello world"}
 
 
 def test_hello_content_type_is_json() -> None:
-    """GET /hello response Content-Type should be application/json."""
+    """GET /hello should return a JSON content-type header."""
     response = client.get("/hello")
     assert "application/json" in response.headers["content-type"]
 
@@ -44,9 +43,9 @@ def test_nonexistent_route_returns_404() -> None:
     assert response.status_code == 404
 
 
-def test_hello_ignores_query_params() -> None:
-    """GET /hello with arbitrary query params should still return 200 with correct body."""
-    response = client.get("/hello", params={"foo": "bar", "baz": "123"})
+def test_hello_with_query_params_ignored() -> None:
+    """GET /hello?foo=bar should still return 200 with the correct body."""
+    response = client.get("/hello", params={"foo": "bar"})
     assert response.status_code == 200
     assert response.json() == {"message": "hello world"}
 

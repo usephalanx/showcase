@@ -2,7 +2,7 @@
 
 ## TEAM_BRIEF
 
-| Key                | Value              |
+| Key                | Value                 |
 |--------------------|-----------------------|
 | stack              | Python 3.12, FastAPI  |
 | test_runner        | pytest                |
@@ -38,6 +38,32 @@ Content-Type: application/json
 
 ## Local Setup
 
+Install the dependencies and start the server:
+
+```bash
+# 1. Install dependencies
+pip install -r requirements.txt
+
+# 2. Start the server
+uvicorn app:app
+```
+
+> **Note:** The endpoint is available at http://127.0.0.1:8000/hello
+
+You can verify the server is running with:
+
+```bash
+curl http://127.0.0.1:8000/hello
+```
+
+Expected response:
+
+```json
+{"message": "hello world"}
+```
+
+## Docker Setup (alternative)
+
 ```bash
 # 1. Build the image
 docker compose build
@@ -52,10 +78,10 @@ curl http://localhost:8000/hello
 ## Running Tests
 
 ```bash
-# Inside the running container
-docker compose exec api pytest tests/ -v
-
-# Or locally (with a virtualenv)
+# Locally (with a virtualenv)
 pip install -r requirements.txt
 pytest tests/ -v
+
+# Or inside the running container
+docker compose exec api pytest tests/ -v
 ```
