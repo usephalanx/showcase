@@ -10,37 +10,26 @@ coverage_applies: false
 
 ## Prerequisites
 
-- Python 3.9+ (for structural tests)
-- Node.js 18+ and npm (for running the frontend)
+- Python 3.9+ (for running tests)
+- Node.js 18+ and npm (for running the React app)
 
-## Quick Start (Development)
+## Install Dependencies
 
 ```bash
-# Install Node dependencies
-npm install
-
-# Start the Vite dev server
-npm run dev
+pip install pytest
 ```
 
-Open http://localhost:5173 in your browser.
-
-## Running Tests
+## Run Tests
 
 ```bash
-# Install Python test dependencies
-pip install pytest
-
-# Run structural tests
 pytest tests/
 ```
 
-## Docker (Optional)
+## Run the React App (Development)
 
 ```bash
-# Build and run
-docker build -t todo-app .
-docker run -p 5173:5173 todo-app
+npm install
+npm run dev
 ```
 
 Open http://localhost:5173 in your browser.
