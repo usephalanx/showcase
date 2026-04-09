@@ -1,20 +1,24 @@
 /**
  * Main App component rendering a centered "Hello World" heading.
+ *
+ * Uses inline styles for centering: display flex, justifyContent center,
+ * alignItems center, height 100vh, margin 0, fontFamily sans-serif,
+ * fontSize 2rem.
  */
 function App(): JSX.Element {
   return (
     <div
-      className="app-container"
       style={{
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        minHeight: '100vh',
+        height: '100vh',
         margin: 0,
-        fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+        fontFamily: 'sans-serif',
+        fontSize: '2rem',
       }}
     >
-      <h1 style={{ fontSize: '3rem', color: '#333' }}>Hello World</h1>
+      Hello World
     </div>
   )
 }

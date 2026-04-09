@@ -1,25 +1,27 @@
 # Setup Instructions
 
-This project requires installing Node.js dependencies before running.
-
 ## Install Dependencies
 
 ```bash
 npm install
 ```
 
-This generates `package-lock.json` and the `node_modules/` directory.
-These are not checked into version control and must be generated locally.
+This will generate `package-lock.json` and the `node_modules/` directory.
 
-## Run Development Server
+## Development Server
 
 ```bash
 npm run dev
 ```
 
-## Run Tests
+## Production Build
 
 ```bash
-pip install pytest
-pytest tests/
+npm run build
+```
+
+## Docker Setup
+
+```bash
+docker compose up --build
 ```
