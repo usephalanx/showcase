@@ -1,33 +1,47 @@
-# Running the Todo API
+# Running the Application
 
-## Prerequisites
+## Quick Start (Docker)
 
-- Python 3.10 or later
+1. Build and start the application:
+   ```bash
+   docker compose up --build
+   ```
 
-## Install dependencies
+2. Open your browser or curl the health endpoint:
+   ```
+   http://localhost:8000/health
+   ```
 
-```bash
-pip install fastapi uvicorn pydantic
-```
+3. Expected response:
+   ```json
+   {"message": "hi"}
+   ```
 
-For running the test suite you will also need:
+No authentication is required for any endpoint.
 
-```bash
-pip install httpx pytest
-```
+## Local Development (without Docker)
 
-## Start the server
+1. Create a virtual environment and install dependencies:
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate
+   pip install -r requirements.txt
+   ```
 
-```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
-```
+2. Run the server:
+   ```bash
+   uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+   ```
 
-The API will be available at <http://localhost:8000>.
+3. Run the tests:
+   ```bash
+   pytest tests/
+   ```
 
-Interactive docs are served at <http://localhost:8000/docs>.
-
-## Run the tests
-
-```bash
-pytest tests/
-```
+## TEAM_BRIEF
+stack: Python/FastAPI
+test_runner: pytest tests/
+lint_tool: ruff check .
+coverage_tool: pytest-cov
+coverage_threshold: 70
+coverage_applies: true
