@@ -1,127 +1,186 @@
-# Todo API — Architecture Plan
+# React Todo App — Architecture Plan
 
-## Overview
+This document is the single source of truth for the React + Vite + TypeScript Todo application.
 
-A lightweight RESTful Todo API built with **FastAPI** and backed by an
-in-memory Python dictionary for storage.  Designed for learning, prototyping,
-and testing — not for production persistence.
+---
 
-## Project Structure
+## File Structure
 
-| File | Responsibility |
-|---|---|
-| `main.py` | FastAPI application factory, mount router, lifespan events |
-| `models.py` | Pydantic request/response schemas |
-| `routes.py` | `APIRouter` with all five CRUD endpoints |
-| `storage.py` | Dict-based in-memory store with auto-incrementing ID counter |
-| `tests/test_todos.py` | Pytest tests using FastAPI `TestClient` |
+```
+/
+├── index.html
+├── package.json
+├── tsconfig.json
+├── vite.config.ts
+├── vite-env.d.ts
+├── PLAN.md
+├── RUNNING.md
+└── src/
+    ├── main.tsx
+    ├── types/
+    │   └── todo.ts
+    └── components/
+        ├── App/
+        │   ├── App.tsx
+        │   ├── App.module.css
+        │   └── App.test.tsx
+        ├── TodoInput/
+        │   ├── TodoInput.tsx
+        │   ├── TodoInput.module.css
+        │   └── TodoInput.test.tsx
+        ├── TodoList/
+        │   ├── TodoList.tsx
+        │   ├── TodoList.module.css
+        │   └── TodoList.test.tsx
+        └── TodoItem/
+            ├── TodoItem.tsx
+            ├── TodoItem.module.css
+            └── TodoItem.test.tsx
+```
+
+---
 
 ## Data Model
 
-### Internal representation (stored in `dict[int, dict]`)
+Defined in `src/types/todo.ts`:
 
-| Field | Type | Notes |
-|---|---|---|
-| `id` | `int` | Auto-incremented primary key |
-| `title` | `str` | Required, non-empty |
-| `description` | `Optional[str]` | May be `None` |
-| `completed` | `bool` | Defaults to `False` |
-| `created_at` | `str` | ISO-8601 UTC timestamp, set on creation |
+```typescript
+export interface Todo {
+  id: string;
+  text: string;
+  completed: boolean;
+}
+```
 
-### Pydantic models
+- **id** (`string`): Unique identifier generated via `crypto.randomUUID()`.
+- **text** (`string`): The content / description of the todo item.
+- **completed** (`boolean`): Whether the todo has been marked as done.
 
-**TodoCreate**
+---
 
-| Field | Type | Default |
-|---|---|---|
-| `title` | `str` | *required* (min_length=1) |
-| `description` | `Optional[str]` | `None` |
-| `completed` | `Optional[bool]` | `False` |
+## Component Hierarchy
 
-**TodoUpdate**
+```
+App
+├── TodoInput
+└── TodoList
+    └── TodoItem (one per todo)
+```
 
-| Field | Type | Default |
-|---|---|---|
-| `title` | `Optional[str]` | `None` |
-| `description` | `Optional[str]` | `None` |
-| `completed` | `Optional[bool]` | `None` |
+### App (`src/components/App/App.tsx`)
 
-**TodoResponse**
+- **State:**
+  - `todos: Todo[]` — managed with `useState<Todo[]>([])`.
+  - The todos array starts **empty** (no pre-populated sample data).
+- **CRUD Functions:**
+  - `addTodo(text: string): void` — creates a new `Todo` with `crypto.randomUUID()` as `id`, the supplied `text`, and `completed: false`, then prepends it to the `todos` array.
+  - `toggleTodo(id: string): void` — toggles the `completed` boolean of the todo matching `id`.
+  - `deleteTodo(id: string): void` — removes the todo matching `id` from the array.
+- **Renders:** A heading (`<h1>Todo App</h1>`), a `<TodoInput>` component, and a `<TodoList>` component.
 
-| Field | Type | Default |
-|---|---|---|
-| `id` | `int` | — |
-| `title` | `str` | — |
-| `description` | `Optional[str]` | `None` |
-| `completed` | `bool` | — |
-| `created_at` | `str` | — |
+### TodoInput (`src/components/TodoInput/TodoInput.tsx`)
 
-## Storage
+- **Props interface:**
+  ```typescript
+  interface TodoInputProps {
+    onAdd: (text: string) => void;
+  }
+  ```
+- **Internal state:** `inputValue: string` via `useState<string>("")` for the controlled input.
+- **Behaviour:**
+  - Uses a `<form>` element with an `onSubmit` handler, ensuring both button click and **Enter key** trigger submission.
+  - On submit, trims the input. If the trimmed value is **empty**, the function returns early without calling `onAdd` (empty-string validation).
+  - Otherwise calls `props.onAdd(trimmedText)` and clears the input field.
+- **Renders:** A `<form>` containing an `<input type="text">` and a `<button type="submit">Add</button>`.
 
-`storage.py` exposes a `TodoStore` class containing:
+### TodoList (`src/components/TodoList/TodoList.tsx`)
 
-- `_todos: dict[int, dict]` — the data store.
-- `_counter: int` — starts at `0`, incremented by `_next_id()`.
+- **Props interface:**
+  ```typescript
+  interface TodoListProps {
+    todos: Todo[];
+    onToggle: (id: string) => void;
+    onDelete: (id: string) => void;
+  }
+  ```
+- **Behaviour:**
+  - If `todos` is empty, renders an empty-state message: `<p>No todos yet</p>`.
+  - Otherwise renders a `<ul>` with one `<TodoItem>` per todo.
+- **Renders:** A `<ul>` (or empty-state `<p>`).
 
-Public helpers:
+### TodoItem (`src/components/TodoItem/TodoItem.tsx`)
 
-- `add(title, description=None, completed=False) -> dict`
-- `get(todo_id) -> Optional[dict]`
-- `get_all() -> list[dict]`
-- `update(todo_id, title=None, description=None, completed=None) -> Optional[dict]`
-- `delete(todo_id) -> bool`
-- `reset() -> None` — clears all data and resets the counter (for tests).
+- **Props interface:**
+  ```typescript
+  interface TodoItemProps {
+    todo: Todo;
+    onToggle: (id: string) => void;
+    onDelete: (id: string) => void;
+  }
+  ```
+- **Behaviour:**
+  - Renders a checkbox reflecting `todo.completed`.
+  - Clicking the checkbox calls `onToggle(todo.id)`.
+  - Renders the todo text in a `<span>`. When `completed` is `true`, applies `text-decoration: line-through` style.
+  - Renders a delete `<button>` that calls `onDelete(todo.id)`.
+- **Renders:** An `<li>` containing a checkbox, a text span, and a delete button.
 
-> **Concurrency caveat:** The plain `dict` is *not* thread-safe under
-> concurrent writes.  This is acceptable for a single-worker dev server but
-> must not be used in production with multiple workers.
+---
 
-## API Endpoints
+## State Management
 
-| Method | Path | Request Body | Success Status | Response |
-|---|---|---|---|---|
-| `GET` | `/todos` | — | 200 | `list[TodoResponse]` |
-| `GET` | `/todos/{todo_id}` | — | 200 | `TodoResponse` |
-| `POST` | `/todos` | `TodoCreate` | 201 | `TodoResponse` |
-| `PUT` | `/todos/{todo_id}` | `TodoUpdate` | 200 | `TodoResponse` |
-| `DELETE` | `/todos/{todo_id}` | — | 204 | — |
+- **Approach:** React `useState` only — no external libraries.
+- **State location:** All state lives in `App`. Child components receive data and callbacks via props.
+- **State variables in App:**
+  - `const [todos, setTodos] = useState<Todo[]>([]);`
 
-## Error Handling
+---
 
-- **404 Not Found** — returned by `GET /todos/{id}`, `PUT /todos/{id}`, and
-  `DELETE /todos/{id}` when the requested `todo_id` does not exist in the
-  store.  Body: `{"detail": "Todo not found"}`.
-- **422 Unprocessable Entity** — returned automatically by FastAPI/Pydantic
-  when request validation fails.
+## Styling Strategy
 
-## Design Decisions
+- **CSS Modules** — each component has a co-located `.module.css` file.
+- Class names are imported as objects (e.g. `import styles from './App.module.css'`).
+- No global CSS framework required.
 
-1. **In-memory dict over SQLite:** Keeps the project zero-dependency beyond
-   FastAPI itself, making it trivial to run and test.  Trade-off: no
-   persistence across restarts.
-2. **Separate `storage.py` module:** Isolates data access behind a clear
-   interface so swapping to a database later requires changes in only one
-   file.
-3. **`reset()` helper on the store:** Enables deterministic test isolation
-   without monkey-patching or fixture complexity.
-4. **Returning copies from `get` / `get_all`:** Prevents callers from
-   accidentally mutating the canonical store data.
-5. **`TodoUpdate` with all-optional fields:** Supports true partial updates
-   (PATCH semantics via PUT) — only supplied fields are changed.
+---
 
-## Test Strategy
+## Edge Cases & Validation
 
-Tests live in `tests/` and use `pytest` with FastAPI's `TestClient`.
+1. **Empty todo prevention:** `TodoInput` trims whitespace and rejects empty strings before calling `onAdd`.
+2. **ID generation:** Uses `crypto.randomUUID()` for globally unique, collision-free IDs.
+3. **Empty initial state:** The `todos` array starts as `[]` — no pre-populated sample data.
+4. **Keyboard accessibility:** `TodoInput` uses a `<form>` with `onSubmit`, so pressing Enter in the input field triggers submission.
 
-| # | Test function | Covers |
-|---|---|---|
-| 1 | `test_create_todo` | POST /todos returns 201 with correct body |
-| 2 | `test_create_todo_missing_title` | POST /todos with empty body returns 422 |
-| 3 | `test_get_all_todos_empty` | GET /todos on fresh store returns [] |
-| 4 | `test_get_all_todos` | GET /todos after adding items |
-| 5 | `test_get_todo_by_id` | GET /todos/{id} returns correct item |
-| 6 | `test_get_todo_not_found` | GET /todos/{id} returns 404 |
-| 7 | `test_update_todo` | PUT /todos/{id} updates fields |
-| 8 | `test_update_todo_not_found` | PUT /todos/{id} returns 404 |
-| 9 | `test_delete_todo` | DELETE /todos/{id} returns 204 |
-| 10 | `test_delete_todo_not_found` | DELETE /todos/{id} returns 404 |
+---
+
+## Testing Strategy
+
+Test files are co-located with their components. Tests use React Testing Library and Vitest.
+
+### `src/components/App/App.test.tsx`
+
+- `renders the app with heading`
+- `adds a new todo`
+- `toggles a todo completed state`
+- `deletes a todo`
+- `shows empty state when no todos`
+
+### `src/components/TodoInput/TodoInput.test.tsx`
+
+- `renders input field and add button`
+- `calls onAdd with input text when submitted`
+- `clears input after submission`
+- `does not call onAdd when input is empty`
+
+### `src/components/TodoList/TodoList.test.tsx`
+
+- `renders a list of todos`
+- `renders empty state when todos array is empty`
+
+### `src/components/TodoItem/TodoItem.test.tsx`
+
+- `renders todo text`
+- `renders checkbox reflecting completed state`
+- `calls onToggle when checkbox clicked`
+- `calls onDelete when delete button clicked`
+- `applies line-through style when completed`

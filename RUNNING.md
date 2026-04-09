@@ -1,33 +1,57 @@
-# Running the Todo API
+# Running the React Todo App
+
+## TEAM_BRIEF
+stack: TypeScript/React+Vite
+test_runner: pytest tests/
+lint_tool: none
+coverage_tool: none
+coverage_threshold: 0
+coverage_applies: false
+
+---
 
 ## Prerequisites
 
-- Python 3.10 or later
+- **Node.js** >= 18
+- **npm** >= 9
+- **Docker** and **Docker Compose** (optional, for containerised setup)
 
-## Install dependencies
+---
 
-```bash
-pip install fastapi uvicorn pydantic
-```
-
-For running the test suite you will also need:
+## Quick Start (Local)
 
 ```bash
-pip install httpx pytest
+# 1. Install dependencies
+npm install
+
+# 2. Start the development server
+npm run dev
+
+# 3. Open in browser
+#    http://localhost:5173
 ```
 
-## Start the server
+## Quick Start (Docker)
 
 ```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+# 1. Build and start
+docker compose up --build
+
+# 2. Open in browser
+#    http://localhost:5173
 ```
 
-The API will be available at <http://localhost:8000>.
-
-Interactive docs are served at <http://localhost:8000/docs>.
-
-## Run the tests
+## Build for Production
 
 ```bash
-pytest tests/
+npm run build
+npm run preview
 ```
+
+The production build is output to the `dist/` directory.
+
+---
+
+## Project Structure
+
+See [PLAN.md](./PLAN.md) for the full architecture, component hierarchy, data model, and testing strategy.
