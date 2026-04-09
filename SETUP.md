@@ -1,25 +1,25 @@
 # Setup Instructions
 
+This project requires installing Node.js dependencies before running.
+
 ## Install Dependencies
 
 ```bash
-pip install -r requirements.txt
+npm install
 ```
 
-## Install Test Dependencies
+This generates `package-lock.json` and the `node_modules/` directory.
+These are not checked into version control and must be generated locally.
+
+## Run Development Server
 
 ```bash
-pip install pytest httpx
+npm run dev
 ```
 
 ## Run Tests
 
 ```bash
-pytest tests/ -v
-```
-
-## Run the Application
-
-```bash
-uvicorn main:app --reload
+pip install pytest
+pytest tests/
 ```
