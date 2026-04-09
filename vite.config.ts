@@ -1,9 +1,9 @@
+/**
+ * Vite configuration — enables the React plugin and configures the dev server.
+ */
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-/**
- * Vite configuration for the Hello World React application.
- */
 export default defineConfig({
   plugins: [react()],
   server: {

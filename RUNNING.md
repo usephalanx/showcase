@@ -1,4 +1,4 @@
-# Hello World React Application
+# Hello World React App
 
 ## TEAM_BRIEF
 stack: TypeScript/React+Vite
@@ -9,36 +9,45 @@ coverage_threshold: 0
 coverage_applies: false
 
 ## Overview
-A minimal React application that renders "Hello World" centered on the page
-using inline CSS styles.
+
+A minimal React + TypeScript application bootstrapped with Vite that
+renders a centered "Hello World" heading.
 
 ## Prerequisites
-- Node.js 20+ (or Docker)
-- Python 3.9+ with pytest (for running tests)
 
-## Setup
+- **Node.js** >= 20
+- **npm** (bundled with Node.js)
+- **Python** >= 3.9 (for running the structural test suite)
+- **Docker** & **Docker Compose** (optional, for containerised development)
 
-### Local Development
+## Quick Start (Local)
+
 ```bash
 npm install
 npm run dev
 ```
-The app will be available at http://localhost:5173
 
-### Docker
+Open http://localhost:5173 in your browser.
+
+## Quick Start (Docker)
+
 ```bash
 docker compose up --build
 ```
-The app will be available at http://localhost:5173
-
-## Running Tests
-```bash
-pip install pytest
-pytest tests/
-```
 
 ## Build for Production
+
 ```bash
 npm run build
 npm run preview
+```
+
+## Running Tests
+
+The test suite uses **pytest** and validates the project file structure
+and content — no Node.js runtime is required for tests.
+
+```bash
+pip install pytest
+pytest tests/
 ```

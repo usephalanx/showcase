@@ -1,1 +1,1 @@
-"""Test package for Hello World React application."""
+"""Test package for the Hello World React project."""
