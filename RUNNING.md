@@ -1,6 +1,9 @@
-# Hello World React App
+# Hello World React + Vite
+
+A minimal React application scaffolded with Vite and TypeScript.
 
 ## TEAM_BRIEF
+
 stack: TypeScript/React+Vite
 test_runner: pytest tests/
 lint_tool: none
@@ -8,32 +11,28 @@ coverage_tool: none
 coverage_threshold: 0
 coverage_applies: false
 
-## Overview
-
-A minimal React + TypeScript application bootstrapped with Vite that
-renders a centered "Hello World" heading.
-
 ## Prerequisites
 
-- **Node.js** >= 18
-- **npm** (bundled with Node.js)
-- **Python** >= 3.9 (for running the structural test suite)
-- **Docker** & **Docker Compose** (optional, for containerised development)
+- **Node.js** >= 20 (for local development)
+- **Docker** & **Docker Compose** (for containerised development)
+- **Python** >= 3.9 and **pytest** (for running structural tests)
 
-## Getting Started
+## Local Development
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open http://localhost:5173 in your browser.
+The app will be available at [http://localhost:5173](http://localhost:5173).
 
-## Quick Start (Docker)
+## Docker
 
 ```bash
 docker compose up --build
 ```
+
+The app will be available at [http://localhost:5173](http://localhost:5173).
 
 ## Build for Production
 
@@ -44,10 +43,11 @@ npm run preview
 
 ## Running Tests
 
-The test suite uses **pytest** and validates the project file structure
-and content — no Node.js runtime is required for tests.
-
 ```bash
 pip install pytest
 pytest tests/
 ```
+
+The test suite validates that all required project files exist and are
+correctly structured. No Node.js runtime or `npm install` is needed to
+run the tests.

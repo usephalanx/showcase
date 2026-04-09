@@ -1,7 +1,7 @@
 /**
  * Main App component that renders a centered "Hello World" heading.
  */
-function App(): JSX.Element {
+export default function App() {
   return (
     <div
       className="app-container"
@@ -18,5 +18,3 @@ function App(): JSX.Element {
     </div>
   )
 }
-
-export default App
