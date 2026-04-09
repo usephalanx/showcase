@@ -2,72 +2,71 @@
 
 ## Framework Choice
 
-This project uses **FastAPI** as the web framework for the following reasons:
+**FastAPI** was chosen as the web framework for the following reasons:
 
-- **Async support**: Built on Starlette, FastAPI natively supports async request handlers.
-- **Automatic OpenAPI documentation**: Interactive Swagger UI and ReDoc are generated from route definitions and Pydantic models.
-- **Pydantic validation**: Request and response data is validated and serialized through Pydantic models, providing type safety at runtime.
-- **Minimal boilerplate**: Endpoints are concise Python functions with type annotations.
+- Native async support via ASGI
+- Automatic OpenAPI/Swagger documentation generation
+- Built-in Pydantic request/response validation
+- Minimal boilerplate for simple endpoints
+- Excellent performance characteristics
 
 ## Project Structure
 
 ```
 .
 ├── app/
-│   ├── __init__.py          # Python package marker
-│   └── main.py              # FastAPI application and endpoint definitions
+│   ├── __init__.py          # Package marker
+│   └── main.py              # FastAPI application & route definitions
 ├── tests/
-│   ├── __init__.py          # Python package marker
-│   └── test_hello.py        # Test suite for all endpoints
+│   ├── __init__.py          # Package marker
+│   └── test_hello.py        # Endpoint test suite
 ├── requirements.txt         # Pinned Python dependencies
 ├── Dockerfile               # Container image definition
-├── docker-compose.yml       # Single-command local development
+├── docker-compose.yml       # Local development orchestration
 ├── conftest.py              # Root pytest configuration
-├── RUNNING.md               # How to install and run
 └── ARCHITECTURE.md          # This file
 ```
 
-## Endpoint Design
+## Endpoints
 
-### GET `/`
+### GET /
 
-Health-check endpoint. Returns HTTP 200 with body:
+Health-check endpoint.
 
-```json
-{"status": "ok"}
-```
+- **Response Model:** `HealthResponse`
+- **Response Body:** `{"status": "ok"}`
+- **Status Code:** 200
 
-Response model: `HealthResponse` with field `status: str`.
+### GET /hello
 
-### GET `/hello`
+Greeting endpoint.
 
-Greeting endpoint. Returns HTTP 200 with body:
+- **Response Model:** `HelloResponse`
+- **Response Body:** `{"message": "hello-world"}`
+- **Status Code:** 200
 
-```json
-{"message": "hello-world"}
-```
+## Response Models
 
-Response model: `HelloResponse` with field `message: str`.
+| Model           | Field     | Type | Description            |
+|-----------------|-----------|------|------------------------|
+| `HelloResponse` | `message` | str  | Greeting message       |
+| `HealthResponse`| `status`  | str  | Service health status  |
 
-## Response Schema
-
-All responses use Pydantic `BaseModel` subclasses to guarantee a consistent JSON structure. The models are defined in `app/main.py`:
-
-- **HelloResponse**: `{"message": str}`
-- **HealthResponse**: `{"status": str}`
+Both models are defined using Pydantic's `BaseModel` with `Field` descriptors.
 
 ## Deployment Strategy
 
-The application is containerised using Docker:
+The application is containerised with Docker:
 
-1. A multi-stage-friendly `Dockerfile` based on `python:3.12-slim` installs dependencies and copies the application code.
-2. `docker-compose.yml` provides a single-command (`docker compose up`) development experience with port mapping and restart policy.
-3. Uvicorn serves the ASGI application on `0.0.0.0:8000`.
+1. **Base image:** `python:3.12-slim` for a small footprint.
+2. **Dependencies** are installed via `requirements.txt` in a separate layer for caching.
+3. **Runtime:** `uvicorn` serves the ASGI app on `0.0.0.0:8000`.
+4. **Local development:** `docker-compose up` starts the service with port 8000 mapped.
+5. **Direct execution:** `uvicorn app.main:app --reload` for development without Docker.
 
 ## Testing Strategy
 
-Tests use **pytest** with FastAPI's synchronous `TestClient` (backed by `httpx`):
-
-- Every endpoint is tested for correct status code, response body, and content-type header.
-- Negative cases (wrong HTTP method, non-existent routes) are covered.
-- Tests are located in `tests/test_hello.py` and can be run with `pytest tests/ -v`.
+- **Framework:** pytest with FastAPI's synchronous `TestClient` (backed by httpx).
+- **Coverage:** Every endpoint is tested for status code, response body, and content type.
+- **Negative cases:** POST to GET-only routes (405), non-existent routes (404).
+- **Execution:** `pytest tests/` from the project root.

@@ -1,7 +1,7 @@
-"""Test suite verifying all endpoint behaviour.
+"""Tests for the Hello World API endpoints.
 
-Uses FastAPI's synchronous TestClient to exercise the /hello and /
-endpoints, including positive and negative scenarios.
+Covers the GET /hello and GET / routes, as well as negative cases
+such as unsupported methods and non-existent routes.
 """
 
 from __future__ import annotations
@@ -10,16 +10,16 @@ from fastapi.testclient import TestClient
 
 from app.main import app
 
-client = TestClient(app)
+client: TestClient = TestClient(app)
 
 
-# ------------------------------------------------------------------
+# ---------------------------------------------------------------------------
 # GET /hello
-# ------------------------------------------------------------------
+# ---------------------------------------------------------------------------
 
 
 def test_get_hello_returns_200() -> None:
-    """GET /hello should return HTTP 200."""
+    """GET /hello should respond with HTTP 200."""
     response = client.get("/hello")
     assert response.status_code == 200
 
@@ -33,16 +33,16 @@ def test_get_hello_returns_correct_json() -> None:
 def test_get_hello_content_type() -> None:
     """GET /hello should return Content-Type application/json."""
     response = client.get("/hello")
-    assert "application/json" in response.headers["content-type"]
+    assert response.headers["content-type"] == "application/json"
 
 
-# ------------------------------------------------------------------
+# ---------------------------------------------------------------------------
 # GET / (health check)
-# ------------------------------------------------------------------
+# ---------------------------------------------------------------------------
 
 
 def test_health_check_returns_200() -> None:
-    """GET / should return HTTP 200."""
+    """GET / should respond with HTTP 200."""
     response = client.get("/")
     assert response.status_code == 200
 
@@ -53,18 +53,42 @@ def test_health_check_returns_ok() -> None:
     assert response.json() == {"status": "ok"}
 
 
-# ------------------------------------------------------------------
-# Negative / edge-case tests
-# ------------------------------------------------------------------
+def test_health_check_content_type() -> None:
+    """GET / should return Content-Type application/json."""
+    response = client.get("/")
+    assert response.headers["content-type"] == "application/json"
+
+
+# ---------------------------------------------------------------------------
+# Negative / edge cases
+# ---------------------------------------------------------------------------
 
 
 def test_post_hello_returns_405() -> None:
-    """POST /hello should return HTTP 405 Method Not Allowed."""
+    """POST /hello should return 405 Method Not Allowed."""
     response = client.post("/hello")
     assert response.status_code == 405
 
 
+def test_post_root_returns_405() -> None:
+    """POST / should return 405 Method Not Allowed."""
+    response = client.post("/")
+    assert response.status_code == 405
+
+
 def test_nonexistent_route_returns_404() -> None:
-    """GET /nonexistent should return HTTP 404 Not Found."""
+    """GET /nonexistent should return 404 Not Found."""
     response = client.get("/nonexistent")
     assert response.status_code == 404
+
+
+def test_put_hello_returns_405() -> None:
+    """PUT /hello should return 405 Method Not Allowed."""
+    response = client.put("/hello")
+    assert response.status_code == 405
+
+
+def test_delete_hello_returns_405() -> None:
+    """DELETE /hello should return 405 Method Not Allowed."""
+    response = client.delete("/hello")
+    assert response.status_code == 405
