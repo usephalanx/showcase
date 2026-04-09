@@ -1,33 +1,70 @@
-# Running the Todo API
+# Running the Todo / Hello World API
 
-## Prerequisites
+## TEAM_BRIEF
 
-- Python 3.10 or later
+| Key                | Value                  |
+|--------------------|------------------------|
+| stack              | Python, FastAPI        |
+| test_runner        | pytest                 |
+| lint_tool          | N/A                    |
+| coverage_tool      | pytest-cov             |
+| coverage_threshold | 80%                    |
+| coverage_applies   | app.py, routes.py, storage.py |
 
-## Install dependencies
+## Architecture
 
-```bash
-pip install fastapi uvicorn pydantic
+| File                  | Purpose                                           |
+|-----------------------|---------------------------------------------------|
+| `app.py`              | FastAPI application entry point (GET `/` and `/hello`) |
+| `routes.py`           | Todo CRUD API router (`/todos`)                   |
+| `models.py`           | Pydantic request/response schemas                 |
+| `storage.py`          | In-memory dictionary-backed todo store            |
+| `requirements.txt`    | Pinned Python dependencies                        |
+| `Dockerfile`          | Container image definition                        |
+| `docker-compose.yml`  | One-command local startup                         |
+| `tests/test_hello.py` | Automated tests for GET `/hello`                  |
+| `conftest.py`         | Root pytest configuration                         |
+
+## Endpoint Contract
+
+### `GET /hello`
+
+**Response** `200 OK`
+
+```json
+{"message": "hello world"}
 ```
 
-For running the test suite you will also need:
+### `GET /`
 
-```bash
-pip install httpx pytest
+**Response** `200 OK`
+
+```json
+{"message": "Welcome to the Todo API"}
 ```
 
-## Start the server
+See `routes.py` for the full Todo CRUD contract.
+
+## Local Setup
 
 ```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+# 1. Build the image
+docker compose build
+
+# 2. Start the service
+docker compose up -d
+
+# 3. Verify it works
+curl http://localhost:8000/hello
 ```
 
-The API will be available at <http://localhost:8000>.
-
-Interactive docs are served at <http://localhost:8000/docs>.
-
-## Run the tests
+## Running Tests
 
 ```bash
-pytest tests/
+# Inside the running container
+docker compose exec api pytest tests/ -v
+
+# Or locally (with a virtualenv)
+pip install -r requirements.txt
+pytest tests/ -v
 ```
