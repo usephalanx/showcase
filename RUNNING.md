@@ -10,49 +10,31 @@ coverage_applies: true
 
 ## Prerequisites
 
-- Python 3.11+ **or** Docker + Docker Compose
+- Python 3.11+
+- pip
 
-## Quick Start (Docker)
-
-```bash
-docker compose up --build -d
-```
-
-Open <http://localhost:8000/health> — you should see:
-
-```json
-{"status": "ok"}
-```
-
-## Quick Start (local venv)
+## Setup
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
+```
+
+## Run the application
+
+```bash
 uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 
-## Running Tests
+Then open http://localhost:8000/health to verify the service is running.
 
-### Docker
-
-```bash
-docker compose exec app pytest tests/ -v --tb=short
-```
-
-### Local
+## Run tests
 
 ```bash
 pytest tests/ -v --tb=short
 ```
 
-### With Coverage
+## Run tests with coverage
 
 ```bash
-pytest tests/ --cov=. --cov-report=term-missing
+pytest tests/ -v --tb=short --cov=. --cov-report=term-missing
 ```
-
-## Demo Credentials
-
-No authentication is required — all endpoints are public.
