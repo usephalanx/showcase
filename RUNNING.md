@@ -15,17 +15,39 @@ coverage_applies: true
 
 ## Setup
 
+Install dependencies:
+
 ```bash
 pip install -r requirements.txt
 ```
 
 ## Run the application
 
+Option 1 — run directly:
+
 ```bash
-uvicorn main:app --host 0.0.0.0 --port 8000
+python main.py
 ```
 
-Then open http://localhost:8000/health to verify the service is running.
+Option 2 — run with auto-reload:
+
+```bash
+uvicorn main:app --reload
+```
+
+The server starts on port **8000** by default.
+
+## Verify the service
+
+```bash
+curl http://localhost:8000/health
+```
+
+Expected response:
+
+```json
+{"status": "ok"}
+```
 
 ## Run tests
 
