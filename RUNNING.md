@@ -2,41 +2,40 @@
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/) (v18 or later recommended)
-- npm (comes with Node.js)
+- Node.js >= 18
+- npm >= 9
 
-## Setup
-
-Install project dependencies:
+## Install Dependencies
 
 ```bash
 npm install
 ```
 
-## Development
-
-Start the Vite development server on port 3000:
+## Development Server
 
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+The application will be available at [http://localhost:3000](http://localhost:3000).
 
-## Build
-
-Run the TypeScript compiler and produce an optimised production build:
+## Production Build
 
 ```bash
 npm run build
 ```
 
-The output is written to the `dist/` directory.
-
-## Preview
-
-Serve the production build locally:
+## Preview Production Build
 
 ```bash
 npm run preview
+```
+
+## Running Tests
+
+Python structure tests (requires Python 3.8+ and pytest):
+
+```bash
+pip install pytest
+pytest tests/
 ```
