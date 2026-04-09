@@ -1,60 +1,67 @@
-# Running the Todo API
+# Running the Echo API
 
 ## Prerequisites
 
-- Python 3.10 or later
-- `pip` package manager
+- [Docker](https://docs.docker.com/get-docker/) (v20 or later)
+- [Docker Compose](https://docs.docker.com/compose/install/) (v2 or later — included with Docker Desktop)
 
-## Install dependencies
-
-Install all required packages from the pinned `requirements.txt`:
+## Quick Start
 
 ```bash
-pip install -r requirements.txt
+# 1. Clone the repository and enter the directory
+git clone <repo-url>
+cd <repo-directory>
+
+# 2. Build and start the service
+docker compose up --build
 ```
 
-This installs FastAPI, Uvicorn, Pydantic, httpx, pytest, and pytest-timeout.
+The API is now available at **http://localhost:8000**.
 
-## Start the server
+## Interactive Documentation
 
-Launch the application with Uvicorn's auto-reload mode for development:
+Open **http://localhost:8000/docs** in your browser to access the
+auto-generated Swagger UI where you can try every endpoint.
 
-```bash
-uvicorn main:app --reload
-```
+## Example Usage
 
-By default the server binds to `http://127.0.0.1:8000`.
-
-To listen on all interfaces and/or a custom port:
-
-```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
-```
-
-The API will be available at <http://localhost:8000>.
-
-Interactive Swagger docs are served at <http://localhost:8000/docs>.
-
-## Verify the server is running
+### Health check
 
 ```bash
 curl http://localhost:8000/
 ```
 
 Expected response:
-
 ```json
-{"message": "Welcome to the Todo API"}
+{"status": "ok"}
 ```
 
-## Run the tests
+### Echo
 
 ```bash
-pytest tests/
+curl -X POST http://localhost:8000/echo \
+  -H 'Content-Type: application/json' \
+  -d '{"hello": "world"}'
 ```
 
-For verbose output:
+Expected response:
+```json
+{"hello": "world"}
+```
+
+## Running Tests
 
 ```bash
-pytest tests/ -v
+# Via Docker
+docker compose run --rm echo-api pytest -v
+
+# Or locally (requires Python 3.12+)
+pip install -r requirements.txt
+pytest -v
+```
+
+## Stopping the Service
+
+```bash
+docker compose down
 ```

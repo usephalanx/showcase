@@ -1,24 +1,36 @@
 """FastAPI application entry point.
 
-Creates the FastAPI app and mounts the Todo CRUD router.
+Provides an Echo API with a health check endpoint and an echo endpoint
+that returns any JSON body it receives.
 """
 
 from __future__ import annotations
 
+from typing import Any, Dict
+
 from fastapi import FastAPI
 
-from routes import router
-
 app = FastAPI(
-    title="Todo API",
-    description="A simple Todo REST API with in-memory storage.",
+    title="Echo API",
+    description="A minimal API that echoes JSON payloads and reports health.",
     version="1.0.0",
 )
 
-app.include_router(router)
+
+@app.get("/", tags=["health"])
+async def health() -> Dict[str, str]:
+    """Return a simple health-check response."""
+    return {"status": "ok"}
 
 
-@app.get("/", tags=["root"])
-async def root() -> dict:
-    """Return a welcome message at the API root."""
-    return {"message": "Welcome to the Todo API"}
+@app.post("/echo", tags=["echo"])
+async def echo(body: Dict[str, Any]) -> Dict[str, Any]:
+    """Accept an arbitrary JSON object and return it unchanged.
+
+    Args:
+        body: Any valid JSON object (dict).
+
+    Returns:
+        The exact same JSON object that was received.
+    """
+    return body
