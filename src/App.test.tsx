@@ -1,7 +1,8 @@
 /**
  * Unit tests for the App component.
  *
- * Verifies rendering of the heading and counter button behaviour.
+ * Verifies the Hello World heading renders, the counter starts at zero,
+ * and clicking the button increments the displayed count.
  */
 import { describe, it, expect } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
@@ -20,7 +21,7 @@ describe('App', () => {
     expect(button).toHaveTextContent('Count: 0');
   });
 
-  it('counter increments on click', () => {
+  it('increments count on click', () => {
     render(<App />);
     const button = screen.getByRole('button');
 

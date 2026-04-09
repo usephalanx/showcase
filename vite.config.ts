@@ -1,7 +1,8 @@
+/// <reference types="vitest" />
 /**
  * Vite configuration.
  *
- * Sets up the React plugin and vitest test environment.
+ * Configures the React plugin and Vitest test runner settings.
  */
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';

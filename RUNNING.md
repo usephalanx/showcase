@@ -2,7 +2,7 @@
 
 ## TEAM_BRIEF
 stack: TypeScript/React+Vite
-test_runner: npx vitest run
+test_runner: pytest tests/
 lint_tool: none
 coverage_tool: none
 coverage_threshold: 0
@@ -11,7 +11,7 @@ coverage_applies: false
 ## Prerequisites
 
 - Node.js >= 18
-- npm >= 9
+- Python >= 3.9 (for Python-level tests)
 
 ## Setup
 
@@ -25,24 +25,32 @@ npm install
 npm run dev
 ```
 
-The dev server starts at http://localhost:5173 by default.
-
 ## Build
 
 ```bash
 npm run build
 ```
 
-## Tests
+## Testing
+
+### Python structure tests
+
+```bash
+pytest tests/
+```
+
+### Vitest component tests (requires npm install)
 
 ```bash
 npm test
 ```
 
-This runs `vitest run` which executes all `*.test.tsx` files under `src/`.
+## Project Structure
 
-## Preview Production Build
-
-```bash
-npm run preview
-```
+- `src/App.tsx` — Main React component with Hello World heading and counter
+- `src/App.css` — Centered layout styling with flexbox, button hover states
+- `src/main.tsx` — Application entry point, mounts App to DOM
+- `src/setupTests.ts` — Test setup importing jest-dom matchers
+- `src/App.test.tsx` — Vitest component tests for App
+- `index.html` — HTML entry point served by Vite
+- `tests/test_app_component.py` — Python tests verifying file structure and content

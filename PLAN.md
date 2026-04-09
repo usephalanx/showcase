@@ -4,37 +4,39 @@
 
 ```
 .
-├── index.html              # HTML entry point served by Vite
-├── package.json            # Project metadata and dependencies
-├── tsconfig.json           # TypeScript compiler configuration
-├── vite.config.ts          # Vite build + vitest test configuration
-├── PLAN.md                 # This file – architecture documentation
-├── RUNNING.md              # Instructions for running the project
-├── conftest.py             # Root pytest configuration
+├── index.html              # HTML entry point
+├── package.json            # Dependencies and scripts
+├── tsconfig.json           # TypeScript configuration
+├── vite.config.ts          # Vite + Vitest configuration
+├── RUNNING.md              # Run instructions
+├── PLAN.md                 # This file
 ├── src/
-│   ├── main.tsx            # React mount point
-│   ├── App.tsx             # Main App component (heading + counter)
-│   ├── App.css             # Styles for the App component
-│   ├── App.test.tsx        # Vitest unit tests for App component
-│   └── setupTests.ts       # Test setup (jest-dom matchers)
+│   ├── App.tsx             # Main application component
+│   ├── App.css             # Component styles
+│   ├── main.tsx            # React DOM mount point
+│   ├── setupTests.ts       # Test setup (jest-dom)
+│   └── App.test.tsx        # Component tests
 └── tests/
-    └── test_index_html.py  # Pytest tests validating index.html structure
+    └── test_app_component.py  # Python structural tests
 ```
 
 ## Component Responsibilities
 
-| Component      | Responsibility                                                      |
-| -------------- | ------------------------------------------------------------------- |
-| `index.html`   | Minimal HTML5 shell; contains `<div id="root">` and module script   |
-| `src/main.tsx` | Imports React, mounts `<App />` into the root DOM element           |
-| `src/App.tsx`  | Renders "Hello World" heading and an interactive counter button     |
-| `src/App.css`  | Provides layout (centred flexbox) and basic styling                 |
+### App (src/App.tsx)
+- Renders an `<h1>Hello World</h1>` heading
+- Manages a `count` state variable via `useState<number>(0)`
+- Renders a `<button>` displaying "Count: {count}" that increments on click
+- Imports App.css for styling
+
+### Styling (src/App.css)
+- Uses flexbox on `#root` for vertical and horizontal centering
+- Styles the heading with sans-serif font
+- Styles the button with padding, border-radius, and hover state
 
 ## Design Decisions
 
-1. **Vite as bundler** – Fast HMR, native ESM support, first-class React/TS plugin.
-2. **Vitest for component tests** – Zero-config integration with Vite; uses jsdom.
-3. **Pytest for static HTML validation** – Ensures the HTML entry point meets spec
-   without requiring a Node.js environment for CI validation.
-4. **No external CDN links** – All dependencies are bundled by Vite at build time.
-5. **Strict TypeScript** – `strict: true` catches type errors early.
+1. **Vite + React**: Chosen for fast development builds and native TypeScript support
+2. **useState hook**: Simple state management appropriate for a single counter
+3. **Functional component**: Modern React pattern with hooks
+4. **Vitest**: Native Vite test runner with jsdom environment for component testing
+5. **Python structural tests**: Validate file existence and content without Node.js dependency

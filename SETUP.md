@@ -1,21 +1,23 @@
 # Setup Instructions
 
-After cloning the repository, install dependencies:
+This project requires installing Node.js dependencies before running or testing.
+
+## Install dependencies
 
 ```bash
 npm install
 ```
 
-This generates `node_modules/` and `package-lock.json` which are not committed to version control.
+This generates `node_modules/` and `package-lock.json` which are not checked into version control.
 
-To run tests:
+## Run Vitest component tests
 
 ```bash
 npm test
 ```
 
-To start the development server:
+## Run Python structural tests
 
 ```bash
-npm run dev
+pytest tests/
 ```
