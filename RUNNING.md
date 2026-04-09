@@ -12,7 +12,7 @@ coverage_applies: true
 
 - Python 3.12+ **or** Docker
 
-## Option A — Local Python
+## Running Locally (without Docker)
 
 ```bash
 pip install -r requirements.txt
@@ -21,7 +21,7 @@ uvicorn app:app --reload
 
 Then visit: <http://localhost:8000/hello>
 
-## Option B — Docker Compose
+## Running with Docker
 
 ```bash
 docker compose up --build
@@ -32,14 +32,23 @@ Then visit: <http://localhost:8000/hello>
 ## Running Tests
 
 ```bash
-# Local
 pip install -r requirements.txt
 pytest tests/
-
-# Docker
-docker compose run --rm api pytest tests/
 ```
 
-## Demo Credentials
+Or inside Docker:
 
-No authentication is required. The API is open.
+```bash
+docker compose exec api pytest tests/
+```
+
+## Verifying the Endpoint
+
+```bash
+curl http://localhost:8000/hello
+# Expected: {"message":"hello world"}
+```
+
+## No Authentication
+
+This API has no authentication. No demo credentials are required.

@@ -53,8 +53,8 @@ def test_hello_delete_returns_405() -> None:
 
 
 def test_unknown_route_returns_404() -> None:
-    """GET /notfound should return 404."""
-    response = client.get("/notfound")
+    """GET /nonexistent should return 404."""
+    response = client.get("/nonexistent")
     assert response.status_code == 404
 
 
