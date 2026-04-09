@@ -2,37 +2,32 @@
 
 ## Overview
 
-A client-side Todo application built with React, TypeScript, and Vite.
-State is managed exclusively with `useState`. Styling uses CSS Modules.
+A simple Todo application built with React, Vite, and TypeScript. The frontend
+consists of a small component hierarchy using `useState` for state management
+and CSS Modules for styling.
 
 ## File Structure
 
 ```
-index.html
 src/
-  main.tsx
-  index.css
-  types/
-    todo.ts
-  components/
-    App/
-      App.tsx
-      App.module.css
-      App.test.tsx
-    TodoInput/
-      TodoInput.tsx
-      TodoInput.module.css
-      TodoInput.test.tsx
-    TodoList/
-      TodoList.tsx
-      TodoList.module.css
-      TodoList.test.tsx
-    TodoItem/
-      TodoItem.tsx
-      TodoItem.module.css
-      TodoItem.test.tsx
+├── main.tsx                          # Application entry point
+├── types/
+│   └── todo.ts                       # Todo type definition
+├── components/
+│   ├── App/
+│   │   ├── App.tsx                   # Root component, state owner
+│   │   └── App.module.css            # App styles
+│   ├── TodoInput/
+│   │   ├── TodoInput.tsx             # Controlled input form
+│   │   └── TodoInput.module.css      # TodoInput styles
+│   ├── TodoList/
+│   │   ├── TodoList.tsx              # Renders list of TodoItem
+│   │   └── TodoList.module.css       # TodoList styles
+│   └── TodoItem/
+│       ├── TodoItem.tsx              # Single todo row
+│       └── TodoItem.module.css       # TodoItem styles
 tests/
-  test_static_files.py
+├── test_todo_input.py                # Tests for TodoInput component
 ```
 
 ## Data Model
@@ -41,52 +36,45 @@ Defined in `src/types/todo.ts`:
 
 ```typescript
 export interface Todo {
-  id: string;        // Generated via crypto.randomUUID()
-  text: string;      // The todo item text
-  completed: boolean; // Whether the item is done
+  id: string;         // Generated via crypto.randomUUID()
+  text: string;       // The todo text content
+  completed: boolean; // Whether the todo is done
 }
 ```
+
+- **id**: `string` — generated with `crypto.randomUUID()`
+- **text**: `string` — the user-entered todo text
+- **completed**: `boolean` — toggled between true/false
 
 ## Component Hierarchy
 
 ```
 App
-├── TodoInput
-└── TodoList
-    └── TodoItem (one per todo)
+├── TodoInput        (onAdd callback)
+└── TodoList         (todos array, onToggle, onDelete)
+    └── TodoItem[]   (single todo, onToggle, onDelete)
 ```
 
 ## State Management
 
-- **App** owns `const [todos, setTodos] = useState<Todo[]>([])`
-- The todos array starts **empty** — no pre-populated sample data.
-- CRUD operations (`addTodo`, `toggleTodo`, `deleteTodo`) are defined in App
-  and passed as callbacks to child components.
+- **useState only** — no external state libraries.
+- `App` owns the `todos: Todo[]` state (starts as empty array `[]`).
+- `TodoInput` owns local `text: string` state for the controlled input.
+- State setters:
+  - `addTodo(text: string): void` — creates a new Todo and appends to array
+  - `toggleTodo(id: string): void` — flips `completed` for the matching todo
+  - `deleteTodo(id: string): void` — removes the todo from the array
 
-### Operations
-
-| Operation    | Signature                          | Description                          |
-| ------------ | ---------------------------------- | ------------------------------------ |
-| `addTodo`    | `(text: string) => void`           | Creates a new Todo with `crypto.randomUUID()` as id |
-| `toggleTodo` | `(id: string) => void`             | Flips `completed` for the matching todo |
-| `deleteTodo` | `(id: string) => void`             | Removes the todo from the array      |
-
-## Component Props
+## Component Props Interfaces
 
 ### TodoInput
-
 ```typescript
 interface TodoInputProps {
   onAdd: (text: string) => void;
 }
 ```
 
-- Uses a `<form>` element with `onSubmit` to handle both button click and Enter key.
-- Empty-string todos must **not** be added (trims and validates before calling `onAdd`).
-- Clears the input field after successful submission.
-
 ### TodoList
-
 ```typescript
 interface TodoListProps {
   todos: Todo[];
@@ -95,10 +83,7 @@ interface TodoListProps {
 }
 ```
 
-- Renders an empty-state message when `todos.length === 0`.
-
 ### TodoItem
-
 ```typescript
 interface TodoItemProps {
   todo: Todo;
@@ -107,38 +92,37 @@ interface TodoItemProps {
 }
 ```
 
-- Renders a checkbox, the todo text, and a delete button.
-- Applies `text-decoration: line-through` when `completed` is true.
-
 ## Styling Strategy
 
-CSS Modules (`.module.css` files co-located with each component).
-Global reset and base styles live in `src/index.css`.
+- CSS Modules (`.module.css` files co-located with components).
+- Each component imports its own module for scoped class names.
+
+## Validation Rules
+
+- Empty-string or whitespace-only todos must **not** be added.
+- `TodoInput` trims input before validation and submission.
+- `TodoInput` uses a `<form>` element with `onSubmit` to handle both button
+  click and Enter key submission (keyboard accessible).
+- Input is cleared after successful submission.
+
+## ID Generation
+
+- `crypto.randomUUID()` is used for generating unique todo IDs.
+- No `Math.random()` or incrementing integers.
+
+## Initial State
+
+- The `todos` array starts **empty** — no pre-populated sample data.
 
 ## Testing Strategy
 
-### Test Files and Cases
+Test files use pytest to validate component source structure:
 
-**App.test.tsx**
-- renders the app with heading
-- adds a new todo
-- toggles a todo completed state
-- deletes a todo
-- shows empty state when no todos
-
-**TodoInput.test.tsx**
-- renders input field and add button
-- calls onAdd with input text when submitted
-- clears input after submission
-- does not call onAdd when input is empty
-
-**TodoList.test.tsx**
-- renders a list of todos
-- renders empty state when todos array is empty
-
-**TodoItem.test.tsx**
-- renders todo text
-- renders checkbox reflecting completed state
-- calls onToggle when checkbox clicked
-- calls onDelete when delete button clicked
-- applies line-through style when completed
+- `tests/test_todo_input.py`:
+  - renders input field and add button
+  - calls onAdd with input text when submitted
+  - clears input after submission
+  - does not call onAdd when input is empty
+  - validates controlled input pattern
+  - validates form element with onSubmit
+  - validates accessibility attributes

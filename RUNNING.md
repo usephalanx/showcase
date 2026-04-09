@@ -10,16 +10,30 @@ coverage_applies: false
 
 ## Prerequisites
 
-- Node.js >= 18
-- npm
+- Python 3.10+ (for running tests)
+- Node.js 18+ and npm (for running the React dev server)
 
-## Setup
+## Quick Start
+
+### 1. Install Python test dependencies
+
+```bash
+pip install pytest
+```
+
+### 2. Run tests
+
+```bash
+pytest tests/
+```
+
+### 3. Install frontend dependencies (when package.json is set up)
 
 ```bash
 npm install
 ```
 
-## Development
+### 4. Start development server
 
 ```bash
 npm run dev
@@ -27,15 +41,18 @@ npm run dev
 
 Open http://localhost:5173 in your browser.
 
-## Build
+## Docker Setup
 
 ```bash
-npm run build
+# Build and run
+docker compose up --build
+
+# Open in browser
+open http://localhost:5173
 ```
 
-## Tests
+## Running Tests Only
 
 ```bash
-pip install pytest
-pytest tests/
+pytest tests/ -v
 ```
