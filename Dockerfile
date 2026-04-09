@@ -2,12 +2,14 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
+# Install dependencies first for layer caching
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Copy application source
 COPY main.py .
-COPY models.py .
 COPY routes.py .
+COPY models.py .
 COPY storage.py .
 COPY conftest.py .
 COPY tests/ tests/

@@ -11,12 +11,16 @@ from typing import Any, Dict, List, Optional
 
 
 class TodoStore:
-    """Simple in-memory store for todo items."""
+    """Simple in-memory store for todo items.
+
+    Each todo is stored as a plain dictionary with keys:
+    ``id``, ``title``, ``description``, ``completed``, ``created_at``.
+    """
 
     def __init__(self) -> None:
-        """Initialise an empty store with a zero counter."""
+        """Initialise an empty store."""
         self._todos: Dict[int, Dict[str, Any]] = {}
-        self._counter: int = 0
+        self._next_id: int = 1
 
     def add(
         self,
@@ -24,35 +28,50 @@ class TodoStore:
         description: Optional[str] = None,
         completed: bool = False,
     ) -> Dict[str, Any]:
-        """Add a new todo and return its full dictionary representation.
+        """Add a new todo item and return it.
 
         Args:
             title: The title of the todo item.
-            description: Optional longer description.
-            completed: Initial completion status.
+            description: An optional longer description.
+            completed: Whether the todo starts as completed.
 
         Returns:
-            A dictionary representing the created todo.
+            A dictionary representing the new todo.
         """
-        self._counter += 1
+        todo_id = self._next_id
+        self._next_id += 1
+        now = datetime.now(timezone.utc).isoformat()
         todo: Dict[str, Any] = {
-            "id": self._counter,
+            "id": todo_id,
             "title": title,
             "description": description,
             "completed": completed,
-            "created_at": datetime.now(timezone.utc).isoformat(),
+            "created_at": now,
         }
-        self._todos[self._counter] = todo
+        self._todos[todo_id] = todo
         return dict(todo)
 
     def get_all(self) -> List[Dict[str, Any]]:
-        """Return a list of all todos ordered by id ascending."""
+        """Return a list of all todo items.
+
+        Returns:
+            A list of todo dictionaries.
+        """
         return [dict(t) for t in self._todos.values()]
 
     def get(self, todo_id: int) -> Optional[Dict[str, Any]]:
-        """Return a single todo by *todo_id*, or ``None`` if not found."""
+        """Retrieve a single todo by its ID.
+
+        Args:
+            todo_id: The integer ID of the todo.
+
+        Returns:
+            The todo dictionary, or ``None`` if not found.
+        """
         todo = self._todos.get(todo_id)
-        return dict(todo) if todo is not None else None
+        if todo is None:
+            return None
+        return dict(todo)
 
     def update(
         self,
@@ -64,6 +83,12 @@ class TodoStore:
         """Update fields of an existing todo.
 
         Only non-``None`` arguments are applied.
+
+        Args:
+            todo_id: The integer ID of the todo to update.
+            title: New title (if provided).
+            description: New description (if provided).
+            completed: New completion status (if provided).
 
         Returns:
             The updated todo dictionary, or ``None`` if not found.
@@ -80,9 +105,15 @@ class TodoStore:
         return dict(todo)
 
     def delete(self, todo_id: int) -> bool:
-        """Remove a todo by *todo_id*.
+        """Delete a todo by its ID.
+
+        Args:
+            todo_id: The integer ID of the todo to delete.
 
         Returns:
-            ``True`` if the item was deleted, ``False`` if it did not exist.
+            ``True`` if the todo was deleted, ``False`` if not found.
         """
-        return self._todos.pop(todo_id, None) is not None
+        if todo_id in self._todos:
+            del self._todos[todo_id]
+            return True
+        return False
