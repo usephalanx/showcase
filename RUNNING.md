@@ -1,33 +1,53 @@
-# Running the Todo API
+# Running the Application
+
+## TEAM_BRIEF
+stack: Python/FastAPI
+test_runner: pytest tests/
+lint_tool: ruff check .
+coverage_tool: pytest-cov
+coverage_threshold: 70
+coverage_applies: true
 
 ## Prerequisites
 
-- Python 3.10 or later
+- Python 3.12+ **or** Docker / Docker Compose
 
-## Install dependencies
+## Option A — Docker (recommended)
 
 ```bash
-pip install fastapi uvicorn pydantic
+# Build and start the API
+docker compose up --build
+
+# In another terminal, verify it works
+curl http://localhost:8000/hello
+# => {"message":"hello world"}
+
+# Run the test suite inside the container
+docker compose exec api pytest tests/
 ```
 
-For running the test suite you will also need:
+## Option B — Local virtualenv
 
 ```bash
-pip install httpx pytest
-```
+python -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
 
-## Start the server
+# Start the server
+uvicorn app:app --host 0.0.0.0 --port 8000
 
-```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
-```
-
-The API will be available at <http://localhost:8000>.
-
-Interactive docs are served at <http://localhost:8000/docs>.
-
-## Run the tests
-
-```bash
+# Run the tests (separate terminal)
 pytest tests/
 ```
+
+## Endpoints
+
+| Method | Path     | Description             |
+|--------|----------|-------------------------|
+| GET    | `/hello` | Returns hello world JSON |
+| GET    | `/`      | Todo API welcome message |
+| *      | `/todos` | Todo CRUD endpoints      |
+
+## Authentication
+
+No authentication is required — this is a development/demo application.
