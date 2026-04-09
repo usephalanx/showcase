@@ -1,45 +1,34 @@
 # Setup Instructions
 
-## Prerequisites
-
-- [Node.js](https://nodejs.org/) >= 18
-- npm (bundled with Node.js)
-
-## Install Dependencies
+## Install dependencies
 
 ```bash
 npm install
 ```
 
-This generates `package-lock.json` and the `node_modules/` directory.
-Both are **not** committed to version control.
-
-## Development Server
+## Run development server
 
 ```bash
 npm run dev
 ```
 
-Starts the Vite dev server on [http://localhost:3000](http://localhost:3000).
-
-## Production Build
-
-```bash
-npm run build
-```
-
-Outputs optimised assets to `dist/`.
-
-## Preview Production Build
-
-```bash
-npm run preview
-```
-
-## Run Tests
+## Run tests
 
 ```bash
 npm test
 ```
 
-Runs the Vitest test suite.
+## Build for production
+
+```bash
+npm run build
+```
+
+## Notes
+
+Do **not** hand-edit or commit the following generated files:
+- `node_modules/`
+- `package-lock.json`
+- `dist/`
+
+These are produced by running the commands above.
