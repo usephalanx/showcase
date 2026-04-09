@@ -1,56 +1,62 @@
 # React Todo App — Architecture Plan
 
-## Overview
-
-A simple, single-page Todo application built with React, TypeScript, and Vite.
-State is managed with `useState` only (no external state libraries).
-Styling uses CSS Modules.
+This document is the single source of truth for the React + Vite + TypeScript Todo application.
 
 ---
 
 ## File Structure
 
 ```
-src/
-  types/
-    todo.ts                        # Todo interface
-  components/
-    App/
-      App.tsx                      # Root component — state lives here
-      App.module.css
-      App.test.tsx
-    TodoInput/
-      TodoInput.tsx                # Text input + add button (form)
-      TodoInput.module.css
-      TodoInput.test.tsx
-    TodoList/
-      TodoList.tsx                 # Renders list of TodoItem components
-      TodoList.module.css
-      TodoList.test.tsx
-    TodoItem/
-      TodoItem.tsx                 # Single todo: checkbox, text, delete
-      TodoItem.module.css
-      TodoItem.test.tsx
-  main.tsx                         # ReactDOM.createRoot entry point
-  index.css                        # Global / reset styles
-index.html                         # Vite HTML entry
-package.json
-tsconfig.json
-vite.config.ts
+/
+├── index.html
+├── package.json
+├── tsconfig.json
+├── vite.config.ts
+├── requirements-test.txt
+├── RUNNING.md
+├── PLAN.md
+├── src/
+│   ├── main.tsx
+│   ├── types/
+│   │   └── todo.ts
+│   └── components/
+│       ├── App/
+│       │   ├── App.tsx
+│       │   ├── App.module.css
+│       │   └── App.test.tsx
+│       ├── TodoInput/
+│       │   ├── TodoInput.tsx
+│       │   ├── TodoInput.module.css
+│       │   └── TodoInput.test.tsx
+│       ├── TodoList/
+│       │   ├── TodoList.tsx
+│       │   ├── TodoList.module.css
+│       │   └── TodoList.test.tsx
+│       └── TodoItem/
+│           ├── TodoItem.tsx
+│           ├── TodoItem.module.css
+│           └── TodoItem.test.tsx
+└── tests/
+    └── test_file_structure.py
 ```
 
 ---
 
 ## Data Model
 
-```typescript
-// src/types/todo.ts
+Defined in `src/types/todo.ts`:
+
+```ts
 export interface Todo {
   id: string;        // Generated via crypto.randomUUID()
-  text: string;      // User-entered todo text
-  completed: boolean; // Toggle-able completion state
+  text: string;      // The todo content — must not be empty
+  completed: boolean; // Whether the todo is done
 }
 ```
+
+- **id** — `string` — unique identifier produced by `crypto.randomUUID()`.
+- **text** — `string` — the user-visible text of the todo item.
+- **completed** — `boolean` — tracks whether the item has been completed.
 
 ---
 
@@ -58,47 +64,71 @@ export interface Todo {
 
 ```
 App
-├── TodoInput        (onAdd: (text: string) => void)
-└── TodoList         (todos: Todo[], onToggle, onDelete)
-    └── TodoItem     (todo: Todo, onToggle, onDelete)   × N
+├── TodoInput
+└── TodoList
+    └── TodoItem (one per todo)
 ```
 
+### App (`src/components/App/App.tsx`)
+
+Root component. Owns the todo state.
+
+**State:**
+
+```ts
+const [todos, setTodos] = useState<Todo[]>([]);
+```
+
+The todos array starts **empty** — no pre-populated sample data.
+
+**Functions:**
+
+| Function       | Signature                             | Description                                  |
+| -------------- | ------------------------------------- | -------------------------------------------- |
+| `addTodo`      | `(text: string) => void`              | Creates a new Todo and appends it to state   |
+| `toggleTodo`   | `(id: string) => void`                | Flips the `completed` flag of the given todo |
+| `deleteTodo`   | `(id: string) => void`                | Removes the todo with the given id           |
+
+**Renders:**
+
+- An `<h1>` heading (e.g. "Todo App")
+- `<TodoInput onAdd={addTodo} />`
+- `<TodoList todos={todos} onToggle={toggleTodo} onDelete={deleteTodo} />`
+
 ---
 
-## State Management
+### TodoInput (`src/components/TodoInput/TodoInput.tsx`)
 
-All state is kept in `App` via a single `useState<Todo[]>` hook.
+**Props:**
 
-| Operation  | Function       | Signature                          |
-|------------|----------------|------------------------------------|
-| Add        | `addTodo`      | `(text: string) => void`           |
-| Toggle     | `toggleTodo`   | `(id: string) => void`             |
-| Delete     | `deleteTodo`   | `(id: string) => void`             |
-
-### Rules
-
-- Empty or whitespace-only text must **not** create a todo.
-- `crypto.randomUUID()` is used for id generation.
-- The `todos` array starts **empty** (no sample data).
-
----
-
-## Component Props
-
-### TodoInput
-
-```typescript
+```ts
 interface TodoInputProps {
   onAdd: (text: string) => void;
 }
 ```
 
-- Uses a `<form>` with `onSubmit` to handle both Enter key and button click.
-- Clears the input field after successful submission.
+**State:**
 
-### TodoList
+```ts
+const [text, setText] = useState<string>('');
+```
 
-```typescript
+**Behaviour:**
+
+- Wraps the input and button in a `<form>` element with an `onSubmit` handler.
+- On submit (button click **or** Enter key):
+  1. Trims the input text.
+  2. If the trimmed text is empty, does **not** call `onAdd` (validation).
+  3. Otherwise calls `onAdd(trimmedText)` and clears the input.
+- Prevents the default form submission.
+
+---
+
+### TodoList (`src/components/TodoList/TodoList.tsx`)
+
+**Props:**
+
+```ts
 interface TodoListProps {
   todos: Todo[];
   onToggle: (id: string) => void;
@@ -106,11 +136,18 @@ interface TodoListProps {
 }
 ```
 
-- Renders an empty-state message when `todos` is empty.
+**Behaviour:**
 
-### TodoItem
+- When `todos` is empty, renders an empty-state message (e.g. "No todos yet").
+- Otherwise renders a `<ul>` with one `<TodoItem>` per todo.
 
-```typescript
+---
+
+### TodoItem (`src/components/TodoItem/TodoItem.tsx`)
+
+**Props:**
+
+```ts
 interface TodoItemProps {
   todo: Todo;
   onToggle: (id: string) => void;
@@ -118,37 +155,72 @@ interface TodoItemProps {
 }
 ```
 
-- Checkbox `checked` bound to `todo.completed`; `onChange` calls `onToggle(todo.id)`.
-- Text displayed in a `<span>` with `textDecoration: "line-through"` when completed.
-- Delete `<button>` calls `onDelete(todo.id)` on click.
+**Behaviour:**
+
+- Renders a checkbox whose `checked` state reflects `todo.completed`.
+- Clicking the checkbox calls `onToggle(todo.id)`.
+- Renders the todo text; applies `text-decoration: line-through` when completed.
+- Renders a delete button that calls `onDelete(todo.id)`.
+
+---
+
+## State Management
+
+- **`useState` only** — no external state libraries.
+- All state lives in the `App` component.
+- Child components receive data and callbacks via props.
+
+### CRUD Operations
+
+| Operation  | Implementation                                                                                           |
+| ---------- | -------------------------------------------------------------------------------------------------------- |
+| **Create** | `addTodo`: creates `{ id: crypto.randomUUID(), text, completed: false }` and appends to `todos`          |
+| **Read**   | `todos` state array is passed down to `TodoList`                                                         |
+| **Update** | `toggleTodo`: maps over `todos`, flipping `completed` for the matching id                                |
+| **Delete** | `deleteTodo`: filters `todos` to exclude the matching id                                                 |
 
 ---
 
 ## Styling Strategy
 
-- **CSS Modules** (`*.module.css`) for component-scoped styles.
-- Inline `style` for dynamic properties (e.g., `textDecoration` on TodoItem text).
-- A single `index.css` for global resets / base typography.
+- **CSS Modules** — each component has a co-located `.module.css` file.
+- No global CSS framework; plain CSS with scoped class names.
+- Completed todos receive a `line-through` text decoration.
 
 ---
 
 ## Testing Strategy
 
-Python-based structural tests (`pytest`) validate source files:
+### Unit / Component Tests (Vitest + React Testing Library)
 
-| Test File                  | Key Tests                                              |
-|----------------------------|--------------------------------------------------------|
-| `tests/test_todo_item.py`  | renders todo text, checkbox reflects completed state,  |
-|                            | calls onToggle on checkbox click, calls onDelete on    |
-|                            | delete button click, applies line-through when done    |
+| Test File                                          | Test Name                                        |
+| -------------------------------------------------- | ------------------------------------------------ |
+| `src/components/App/App.test.tsx`                  | renders the app with heading                     |
+| `src/components/App/App.test.tsx`                  | adds a new todo                                  |
+| `src/components/App/App.test.tsx`                  | toggles a todo completed state                   |
+| `src/components/App/App.test.tsx`                  | deletes a todo                                   |
+| `src/components/App/App.test.tsx`                  | shows empty state when no todos                  |
+| `src/components/TodoInput/TodoInput.test.tsx`      | renders input field and add button               |
+| `src/components/TodoInput/TodoInput.test.tsx`      | calls onAdd with input text when submitted       |
+| `src/components/TodoInput/TodoInput.test.tsx`      | clears input after submission                    |
+| `src/components/TodoInput/TodoInput.test.tsx`      | does not call onAdd when input is empty          |
+| `src/components/TodoList/TodoList.test.tsx`        | renders a list of todos                          |
+| `src/components/TodoList/TodoList.test.tsx`        | renders empty state when todos array is empty    |
+| `src/components/TodoItem/TodoItem.test.tsx`        | renders todo text                                |
+| `src/components/TodoItem/TodoItem.test.tsx`        | renders checkbox reflecting completed state      |
+| `src/components/TodoItem/TodoItem.test.tsx`        | calls onToggle when checkbox clicked             |
+| `src/components/TodoItem/TodoItem.test.tsx`        | calls onDelete when delete button clicked        |
+| `src/components/TodoItem/TodoItem.test.tsx`        | applies line-through style when completed        |
 
-Future JS-based tests (Vitest + React Testing Library) will cover
-runtime behaviour once the full app is assembled.
+### File-Structure Tests (pytest)
+
+Located in `tests/test_file_structure.py`. Validates that all expected files exist at the correct paths.
 
 ---
 
-## Accessibility
+## Edge Cases & Validation
 
-- `aria-label` attributes on checkbox and delete button.
-- Form submission via Enter key in TodoInput (native `<form>`).
-- Semantic HTML: `<ul>` / `<li>` for the todo list.
+- **Empty todos are rejected:** `TodoInput` trims whitespace and refuses to call `onAdd` for empty strings.
+- **Unique IDs:** `crypto.randomUUID()` is used — never `Math.random()` or incrementing integers.
+- **No pre-populated data:** The `todos` array starts empty.
+- **Keyboard accessibility:** The `<form>` element with `onSubmit` ensures both Enter key and button click trigger submission.
