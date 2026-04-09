@@ -1,25 +1,45 @@
 # Setup Instructions
 
+## Prerequisites
+
+- [Node.js](https://nodejs.org/) >= 18
+- npm (bundled with Node.js)
+
 ## Install Dependencies
 
 ```bash
-pip install -r requirements.txt
+npm install
 ```
 
-## Install Test Dependencies
+This generates `package-lock.json` and the `node_modules/` directory.
+Both are **not** committed to version control.
+
+## Development Server
 
 ```bash
-pip install pytest httpx
+npm run dev
+```
+
+Starts the Vite dev server on [http://localhost:3000](http://localhost:3000).
+
+## Production Build
+
+```bash
+npm run build
+```
+
+Outputs optimised assets to `dist/`.
+
+## Preview Production Build
+
+```bash
+npm run preview
 ```
 
 ## Run Tests
 
 ```bash
-pytest tests/ -v
+npm test
 ```
 
-## Run the Application
-
-```bash
-uvicorn main:app --reload
-```
+Runs the Vitest test suite.
