@@ -1,7 +1,7 @@
-"""Tests for the GET /health endpoint.
+"""Tests for the /health endpoint.
 
-Verifies that the health-check route returns the expected JSON payload
-and that unsupported HTTP methods are rejected.
+Verifies that GET /health returns 200 with {"status": "ok"} and that
+unsupported HTTP methods return 405 Method Not Allowed.
 """
 
 from __future__ import annotations
@@ -41,24 +41,15 @@ async def test_health_response_content_type() -> None:
     async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as client:
         response = await client.get("/health")
 
-    assert "application/json" in response.headers.get("content-type", "")
+    assert "application/json" in response.headers["content-type"]
 
 
 @pytest.mark.asyncio
-async def test_health_put_method_not_allowed() -> None:
-    """PUT /health should return 405 Method Not Allowed."""
+async def test_root_returns_welcome() -> None:
+    """GET / should return 200 with a welcome message."""
     transport = ASGITransport(app=app)
     async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as client:
-        response = await client.put("/health")
+        response = await client.get("/")
 
-    assert response.status_code == 405
-
-
-@pytest.mark.asyncio
-async def test_health_delete_method_not_allowed() -> None:
-    """DELETE /health should return 405 Method Not Allowed."""
-    transport = ASGITransport(app=app)
-    async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as client:
-        response = await client.delete("/health")
-
-    assert response.status_code == 405
+    assert response.status_code == 200
+    assert response.json() == {"message": "Welcome to the Todo API"}

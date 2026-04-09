@@ -1,59 +1,47 @@
-# Project Plan
+# Architecture Plan
 
-## Overview
-
-A Todo REST API built with FastAPI and backed by in-memory storage,
-with an additional health-check endpoint for operational monitoring.
-
-## Architecture
-
-### Python Version
-
-- Python 3.11+
-
-### Dependencies
-
-| Package          | Version Constraint | Purpose                          |
-|------------------|--------------------|----------------------------------|
-| fastapi          | >=0.110.0,<1       | Web framework                    |
-| uvicorn[standard]| >=0.29.0,<1        | ASGI server                      |
-| pydantic         | >=2.0.0            | Data validation / serialisation  |
-| httpx            | >=0.27.0,<1        | Async HTTP client (testing)      |
-| pytest           | >=8.0.0,<9         | Test runner                      |
-| pytest-asyncio   | >=0.23,<1          | Async test support               |
-| pytest-timeout   | >=2.1.0            | Test timeout guard               |
-
-### Project Layout
+## Project Layout
 
 ```
 .
-├── main.py                 # FastAPI app with root route + health endpoint
-├── routes.py               # Todo CRUD router
-├── models.py               # Pydantic request/response schemas
-├── storage.py              # In-memory TodoStore
-├── conftest.py             # Root pytest configuration
-├── requirements.txt        # Pinned dependencies
-├── Dockerfile              # Container image definition
-├── docker-compose.yml      # Local orchestration
-├── RUNNING.md              # How to run & test
-├── PLAN.md                 # This file
+├── main.py               # FastAPI app instance with /health and / endpoints
+├── models.py             # Pydantic request/response schemas
+├── routes.py             # Todo CRUD APIRouter
+├── storage.py            # In-memory TodoStore
+├── conftest.py           # Root pytest configuration
+├── requirements.txt      # Python dependencies
+├── Dockerfile            # Container image definition
+├── docker-compose.yml    # Local orchestration
 ├── tests/
 │   ├── __init__.py
-│   └── test_health.py      # Health endpoint tests
-└── healthcheck/
-    └── e36e389f/           # SQLite-backed variant (legacy)
+│   └── test_health.py    # /health endpoint tests
+├── PLAN.md               # This file
+└── RUNNING.md            # Instructions for running the project
 ```
 
-### Key Design Decisions
+## Python Version
 
-1. **`main.py`** owns the FastAPI `app` instance.
-   - Mounts the Todo CRUD router from `routes.py`.
-   - Exposes `GET /health` returning `{"status": "ok"}`.
-   - Exposes `GET /` as a welcome/root endpoint.
+Python 3.11+
 
-2. **`tests/test_health.py`** uses `httpx.AsyncClient` with
-   `ASGITransport` to exercise `/health` without starting a real
-   server.
+## Dependencies
 
-3. **Docker** setup provides one-command local startup via
-   `docker compose up --build`.
+| Package         | Purpose                           |
+|-----------------|-----------------------------------|
+| fastapi         | Web framework                     |
+| uvicorn         | ASGI server                       |
+| httpx           | Async HTTP client for testing     |
+| pytest          | Test runner                       |
+| pytest-asyncio  | Async test support                |
+
+## Key Decisions
+
+- **main.py** holds the FastAPI `app` instance with a single GET `/health`
+  endpoint returning `{"status": "ok"}`.
+- **routes.py** contains the full Todo CRUD router, mounted via
+  `app.include_router(router)`.
+- **storage.py** provides an in-memory dict-based store (no database required
+  for development).
+- **tests/test_health.py** uses `httpx.AsyncClient` with `ASGITransport` to
+  verify the `/health` endpoint returns the expected response.
+- The `if __name__ == "__main__"` block in main.py runs uvicorn on
+  `0.0.0.0:8000` for convenience.
