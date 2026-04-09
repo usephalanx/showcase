@@ -1,6 +1,7 @@
 """FastAPI application entry point.
 
-Creates the FastAPI app and mounts the Todo CRUD router.
+Creates the FastAPI app, mounts the Todo CRUD router, and exposes
+a /health endpoint for liveness checks.
 """
 
 from __future__ import annotations
@@ -22,3 +23,15 @@ app.include_router(router)
 async def root() -> dict:
     """Return a welcome message at the API root."""
     return {"message": "Welcome to the Todo API"}
+
+
+@app.get("/health", tags=["health"])
+async def health_check() -> dict:
+    """Return a simple health-check response indicating the service is running."""
+    return {"status": "ok"}
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(app, host="0.0.0.0", port=8000)
