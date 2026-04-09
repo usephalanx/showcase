@@ -11,33 +11,31 @@ coverage_applies: false
 ## Prerequisites
 
 - Node.js >= 18
-- npm >= 9
+- npm
 
-## Local Development
+## Setup
 
 ```bash
-# Install dependencies
 npm install
+```
 
-# Start dev server
+## Development
+
+```bash
 npm run dev
 ```
 
 Open http://localhost:5173 in your browser.
 
-## Running Tests
+## Build
 
 ```bash
-# Python integration / static-file tests
+npm run build
+```
+
+## Tests
+
+```bash
+pip install pytest
 pytest tests/
 ```
-
-## Docker Setup (optional)
-
-```bash
-# Build and run
-docker build -t todo-app .
-docker run -p 5173:5173 todo-app
-```
-
-Open http://localhost:5173 in your browser.
