@@ -2,6 +2,8 @@
 
 Provides a single GET /hello endpoint that returns a JSON greeting.
 This module can also be used as a lightweight health-check target.
+
+Runnable with: uvicorn app:app --reload
 """
 
 from __future__ import annotations
@@ -20,6 +22,6 @@ async def hello() -> dict:
     """Return a JSON greeting.
 
     Returns:
-        A dictionary with a single 'message' key.
+        A dictionary with a single 'message' key set to 'hello world'.
     """
     return {"message": "hello world"}

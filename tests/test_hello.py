@@ -1,12 +1,12 @@
 """Tests for the GET /hello endpoint.
 
-Uses starlette.testclient.TestClient (shipped with FastAPI) to exercise
-the hello-world application without starting a real server.
+Verifies status codes, response body, content type, and correct
+behaviour for edge cases (wrong method, unknown routes).
 """
 
 from __future__ import annotations
 
-from starlette.testclient import TestClient
+from fastapi.testclient import TestClient
 
 from app import app
 
@@ -14,7 +14,7 @@ client = TestClient(app)
 
 
 def test_hello_returns_200_with_message() -> None:
-    """GET /hello should return 200 and the expected JSON body."""
+    """GET /hello should return 200 with {"message": "hello world"}."""
     response = client.get("/hello")
     assert response.status_code == 200
     assert response.json() == {"message": "hello world"}
@@ -23,8 +23,15 @@ def test_hello_returns_200_with_message() -> None:
 def test_hello_content_type_is_json() -> None:
     """GET /hello response Content-Type must be application/json."""
     response = client.get("/hello")
-    content_type = response.headers.get("content-type", "")
-    assert "application/json" in content_type
+    assert "application/json" in response.headers["content-type"]
+
+
+def test_hello_message_key_exists() -> None:
+    """Response JSON must contain exactly the 'message' key."""
+    response = client.get("/hello")
+    data = response.json()
+    assert "message" in data
+    assert data["message"] == "hello world"
 
 
 def test_hello_post_returns_405() -> None:
@@ -46,6 +53,14 @@ def test_hello_delete_returns_405() -> None:
 
 
 def test_unknown_route_returns_404() -> None:
-    """GET /notfound should return 404 Not Found."""
+    """GET /notfound should return 404."""
     response = client.get("/notfound")
     assert response.status_code == 404
+
+
+def test_hello_response_body_is_dict() -> None:
+    """Response body should deserialise to a dict with one key."""
+    response = client.get("/hello")
+    data = response.json()
+    assert isinstance(data, dict)
+    assert len(data) == 1

@@ -1,57 +1,58 @@
-# Architecture
+# Architecture — Hello World API
 
 ## 1. Overview
 
-This project is a lightweight **Todo API** built with FastAPI. It also
-exposes a minimal Hello World endpoint (`GET /hello`) that serves as a
-health-check / smoke-test target.
+A minimal FastAPI application exposing a single `GET /hello` endpoint that
+returns `{"message": "hello world"}`.  The project serves as a lightweight
+health-check target and as a starting point for further API development.
 
 ## 2. Project Structure
 
 ```
 .
-├── app.py                 # Hello World FastAPI app (GET /hello)
-├── main.py                # Todo API entry-point (includes router)
-├── routes.py              # Todo CRUD route handlers
-├── models.py              # Pydantic request/response schemas
-├── storage.py             # In-memory dict-backed todo store
-├── requirements.txt       # Pinned Python dependencies
-├── Dockerfile             # Container image for the API
-├── docker-compose.yml     # Single-command startup
-├── conftest.py            # Root pytest configuration
-├── tests/
-│   ├── __init__.py
-│   └── test_hello.py      # Tests for GET /hello
-├── healthcheck/           # SQLite-backed variant (legacy)
+├── app.py                  # FastAPI application & /hello route
+├── requirements.txt        # Python dependencies
+├── Dockerfile              # Container image definition
+├── docker-compose.yml      # Single-command startup
+├── RUNNING.md              # How to run & test locally
 ├── ARCHITECTURE.md         # This file
-└── RUNNING.md             # How to run & test locally
+├── conftest.py             # Root pytest configuration
+└── tests/
+    ├── __init__.py
+    └── test_hello.py       # Endpoint tests
 ```
 
-## 3. Endpoint Contract — Hello World
+## 3. Endpoint Contract
 
-| Method | Path     | Status | Body                            | Content-Type     |
-|--------|----------|--------|---------------------------------|------------------|
-| GET    | `/hello` | 200    | `{"message": "hello world"}` | application/json |
+| Method | Path     | Status | Response Body                  | Content-Type       |
+|--------|----------|--------|--------------------------------|--------------------|
+| GET    | `/hello` | 200    | `{"message": "hello world"}`   | application/json   |
 
-Any non-GET method returns **405 Method Not Allowed**.  
+All other methods on `/hello` return **405 Method Not Allowed**.  
 Unknown paths return **404 Not Found**.
 
 ## 4. Tech Stack
 
-| Component   | Version constraint |
-|-------------|--------------------|
-| Python      | 3.12+              |
-| FastAPI     | >=0.115, <1        |
-| Uvicorn     | >=0.34, <1         |
-| httpx       | >=0.28, <1         |
-| pytest      | >=8, <9            |
-| Pydantic    | >=2.0              |
+| Component  | Version      |
+|------------|--------------|
+| Python     | 3.12+        |
+| FastAPI    | ≥ 0.115, < 1 |
+| Uvicorn    | ≥ 0.34, < 1  |
+| httpx      | ≥ 0.28, < 1  |
+| pytest     | ≥ 8, < 9     |
 
 ## 5. Running Locally
 
 ```bash
 pip install -r requirements.txt
-uvicorn app:app --host 0.0.0.0 --port 8000
+uvicorn app:app --reload
+curl http://localhost:8000/hello
+```
+
+Or via Docker:
+
+```bash
+docker compose up --build
 curl http://localhost:8000/hello
 ```
 
@@ -61,10 +62,9 @@ curl http://localhost:8000/hello
 pytest tests/
 ```
 
-Tests use `starlette.testclient.TestClient` (bundled with FastAPI/httpx)
-to exercise:
-
-* `GET /hello` returns 200 with `{"message": "hello world"}`
-* Response Content-Type is `application/json`
-* Non-GET methods return 405
-* Unknown routes return 404
+The test suite covers:
+- 200 response with correct JSON body
+- `Content-Type: application/json` header
+- 405 for non-GET methods
+- 404 for unknown routes
+- Response body shape validation
