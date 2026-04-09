@@ -15,7 +15,7 @@ if _PROJECT_ROOT not in sys.path:
     sys.path.insert(0, _PROJECT_ROOT)
 
 
-def pytest_addoption(parser):
+def pytest_addoption(parser):  # type: ignore[no-untyped-def]
     """Register --timeout so pytest doesn't choke when the plugin is absent."""
     try:
         parser.addoption(

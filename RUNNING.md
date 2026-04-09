@@ -10,41 +10,35 @@ coverage_applies: true
 
 ## Prerequisites
 
-- Docker and Docker Compose installed, **or**
-- Python 3.11+ installed locally
+- Python 3.11+ **or** Docker + Docker Compose
 
-## Quick Start with Docker
+## Option A: Run with Docker (recommended)
 
 ```bash
-# Build and start the API server
 docker compose up --build
 ```
 
 The API will be available at **http://localhost:8000**.
 
-### Verify
+Health check: **http://localhost:8000/health**
 
-```bash
-curl http://localhost:8000/health
-# Expected: {"status":"ok"}
-```
-
-### Run Tests inside Docker
+### Run tests inside the container
 
 ```bash
 docker compose exec api pytest tests/ -v
 ```
 
-## Local Development (without Docker)
+## Option B: Run locally without Docker
 
 ```bash
-# Install dependencies
 pip install -r requirements.txt
+uvicorn main:app --host 0.0.0.0 --port 8000
+```
 
-# Start the server
-python main.py
+### Run tests locally
 
-# In another terminal, run tests
+```bash
+pip install -r requirements.txt
 pytest tests/ -v
 ```
 
@@ -52,10 +46,10 @@ pytest tests/ -v
 
 | Method | Path              | Description                |
 |--------|-------------------|----------------------------|
-| GET    | `/`               | Welcome message            |
-| GET    | `/health`         | Health check               |
-| POST   | `/todos`          | Create a todo              |
-| GET    | `/todos`          | List all todos             |
-| GET    | `/todos/{id}`     | Get a single todo          |
-| PUT    | `/todos/{id}`     | Update a todo              |
-| DELETE | `/todos/{id}`     | Delete a todo              |
+| GET    | /                 | Welcome message            |
+| GET    | /health           | Health check (`{"status": "ok"}`) |
+| POST   | /todos            | Create a todo              |
+| GET    | /todos            | List all todos             |
+| GET    | /todos/{todo_id}  | Get a single todo          |
+| PUT    | /todos/{todo_id}  | Update a todo              |
+| DELETE | /todos/{todo_id}  | Delete a todo              |

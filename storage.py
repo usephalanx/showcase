@@ -1,88 +1,58 @@
-"""In-memory dictionary-based storage for Todo items.
+"""In-memory storage layer for Todo items.
 
-Provides a simple store backed by a Python dict with an auto-incrementing
-integer counter.  Suitable for development and testing — not for production
-use (data is lost on process restart and access is not thread-safe under
-concurrent writes).
+Provides a thread-safe (GIL-protected) dictionary-based store with
+auto-incrementing integer IDs and ISO-8601 timestamps.
 """
 
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 
 class TodoStore:
-    """Dict-backed todo storage with auto-incrementing IDs."""
+    """Simple in-memory store for todo items."""
 
     def __init__(self) -> None:
-        """Initialise an empty store."""
-        self._todos: Dict[int, dict] = {}
+        """Initialise an empty store with a zero counter."""
+        self._todos: Dict[int, Dict[str, Any]] = {}
         self._counter: int = 0
-
-    def _next_id(self) -> int:
-        """Return the next unique integer ID and increment the counter."""
-        self._counter += 1
-        return self._counter
-
-    def reset(self) -> None:
-        """Clear all stored todos and reset the ID counter.
-
-        Intended for use in test fixtures to ensure a clean state
-        between test cases.
-        """
-        self._todos.clear()
-        self._counter = 0
 
     def add(
         self,
         title: str,
         description: Optional[str] = None,
         completed: bool = False,
-    ) -> dict:
-        """Create a new todo and return its full representation.
+    ) -> Dict[str, Any]:
+        """Add a new todo and return its full dictionary representation.
 
         Args:
             title: The title of the todo item.
-            description: An optional longer description.
-            completed: Initial completion status (defaults to False).
+            description: Optional longer description.
+            completed: Initial completion status.
 
         Returns:
-            A dictionary representing the newly created todo.
+            A dictionary representing the created todo.
         """
-        todo_id = self._next_id()
-        now = datetime.now(timezone.utc).isoformat()
-        todo: dict = {
-            "id": todo_id,
+        self._counter += 1
+        todo: Dict[str, Any] = {
+            "id": self._counter,
             "title": title,
             "description": description,
             "completed": completed,
-            "created_at": now,
+            "created_at": datetime.now(timezone.utc).isoformat(),
         }
-        self._todos[todo_id] = todo
+        self._todos[self._counter] = todo
         return dict(todo)
 
-    def get(self, todo_id: int) -> Optional[dict]:
-        """Retrieve a single todo by its ID.
-
-        Args:
-            todo_id: The integer ID of the todo.
-
-        Returns:
-            A copy of the todo dict, or None if not found.
-        """
-        todo = self._todos.get(todo_id)
-        if todo is None:
-            return None
-        return dict(todo)
-
-    def get_all(self) -> List[dict]:
-        """Return a list of all todos ordered by ID ascending.
-
-        Returns:
-            A list of todo dictionaries (copies).
-        """
+    def get_all(self) -> List[Dict[str, Any]]:
+        """Return a list of all todos ordered by id ascending."""
         return [dict(t) for t in self._todos.values()]
+
+    def get(self, todo_id: int) -> Optional[Dict[str, Any]]:
+        """Return a single todo by *todo_id*, or ``None`` if not found."""
+        todo = self._todos.get(todo_id)
+        return dict(todo) if todo is not None else None
 
     def update(
         self,
@@ -90,19 +60,13 @@ class TodoStore:
         title: Optional[str] = None,
         description: Optional[str] = None,
         completed: Optional[bool] = None,
-    ) -> Optional[dict]:
+    ) -> Optional[Dict[str, Any]]:
         """Update fields of an existing todo.
 
-        Only non-None arguments are applied.
-
-        Args:
-            todo_id: The integer ID of the todo to update.
-            title: New title (if provided).
-            description: New description (if provided).
-            completed: New completion status (if provided).
+        Only non-``None`` arguments are applied.
 
         Returns:
-            A copy of the updated todo dict, or None if not found.
+            The updated todo dictionary, or ``None`` if not found.
         """
         todo = self._todos.get(todo_id)
         if todo is None:
@@ -116,15 +80,9 @@ class TodoStore:
         return dict(todo)
 
     def delete(self, todo_id: int) -> bool:
-        """Remove a todo by its ID.
-
-        Args:
-            todo_id: The integer ID of the todo to delete.
+        """Remove a todo by *todo_id*.
 
         Returns:
-            True if the todo was found and deleted, False otherwise.
+            ``True`` if the item was deleted, ``False`` if it did not exist.
         """
-        if todo_id in self._todos:
-            del self._todos[todo_id]
-            return True
-        return False
+        return self._todos.pop(todo_id, None) is not None

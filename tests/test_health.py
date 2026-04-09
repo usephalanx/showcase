@@ -6,50 +6,57 @@ unsupported HTTP methods return 405 Method Not Allowed.
 
 from __future__ import annotations
 
-import pytest
-import httpx
-from httpx import ASGITransport
+from fastapi.testclient import TestClient
 
 from main import app
 
 
-@pytest.mark.asyncio
-async def test_health_returns_ok() -> None:
+def test_health_returns_ok() -> None:
     """GET /health should return 200 with {"status": "ok"}."""
-    transport = ASGITransport(app=app)
-    async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as client:
-        response = await client.get("/health")
+    client = TestClient(app)
+    response = client.get("/health")
 
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
 
 
-@pytest.mark.asyncio
-async def test_health_method_not_allowed() -> None:
+def test_health_method_not_allowed() -> None:
     """POST /health should return 405 Method Not Allowed."""
-    transport = ASGITransport(app=app)
-    async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as client:
-        response = await client.post("/health")
+    client = TestClient(app)
+    response = client.post("/health")
 
     assert response.status_code == 405
 
 
-@pytest.mark.asyncio
-async def test_health_response_content_type() -> None:
+def test_health_response_content_type() -> None:
     """GET /health should return application/json content type."""
-    transport = ASGITransport(app=app)
-    async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as client:
-        response = await client.get("/health")
+    client = TestClient(app)
+    response = client.get("/health")
 
+    assert response.status_code == 200
     assert "application/json" in response.headers["content-type"]
 
 
-@pytest.mark.asyncio
-async def test_root_returns_welcome() -> None:
+def test_health_put_not_allowed() -> None:
+    """PUT /health should return 405 Method Not Allowed."""
+    client = TestClient(app)
+    response = client.put("/health")
+
+    assert response.status_code == 405
+
+
+def test_health_delete_not_allowed() -> None:
+    """DELETE /health should return 405 Method Not Allowed."""
+    client = TestClient(app)
+    response = client.delete("/health")
+
+    assert response.status_code == 405
+
+
+def test_root_returns_welcome() -> None:
     """GET / should return 200 with a welcome message."""
-    transport = ASGITransport(app=app)
-    async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as client:
-        response = await client.get("/")
+    client = TestClient(app)
+    response = client.get("/")
 
     assert response.status_code == 200
     assert response.json() == {"message": "Welcome to the Todo API"}
