@@ -1,20 +1,21 @@
-# Architecture
+# Architecture — Hello World API
 
 ## 1. Overview
 
-A minimal single-endpoint Hello World API built with FastAPI.
-The sole purpose is to serve `GET /hello` and return a JSON greeting.
+A single-endpoint Hello World REST API built with FastAPI.
+The sole purpose of the service is to respond to `GET /hello` with a
+JSON body `{"message": "hello world"}`.
 
 ## 2. Project Structure
 
 ```
 .
-├── app.py                 # FastAPI application with GET /hello
-├── conftest.py            # Root pytest configuration
+├── app.py                 # FastAPI application & /hello endpoint
 ├── requirements.txt       # Python dependencies
+├── conftest.py            # Root pytest configuration
 ├── Dockerfile             # Container image definition
-├── docker-compose.yml     # Docker Compose orchestration
-├── RUNNING.md             # Run & test instructions
+├── docker-compose.yml     # Single-command startup
+├── RUNNING.md             # How to run & test the project
 ├── ARCHITECTURE.md        # This file
 └── tests/
     ├── __init__.py        # Package marker
@@ -23,22 +24,22 @@ The sole purpose is to serve `GET /hello` and return a JSON greeting.
 
 ## 3. Endpoint Contract
 
-| Method | Path     | Status | Response Body                  | Content-Type     |
-|--------|----------|--------|--------------------------------|------------------|
-| GET    | `/hello` | 200    | `{"message": "hello world"}` | application/json |
+| Method | Path     | Status | Content-Type       | Body                              |
+|--------|----------|--------|--------------------|-----------------------------------|
+| GET    | `/hello` | 200    | `application/json` | `{"message": "hello world"}`   |
 
-Any other method on `/hello` returns **405 Method Not Allowed**.
-Unknown paths return **404 Not Found**.
+Any other HTTP method against `/hello` returns **405 Method Not Allowed**.
+Unknown routes return **404 Not Found**.
 
 ## 4. Tech Stack
 
-| Component  | Version      |
-|------------|--------------|
-| FastAPI    | >= 0.115, <1 |
-| Uvicorn    | >= 0.34, <1  |
-| httpx      | >= 0.28, <1  |
-| pytest     | >= 8, <9     |
-| Python     | 3.12+        |
+| Component   | Version Constraint | Purpose                     |
+|-------------|--------------------|-----------------------------||
+| FastAPI     | >=0.115, <1        | Web framework               |
+| Uvicorn     | >=0.34, <1         | ASGI server                 |
+| httpx       | >=0.28, <1         | Test-time HTTP client        |
+| pytest      | >=8, <9            | Test runner                 |
+| Python      | >=3.10             | Runtime                     |
 
 ## 5. Running Locally
 
@@ -48,6 +49,8 @@ uvicorn app:app --reload
 curl http://localhost:8000/hello
 ```
 
+See [RUNNING.md](RUNNING.md) for Docker instructions.
+
 ## 6. Testing
 
 ```bash
@@ -55,8 +58,7 @@ pytest tests/
 ```
 
 Tests cover:
-- `GET /hello` returns 200 with correct JSON body
-- Response Content-Type is `application/json`
-- Response body has exactly one key (`message`)
-- `POST`, `PUT`, `DELETE` on `/hello` return 405
-- Unknown route returns 404
+- `GET /hello` returns status 200 with `{"message": "hello world"}`
+- Response `Content-Type` is `application/json`
+- Non-GET methods to `/hello` return 405
+- Unknown routes return 404

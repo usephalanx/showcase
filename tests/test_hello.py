@@ -1,7 +1,7 @@
 """Tests for the GET /hello endpoint.
 
 Verifies status codes, response body, content type, and correct
-behaviour for edge cases (wrong method, unknown routes).
+behaviour for unknown routes and disallowed HTTP methods.
 """
 
 from __future__ import annotations
@@ -10,28 +10,20 @@ from fastapi.testclient import TestClient
 
 from app import app
 
-client = TestClient(app)
+client: TestClient = TestClient(app)
 
 
 def test_hello_returns_200_with_message() -> None:
-    """GET /hello should return 200 with {"message": "hello world"}."""
+    """GET /hello should return 200 and the expected JSON body."""
     response = client.get("/hello")
     assert response.status_code == 200
     assert response.json() == {"message": "hello world"}
 
 
 def test_hello_content_type_is_json() -> None:
-    """GET /hello response Content-Type must be application/json."""
+    """GET /hello should return Content-Type application/json."""
     response = client.get("/hello")
     assert "application/json" in response.headers["content-type"]
-
-
-def test_hello_message_key_exists() -> None:
-    """Response JSON must contain exactly the 'message' key."""
-    response = client.get("/hello")
-    data = response.json()
-    assert "message" in data
-    assert data["message"] == "hello world"
 
 
 def test_hello_post_returns_405() -> None:
@@ -53,14 +45,20 @@ def test_hello_delete_returns_405() -> None:
 
 
 def test_unknown_route_returns_404() -> None:
-    """GET /nonexistent should return 404."""
-    response = client.get("/nonexistent")
+    """GET to an unregistered path should return 404."""
+    response = client.get("/notfound")
     assert response.status_code == 404
 
 
-def test_hello_response_body_is_dict() -> None:
-    """Response body should deserialise to a dict with one key."""
+def test_hello_response_body_keys() -> None:
+    """The response JSON should contain exactly the 'message' key."""
     response = client.get("/hello")
     data = response.json()
-    assert isinstance(data, dict)
-    assert len(data) == 1
+    assert list(data.keys()) == ["message"]
+
+
+def test_hello_message_value_is_string() -> None:
+    """The 'message' value should be a string."""
+    response = client.get("/hello")
+    data = response.json()
+    assert isinstance(data["message"], str)
