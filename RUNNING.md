@@ -1,4 +1,4 @@
-# Running the React Todo App
+# Running the Todo App
 
 ## TEAM_BRIEF
 stack: TypeScript/React+Vite
@@ -8,50 +8,36 @@ coverage_tool: none
 coverage_threshold: 0
 coverage_applies: false
 
----
-
 ## Prerequisites
 
-- **Node.js** >= 18
-- **npm** >= 9
-- **Docker** and **Docker Compose** (optional, for containerised setup)
+- Node.js >= 18
+- npm >= 9
 
----
-
-## Quick Start (Local)
+## Local Development
 
 ```bash
-# 1. Install dependencies
+# Install dependencies
 npm install
 
-# 2. Start the development server
+# Start dev server
 npm run dev
-
-# 3. Open in browser
-#    http://localhost:5173
 ```
 
-## Quick Start (Docker)
+Open http://localhost:5173 in your browser.
+
+## Running Tests
 
 ```bash
-# 1. Build and start
-docker compose up --build
-
-# 2. Open in browser
-#    http://localhost:5173
+# Python integration / static-file tests
+pytest tests/
 ```
 
-## Build for Production
+## Docker Setup (optional)
 
 ```bash
-npm run build
-npm run preview
+# Build and run
+docker build -t todo-app .
+docker run -p 5173:5173 todo-app
 ```
 
-The production build is output to the `dist/` directory.
-
----
-
-## Project Structure
-
-See [PLAN.md](./PLAN.md) for the full architecture, component hierarchy, data model, and testing strategy.
+Open http://localhost:5173 in your browser.
