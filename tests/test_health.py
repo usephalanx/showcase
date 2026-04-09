@@ -1,4 +1,6 @@
-"""Tests for the GET /health endpoint."""
+"""Tests for the /health endpoint."""
+
+from __future__ import annotations
 
 from fastapi.testclient import TestClient
 
@@ -14,7 +16,7 @@ def test_health_returns_200() -> None:
 
 
 def test_health_returns_expected_body() -> None:
-    """GET /health should return {"message": "hi"}."""
+    """GET /health should return {'message': 'hi'}."""
     response = client.get("/health")
     assert response.json() == {"message": "hi"}
 
@@ -26,6 +28,6 @@ def test_health_method_not_allowed_post() -> None:
 
 
 def test_health_content_type_is_json() -> None:
-    """GET /health response should have application/json content type."""
+    """GET /health response Content-Type should be application/json."""
     response = client.get("/health")
     assert "application/json" in response.headers["content-type"]

@@ -8,6 +8,11 @@ coverage_tool: pytest-cov
 coverage_threshold: 70
 coverage_applies: true
 
+## Prerequisites
+
+- Python 3.12+ installed
+- (Optional) Docker and Docker Compose for containerised runs
+
 ## Quick Start with Docker
 
 1. **Build and start** the application:
@@ -16,7 +21,7 @@ coverage_applies: true
    docker compose up --build
    ```
 
-2. **Open** in your browser or with curl:
+2. **Verify** the service is running:
 
    ```bash
    curl http://localhost:8000/health
@@ -46,19 +51,39 @@ No authentication is required for the `/health` endpoint.
    python main.py
    ```
 
-   Or with uvicorn directly:
+   Or with uvicorn directly (with auto-reload for development):
 
    ```bash
    uvicorn main:app --host 0.0.0.0 --port 8000 --reload
    ```
 
-3. **Run the tests**:
+3. **Verify** the service is running:
+
+   ```bash
+   curl http://localhost:8000/health
+   ```
+
+   Expected response:
+
+   ```json
+   {"message": "hi"}
+   ```
+
+## Running Tests
+
+1. **Install dependencies** (if not already done):
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+2. **Run the test suite**:
 
    ```bash
    pytest tests/ -v
    ```
 
-   With coverage:
+3. **Run with coverage**:
 
    ```bash
    pytest tests/ --cov=. --cov-report=term-missing
