@@ -1,33 +1,42 @@
-# Running the Todo API
+# Running the Application
 
 ## Prerequisites
 
-- Python 3.10 or later
+- **Node.js** 18+ and **npm** 9+ (or use the Docker approach below)
 
-## Install dependencies
-
-```bash
-pip install fastapi uvicorn pydantic
-```
-
-For running the test suite you will also need:
+## Local Development
 
 ```bash
-pip install httpx pytest
+cd frontend
+npm install
+npm run dev
 ```
 
-## Start the server
+The dev server starts at [http://localhost:5173](http://localhost:5173).
+
+## Production Build
 
 ```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+cd frontend
+npm install
+npm run build
+npm run preview
 ```
 
-The API will be available at <http://localhost:8000>.
+The preview server starts at [http://localhost:4173](http://localhost:4173).
 
-Interactive docs are served at <http://localhost:8000/docs>.
-
-## Run the tests
+## Docker
 
 ```bash
-pytest tests/
+# Build the image
+docker build -t hello-world-app -f frontend/Dockerfile frontend/
+
+# Run the container
+docker run -p 8080:80 hello-world-app
 ```
+
+Open [http://localhost:8080](http://localhost:8080) in your browser.
+
+> **Note:** A `Dockerfile` is not yet included — the commands above
+> assume a standard multi-stage Node + nginx setup that can be added
+> in a subsequent task.
