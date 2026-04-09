@@ -1,10 +1,10 @@
 /**
  * Unit tests for the App component.
  *
- * Verifies the heading text, initial counter value, and increment behaviour.
+ * Verifies rendering of the heading and counter button behaviour.
  */
-import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
 import App from './App';
 
 describe('App', () => {

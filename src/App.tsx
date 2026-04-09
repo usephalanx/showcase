@@ -1,14 +1,15 @@
 /**
  * Main application component.
  *
- * Renders a "Hello World" heading and a counter button that increments
- * on each click.
+ * Renders a Hello World heading and an interactive counter button.
  */
 import { useState } from 'react';
 import './App.css';
 
-/** Root component of the application. */
-export default function App(): JSX.Element {
+/**
+ * Root App component that displays a greeting and a click counter.
+ */
+function App(): JSX.Element {
   const [count, setCount] = useState<number>(0);
 
   return (
@@ -20,3 +21,5 @@ export default function App(): JSX.Element {
     </div>
   );
 }
+
+export default App;

@@ -1,8 +1,8 @@
-# Running the Project
+# Running the Application
 
 ## TEAM_BRIEF
 stack: TypeScript/React+Vite
-test_runner: pytest tests/
+test_runner: npx vitest run
 lint_tool: none
 coverage_tool: none
 coverage_threshold: 0
@@ -11,24 +11,21 @@ coverage_applies: false
 ## Prerequisites
 
 - Node.js >= 18
-- Python >= 3.9 (for pytest-based HTML validation tests)
+- npm >= 9
 
 ## Setup
 
 ```bash
-# Install Node.js dependencies
 npm install
-
-# Install Python test dependencies
-pip install pytest
 ```
 
 ## Development
 
 ```bash
-# Start the Vite dev server
 npm run dev
 ```
+
+The dev server starts at http://localhost:5173 by default.
 
 ## Build
 
@@ -38,14 +35,14 @@ npm run build
 
 ## Tests
 
-### Python tests (HTML structure validation)
-
-```bash
-pytest tests/
-```
-
-### Vitest component tests
-
 ```bash
 npm test
+```
+
+This runs `vitest run` which executes all `*.test.tsx` files under `src/`.
+
+## Preview Production Build
+
+```bash
+npm run preview
 ```
