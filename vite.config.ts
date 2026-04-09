@@ -2,6 +2,12 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
+/**
+ * Vite configuration.
+ *
+ * Sets up the React plugin, development server on port 3000,
+ * and vitest with jsdom for component testing.
+ */
 export default defineConfig({
   plugins: [react()],
   server: {
