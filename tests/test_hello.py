@@ -1,7 +1,8 @@
 """Tests for the GET /hello endpoint.
 
-Verifies status codes, response body, content type, disallowed HTTP
-methods, and behaviour for non-existent routes.
+Uses Starlette's TestClient to exercise the endpoint without starting
+a real server.  Covers status codes, response body, content type,
+method restrictions, and unknown routes.
 """
 
 from __future__ import annotations
@@ -26,7 +27,7 @@ def test_hello_returns_correct_body() -> None:
 
 
 def test_hello_content_type_is_json() -> None:
-    """GET /hello should return a JSON content-type header."""
+    """GET /hello response Content-Type should be application/json."""
     response = client.get("/hello")
     assert "application/json" in response.headers["content-type"]
 
@@ -38,20 +39,20 @@ def test_hello_method_not_allowed_post() -> None:
 
 
 def test_nonexistent_route_returns_404() -> None:
-    """GET /nonexistent should return HTTP 404."""
+    """GET /nonexistent should return HTTP 404 Not Found."""
     response = client.get("/nonexistent")
     assert response.status_code == 404
 
 
-def test_hello_with_query_params_ignored() -> None:
-    """GET /hello?foo=bar should still return 200 with the correct body."""
-    response = client.get("/hello", params={"foo": "bar"})
+def test_hello_ignores_query_params() -> None:
+    """GET /hello with arbitrary query params should still return 200 with correct body."""
+    response = client.get("/hello", params={"foo": "bar", "baz": "123"})
     assert response.status_code == 200
     assert response.json() == {"message": "hello world"}
 
 
 def test_hello_head_returns_200() -> None:
-    """HEAD /hello should return 200 with an empty body."""
+    """HEAD /hello should return HTTP 200 with an empty body."""
     response = client.head("/hello")
     assert response.status_code == 200
     assert response.content == b""

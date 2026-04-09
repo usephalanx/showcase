@@ -1,49 +1,40 @@
-# Running the Todo / Hello World API
+# Running the Hello World API
 
 ## TEAM_BRIEF
 
-| Key                | Value                  |
-|--------------------|------------------------|
-| stack              | Python, FastAPI        |
-| test_runner        | pytest                 |
-| lint_tool          | N/A                    |
-| coverage_tool      | pytest-cov             |
-| coverage_threshold | 80%                    |
-| coverage_applies   | app.py, routes.py, storage.py |
+| Key                | Value              |
+|--------------------|-----------------------|
+| stack              | Python 3.12, FastAPI  |
+| test_runner        | pytest                |
+| lint_tool          | N/A                   |
+| coverage_tool      | N/A                   |
+| coverage_threshold | N/A                   |
+| coverage_applies   | N/A                   |
 
 ## Architecture
 
-| File                  | Purpose                                           |
-|-----------------------|---------------------------------------------------|
-| `app.py`              | FastAPI application entry point (GET `/` and `/hello`) |
-| `routes.py`           | Todo CRUD API router (`/todos`)                   |
-| `models.py`           | Pydantic request/response schemas                 |
-| `storage.py`          | In-memory dictionary-backed todo store            |
-| `requirements.txt`    | Pinned Python dependencies                        |
-| `Dockerfile`          | Container image definition                        |
-| `docker-compose.yml`  | One-command local startup                         |
-| `tests/test_hello.py` | Automated tests for GET `/hello`                  |
-| `conftest.py`         | Root pytest configuration                         |
+| File                    | Purpose                                                |
+|-------------------------|--------------------------------------------------------|
+| `app.py`                | FastAPI application entry point with GET /hello route  |
+| `routes.py`             | Todo CRUD API router (mounted by app.py)               |
+| `models.py`             | Pydantic request/response models for Todo resources    |
+| `storage.py`            | In-memory dictionary-based Todo storage                |
+| `requirements.txt`      | Pinned Python dependencies                             |
+| `Dockerfile`            | Container image definition                             |
+| `docker-compose.yml`    | One-command local startup                              |
+| `tests/test_hello.py`   | Automated tests for the GET /hello endpoint            |
+| `tests/__init__.py`     | Makes tests/ a discoverable Python package             |
 
 ## Endpoint Contract
 
-### `GET /hello`
+```
+GET /hello
 
-**Response** `200 OK`
+Response 200 OK
+Content-Type: application/json
 
-```json
 {"message": "hello world"}
 ```
-
-### `GET /`
-
-**Response** `200 OK`
-
-```json
-{"message": "Welcome to the Todo API"}
-```
-
-See `routes.py` for the full Todo CRUD contract.
 
 ## Local Setup
 
@@ -54,7 +45,7 @@ docker compose build
 # 2. Start the service
 docker compose up -d
 
-# 3. Verify it works
+# 3. Verify
 curl http://localhost:8000/hello
 ```
 
