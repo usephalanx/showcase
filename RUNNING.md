@@ -10,17 +10,29 @@ coverage_applies: true
 
 ## Prerequisites
 
-- **Go 1.22+** installed ([https://go.dev/dl/](https://go.dev/dl/)), OR
-- **Docker** and **Docker Compose** installed.
+- **Go 1.22+** installed, OR
+- **Docker** and **Docker Compose** installed
+
+## Run Tests
+
+```bash
+go test ./... -v
+```
+
+With coverage:
+
+```bash
+go test ./... -cover
+```
 
 ## Run Locally (without Docker)
 
 ```bash
-# Build and start the server
 go run main.go
 ```
 
-The server listens on port `8080` by default. Override with the `PORT` environment variable:
+The server starts on port 8080 by default. Set the `PORT` environment
+variable to override:
 
 ```bash
 PORT=3000 go run main.go
@@ -32,33 +44,7 @@ PORT=3000 go run main.go
 docker compose up --build
 ```
 
-The API will be available at `http://localhost:8080`.
-
-## Run Tests
-
-```bash
-go test ./...
-```
-
-With coverage:
-
-```bash
-go test -cover ./...
-```
-
-Verbose output:
-
-```bash
-go test -v ./...
-```
-
-## Lint
-
-```bash
-go vet ./...
-```
-
-## Verify the Health Endpoint
+## Verify
 
 ```bash
 curl -i http://localhost:8080/health
@@ -75,15 +61,15 @@ Content-Type: application/json
 
 ## API Contract
 
-### `GET /health`
+### GET /health
 
-| Field         | Value              |
-|---------------|--------------------|
-| Method        | `GET`              |
-| Path          | `/health`          |
-| Status Code   | `200 OK`           |
-| Content-Type  | `application/json` |
-| Response Body | `{"status":"ok"}` |
+| Field        | Value              |
+|-------------|--------------------|
+| Method       | GET                |
+| Path         | /health            |
+| Status       | 200 OK             |
+| Content-Type | application/json   |
+| Body         | `{"status":"ok"}` |
 
-Non-GET methods return `405 Method Not Allowed`.
-Unknown routes return `404 Not Found`.
+Non-GET methods return **405 Method Not Allowed**.
+Unknown paths return **404 Not Found**.

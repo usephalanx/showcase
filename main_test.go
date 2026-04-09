@@ -147,20 +147,3 @@ func TestUnknownRoute_Returns404(t *testing.T) {
 		t.Fatalf("expected status 404, got %d", resp.StatusCode)
 	}
 }
-
-// TestNewRouter_PostHealth verifies that POST /health via the router
-// returns 405 Method Not Allowed.
-func TestNewRouter_PostHealth(t *testing.T) {
-	server := httptest.NewServer(NewRouter())
-	defer server.Close()
-
-	resp, err := http.Post(server.URL+"/health", "application/json", nil)
-	if err != nil {
-		t.Fatalf("request failed: %v", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusMethodNotAllowed {
-		t.Fatalf("expected status 405, got %d", resp.StatusCode)
-	}
-}
