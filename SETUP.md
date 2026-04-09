@@ -1,28 +1,27 @@
-# Setup Instructions
+# Setup
 
-The following lock and generated files are **not** committed to the
-repository and must be produced locally via the project's own toolchain.
+This project requires Node.js >= 18 and npm >= 9.
 
-## Node.js dependencies
+## Install dependencies
 
 ```bash
 npm install
 ```
 
-This generates:
-- `package-lock.json`
-- `node_modules/`
+This generates `package-lock.json` and `node_modules/` — both are
+git-ignored and must be produced by npm on each developer's machine.
 
-## TypeScript compilation check
-
-```bash
-npx tsc --noEmit
-```
-
-## Production build
+## Run the development server
 
 ```bash
-npm run build
+npm run dev
 ```
 
-This generates the `dist/` directory.
+## Run structural tests (Python)
+
+Requires Python 3.8+ and pytest:
+
+```bash
+pip install pytest
+pytest tests/
+```

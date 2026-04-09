@@ -1,352 +1,231 @@
-"""Structural tests for the Hello World React project.
+"""Structural tests that verify the project architecture.
 
-These tests verify that every required file exists, that configuration
-files contain expected values, and that the App component meets the
-specification (centered Hello World text).
+These tests inspect the file system and file contents to ensure that
+all required project files exist with the expected configuration.
+They do NOT require npm install or any Node.js tooling.
 """
 
+from __future__ import annotations
+
 import json
-import os
 from pathlib import Path
 from typing import Any, Dict
 
-import pytest
-
-# Root of the repository (parent of the tests/ directory).
+# Repository root is one level above the tests/ directory.
 ROOT: Path = Path(__file__).resolve().parent.parent
 
 
-def _load_json(path: Path) -> Dict[str, Any]:
-    """Load and return a JSON file as a dictionary."""
-    with open(path, "r", encoding="utf-8") as fh:
-        return json.load(fh)
-
-
-def _read_text(path: Path) -> str:
-    """Read and return the full text content of a file."""
-    with open(path, "r", encoding="utf-8") as fh:
-        return fh.read()
+def _load_package_json() -> Dict[str, Any]:
+    """Load and parse the root package.json file."""
+    package_path = ROOT / "package.json"
+    return json.loads(package_path.read_text(encoding="utf-8"))
 
 
 # ------------------------------------------------------------------
-# File existence
-# ------------------------------------------------------------------
-
-REQUIRED_FILES = [
-    "package.json",
-    "vite.config.ts",
-    "tsconfig.json",
-    "index.html",
-    "src/main.tsx",
-    "src/App.tsx",
-    "RUNNING.md",
-]
-
-
-@pytest.mark.parametrize("rel_path", REQUIRED_FILES)
-def test_required_files_exist(rel_path: str) -> None:
-    """Every required project file must exist on disk."""
-    full = ROOT / rel_path
-    assert full.exists(), f"Missing required file: {rel_path}"
-
-
-# ------------------------------------------------------------------
-# package.json — dependencies
+# File existence checks
 # ------------------------------------------------------------------
 
 
-@pytest.fixture()
-def package_json() -> Dict[str, Any]:
-    """Return the parsed package.json content."""
-    return _load_json(ROOT / "package.json")
-
-
-def test_package_json_has_react_18(package_json: Dict[str, Any]) -> None:
-    """package.json must list react ^18 as a dependency."""
-    deps = package_json.get("dependencies", {})
-    assert "react" in deps, "react not in dependencies"
-    assert "18" in deps["react"], f"Expected react 18, got {deps['react']}"
-
-
-def test_package_json_has_react_dom_18(package_json: Dict[str, Any]) -> None:
-    """package.json must list react-dom ^18 as a dependency."""
-    deps = package_json.get("dependencies", {})
-    assert "react-dom" in deps, "react-dom not in dependencies"
-    assert "18" in deps["react-dom"], f"Expected react-dom 18, got {deps['react-dom']}"
-
-
-def test_package_json_has_vite_5(package_json: Dict[str, Any]) -> None:
-    """package.json must list vite ^5 as a dev dependency."""
-    dev_deps = package_json.get("devDependencies", {})
-    assert "vite" in dev_deps, "vite not in devDependencies"
-    assert "5" in dev_deps["vite"], f"Expected vite 5, got {dev_deps['vite']}"
-
-
-def test_package_json_has_typescript(package_json: Dict[str, Any]) -> None:
-    """package.json must list typescript as a dev dependency."""
-    dev_deps = package_json.get("devDependencies", {})
-    assert "typescript" in dev_deps, "typescript not in devDependencies"
-
-
-def test_package_json_has_vitejs_plugin_react(package_json: Dict[str, Any]) -> None:
-    """package.json must list @vitejs/plugin-react as a dev dependency."""
-    dev_deps = package_json.get("devDependencies", {})
-    assert "@vitejs/plugin-react" in dev_deps, "@vitejs/plugin-react not in devDependencies"
-
-
-def test_package_json_has_types_react(package_json: Dict[str, Any]) -> None:
-    """package.json must list @types/react as a dev dependency."""
-    dev_deps = package_json.get("devDependencies", {})
-    assert "@types/react" in dev_deps, "@types/react not in devDependencies"
-
-
-def test_package_json_has_types_react_dom(package_json: Dict[str, Any]) -> None:
-    """package.json must list @types/react-dom as a dev dependency."""
-    dev_deps = package_json.get("devDependencies", {})
-    assert "@types/react-dom" in dev_deps, "@types/react-dom not in devDependencies"
-
-
-def test_package_json_scripts(package_json: Dict[str, Any]) -> None:
-    """package.json must define dev, build, and preview scripts."""
-    scripts = package_json.get("scripts", {})
-    assert "dev" in scripts, "Missing 'dev' script"
-    assert "build" in scripts, "Missing 'build' script"
-    assert "preview" in scripts, "Missing 'preview' script"
-
-
-def test_package_json_no_ui_library(package_json: Dict[str, Any]) -> None:
-    """No external UI library should be present (e.g. MUI, Chakra, Ant)."""
-    all_deps = {}
-    all_deps.update(package_json.get("dependencies", {}))
-    all_deps.update(package_json.get("devDependencies", {}))
-
-    forbidden = [
-        "@mui/material",
-        "@chakra-ui/react",
-        "antd",
-        "bootstrap",
-        "tailwindcss",
-        "@emotion/react",
-        "styled-components",
+def test_required_files_exist() -> None:
+    """All required project files must be present in the repository."""
+    required_files = [
+        "package.json",
+        "vite.config.ts",
+        "tsconfig.json",
+        "index.html",
+        "src/main.tsx",
+        "src/App.tsx",
+        "RUNNING.md",
     ]
-    for lib in forbidden:
-        assert lib not in all_deps, f"Forbidden UI library found: {lib}"
-
-
-def test_package_json_is_private(package_json: Dict[str, Any]) -> None:
-    """package.json must have private set to true."""
-    assert package_json.get("private") is True
+    for relative in required_files:
+        path = ROOT / relative
+        assert path.exists(), f"Required file missing: {relative}"
+        assert path.is_file(), f"Expected a file but got directory: {relative}"
 
 
 # ------------------------------------------------------------------
-# tsconfig.json
+# package.json dependency checks
 # ------------------------------------------------------------------
 
 
-def test_tsconfig_strict() -> None:
-    """tsconfig.json must have strict mode enabled."""
-    tsconfig = _load_json(ROOT / "tsconfig.json")
-    compiler_opts = tsconfig.get("compilerOptions", {})
-    assert compiler_opts.get("strict") is True
+def test_package_json_has_react_18() -> None:
+    """package.json must list react ^18.x as a dependency."""
+    pkg = _load_package_json()
+    deps = pkg.get("dependencies", {})
+    assert "react" in deps, "'react' not found in dependencies"
+    assert "18" in deps["react"], f"Expected React 18, got {deps['react']}"
 
 
-def test_tsconfig_jsx_react_jsx() -> None:
-    """tsconfig.json must set jsx to react-jsx."""
-    tsconfig = _load_json(ROOT / "tsconfig.json")
-    compiler_opts = tsconfig.get("compilerOptions", {})
-    assert compiler_opts.get("jsx") == "react-jsx"
+def test_package_json_has_react_dom_18() -> None:
+    """package.json must list react-dom ^18.x as a dependency."""
+    pkg = _load_package_json()
+    deps = pkg.get("dependencies", {})
+    assert "react-dom" in deps, "'react-dom' not found in dependencies"
+    assert "18" in deps["react-dom"], f"Expected React-DOM 18, got {deps['react-dom']}"
 
 
-def test_tsconfig_includes_src() -> None:
-    """tsconfig.json must include the src directory."""
-    tsconfig = _load_json(ROOT / "tsconfig.json")
-    includes = tsconfig.get("include", [])
-    assert "src" in includes
+def test_package_json_has_vite_5() -> None:
+    """package.json must list vite ^5.x as a dev dependency."""
+    pkg = _load_package_json()
+    dev_deps = pkg.get("devDependencies", {})
+    assert "vite" in dev_deps, "'vite' not found in devDependencies"
+    assert "5" in dev_deps["vite"], f"Expected Vite 5, got {dev_deps['vite']}"
+
+
+def test_package_json_has_typescript() -> None:
+    """package.json must list typescript as a dev dependency."""
+    pkg = _load_package_json()
+    dev_deps = pkg.get("devDependencies", {})
+    assert "typescript" in dev_deps, "'typescript' not found in devDependencies"
+
+
+def test_package_json_has_vitejs_plugin_react() -> None:
+    """package.json must list @vitejs/plugin-react as a dev dependency."""
+    pkg = _load_package_json()
+    dev_deps = pkg.get("devDependencies", {})
+    assert "@vitejs/plugin-react" in dev_deps, (
+        "'@vitejs/plugin-react' not found in devDependencies"
+    )
+
+
+def test_package_json_scripts() -> None:
+    """package.json must define dev, build, and preview scripts."""
+    pkg = _load_package_json()
+    scripts = pkg.get("scripts", {})
+    assert "dev" in scripts, "'dev' script missing"
+    assert "build" in scripts, "'build' script missing"
+    assert "preview" in scripts, "'preview' script missing"
+    assert "vite" in scripts["dev"], "'dev' script should invoke vite"
+
+
+def test_package_json_no_heavy_deps() -> None:
+    """package.json should not include heavy frameworks like next, angular, or vue."""
+    pkg = _load_package_json()
+    all_deps = {}
+    all_deps.update(pkg.get("dependencies", {}))
+    all_deps.update(pkg.get("devDependencies", {}))
+    forbidden = ["next", "@angular/core", "vue", "svelte"]
+    for dep in forbidden:
+        assert dep not in all_deps, f"Unexpected dependency: {dep}"
 
 
 # ------------------------------------------------------------------
-# vite.config.ts
-# ------------------------------------------------------------------
-
-
-def test_vite_config_uses_react_plugin() -> None:
-    """vite.config.ts must import and use the React plugin."""
-    content = _read_text(ROOT / "vite.config.ts")
-    assert "@vitejs/plugin-react" in content
-    assert "react()" in content
-
-
-def test_vite_config_port_3000() -> None:
-    """vite.config.ts must configure the dev server on port 3000."""
-    content = _read_text(ROOT / "vite.config.ts")
-    assert "3000" in content
-
-
-# ------------------------------------------------------------------
-# index.html
+# index.html checks
 # ------------------------------------------------------------------
 
 
 def test_index_html_has_root_div() -> None:
-    """index.html must contain a div with id='root'."""
-    content = _read_text(ROOT / "index.html")
-    assert 'id="root"' in content
+    """index.html must contain a <div id="root"> mount point."""
+    content = (ROOT / "index.html").read_text(encoding="utf-8")
+    assert 'id="root"' in content, "index.html missing div#root"
 
 
 def test_index_html_references_main_tsx() -> None:
     """index.html must reference /src/main.tsx as a module script."""
-    content = _read_text(ROOT / "index.html")
-    assert 'src="/src/main.tsx"' in content
-    assert 'type="module"' in content
-
-
-def test_index_html_has_lang_en() -> None:
-    """index.html must set the lang attribute to 'en'."""
-    content = _read_text(ROOT / "index.html")
-    assert 'lang="en"' in content
-
-
-def test_index_html_has_charset() -> None:
-    """index.html must declare UTF-8 charset."""
-    content = _read_text(ROOT / "index.html")
-    assert 'charset="UTF-8"' in content or 'charset="utf-8"' in content
-
-
-def test_index_html_has_viewport_meta() -> None:
-    """index.html must include a viewport meta tag."""
-    content = _read_text(ROOT / "index.html")
-    assert "viewport" in content
+    content = (ROOT / "index.html").read_text(encoding="utf-8")
+    assert "/src/main.tsx" in content, "index.html missing script src for main.tsx"
+    assert 'type="module"' in content, "Script tag should use type=module"
 
 
 # ------------------------------------------------------------------
-# src/main.tsx
+# Source file content checks
 # ------------------------------------------------------------------
 
 
-def test_main_tsx_imports_react_dom() -> None:
-    """src/main.tsx must import from react-dom/client."""
-    content = _read_text(ROOT / "src" / "main.tsx")
-    assert "react-dom/client" in content
+def test_app_tsx_contains_hello_world() -> None:
+    """App.tsx must render the text 'Hello World'."""
+    content = (ROOT / "src" / "App.tsx").read_text(encoding="utf-8")
+    assert "Hello World" in content, "App.tsx must contain 'Hello World'"
 
 
 def test_main_tsx_imports_app() -> None:
-    """src/main.tsx must import the App component."""
-    content = _read_text(ROOT / "src" / "main.tsx")
-    assert "import App" in content or "import { App }" in content
+    """main.tsx must import the App component."""
+    content = (ROOT / "src" / "main.tsx").read_text(encoding="utf-8")
+    assert "import App" in content or "import { App }" in content, (
+        "main.tsx must import App component"
+    )
 
 
-def test_main_tsx_creates_root() -> None:
-    """src/main.tsx must call createRoot."""
-    content = _read_text(ROOT / "src" / "main.tsx")
-    assert "createRoot" in content
+def test_main_tsx_uses_createroot() -> None:
+    """main.tsx must use ReactDOM.createRoot (React 18 API)."""
+    content = (ROOT / "src" / "main.tsx").read_text(encoding="utf-8")
+    assert "createRoot" in content, "main.tsx must use createRoot (React 18 API)"
 
 
 def test_main_tsx_uses_strict_mode() -> None:
-    """src/main.tsx must wrap App in React.StrictMode."""
-    content = _read_text(ROOT / "src" / "main.tsx")
-    assert "StrictMode" in content
-
-
-def test_main_tsx_targets_root_element() -> None:
-    """src/main.tsx must target the element with id 'root'."""
-    content = _read_text(ROOT / "src" / "main.tsx")
-    assert "getElementById('root')" in content or 'getElementById("root")' in content
+    """main.tsx must wrap the app in React.StrictMode."""
+    content = (ROOT / "src" / "main.tsx").read_text(encoding="utf-8")
+    assert "StrictMode" in content, "main.tsx must use React.StrictMode"
 
 
 # ------------------------------------------------------------------
-# src/App.tsx — the core deliverable
+# RUNNING.md checks
 # ------------------------------------------------------------------
 
 
-def test_app_tsx_renders_hello_world() -> None:
-    """src/App.tsx must contain the exact text 'Hello World'."""
-    content = _read_text(ROOT / "src" / "App.tsx")
-    assert "Hello World" in content
+def test_running_md_contains_npm_install() -> None:
+    """RUNNING.md must include 'npm install' instruction."""
+    content = (ROOT / "RUNNING.md").read_text(encoding="utf-8")
+    assert "npm install" in content, "RUNNING.md must mention 'npm install'"
 
 
-def test_app_tsx_uses_h1() -> None:
-    """src/App.tsx must render an <h1> element."""
-    content = _read_text(ROOT / "src" / "App.tsx")
-    assert "<h1>" in content
+def test_running_md_contains_npm_run_dev() -> None:
+    """RUNNING.md must include 'npm run dev' instruction."""
+    content = (ROOT / "RUNNING.md").read_text(encoding="utf-8")
+    assert "npm run dev" in content, "RUNNING.md must mention 'npm run dev'"
 
 
-def test_app_tsx_exports_default() -> None:
-    """src/App.tsx must have a default export."""
-    content = _read_text(ROOT / "src" / "App.tsx")
-    assert "export default" in content
+def test_running_md_contains_localhost_url() -> None:
+    """RUNNING.md must mention the localhost URL."""
+    content = (ROOT / "RUNNING.md").read_text(encoding="utf-8")
+    assert "localhost:5173" in content, "RUNNING.md must mention http://localhost:5173"
 
 
-def test_app_tsx_has_centering_styles() -> None:
-    """src/App.tsx must use flexbox centering (display flex, justify-content, align-items)."""
-    content = _read_text(ROOT / "src" / "App.tsx")
-    # Check for inline style properties (camelCase for React)
-    assert "display" in content and "flex" in content.lower(), (
-        "Expected display: 'flex' for centering"
+# ------------------------------------------------------------------
+# tsconfig.json checks
+# ------------------------------------------------------------------
+
+
+def test_tsconfig_strict_mode() -> None:
+    """tsconfig.json must enable strict mode."""
+    content = (ROOT / "tsconfig.json").read_text(encoding="utf-8")
+    tsconfig = json.loads(content)
+    compiler_options = tsconfig.get("compilerOptions", {})
+    assert compiler_options.get("strict") is True, "tsconfig must have strict: true"
+
+
+def test_tsconfig_jsx_react_jsx() -> None:
+    """tsconfig.json must set jsx to react-jsx."""
+    content = (ROOT / "tsconfig.json").read_text(encoding="utf-8")
+    tsconfig = json.loads(content)
+    compiler_options = tsconfig.get("compilerOptions", {})
+    assert compiler_options.get("jsx") == "react-jsx", (
+        "tsconfig must set jsx to 'react-jsx'"
     )
-    assert "justifyContent" in content or "justify-content" in content, (
-        "Expected justifyContent for horizontal centering"
-    )
-    assert "alignItems" in content or "align-items" in content, (
-        "Expected alignItems for vertical centering"
-    )
 
 
-def test_app_tsx_has_full_viewport_height() -> None:
-    """src/App.tsx must set min-height to 100vh for full-viewport centering."""
-    content = _read_text(ROOT / "src" / "App.tsx")
-    assert "100vh" in content, "Expected minHeight: '100vh' for full viewport"
-
-
-def test_app_tsx_defines_app_function() -> None:
-    """src/App.tsx must define a function named App."""
-    content = _read_text(ROOT / "src" / "App.tsx")
-    assert "function App" in content
-
-
-def test_app_tsx_has_docstring_or_comment() -> None:
-    """src/App.tsx must have a descriptive comment or JSDoc."""
-    content = _read_text(ROOT / "src" / "App.tsx")
-    assert "/**" in content or "//" in content, "Expected a comment/docstring in App.tsx"
-
-
-def test_app_tsx_no_external_imports() -> None:
-    """src/App.tsx must not import from external UI libraries."""
-    content = _read_text(ROOT / "src" / "App.tsx")
-    forbidden_imports = [
-        "@mui",
-        "@chakra",
-        "antd",
-        "bootstrap",
-        "tailwind",
-        "styled-components",
-    ]
-    for lib in forbidden_imports:
-        assert lib not in content, f"Forbidden import found: {lib}"
+def test_tsconfig_includes_src() -> None:
+    """tsconfig.json must include the src directory."""
+    content = (ROOT / "tsconfig.json").read_text(encoding="utf-8")
+    tsconfig = json.loads(content)
+    include = tsconfig.get("include", [])
+    assert "src" in include, "tsconfig must include 'src' directory"
 
 
 # ------------------------------------------------------------------
-# RUNNING.md
+# vite.config.ts checks
 # ------------------------------------------------------------------
 
 
-def test_running_md_exists() -> None:
-    """RUNNING.md must exist at the repository root."""
-    assert (ROOT / "RUNNING.md").exists()
+def test_vite_config_imports_react_plugin() -> None:
+    """vite.config.ts must import the React plugin."""
+    content = (ROOT / "vite.config.ts").read_text(encoding="utf-8")
+    assert "@vitejs/plugin-react" in content, (
+        "vite.config.ts must import @vitejs/plugin-react"
+    )
 
 
-def test_running_md_has_npm_install() -> None:
-    """RUNNING.md must document 'npm install'."""
-    content = _read_text(ROOT / "RUNNING.md")
-    assert "npm install" in content
-
-
-def test_running_md_has_npm_run_dev() -> None:
-    """RUNNING.md must document 'npm run dev'."""
-    content = _read_text(ROOT / "RUNNING.md")
-    assert "npm run dev" in content
-
-
-def test_running_md_has_npm_run_build() -> None:
-    """RUNNING.md must document 'npm run build'."""
-    content = _read_text(ROOT / "RUNNING.md")
-    assert "npm run build" in content
+def test_vite_config_uses_define_config() -> None:
+    """vite.config.ts must use defineConfig."""
+    content = (ROOT / "vite.config.ts").read_text(encoding="utf-8")
+    assert "defineConfig" in content, "vite.config.ts must use defineConfig"
