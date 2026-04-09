@@ -1,6 +1,6 @@
 # Hello World React App
 
-A minimal React application that renders a centered "Hello World" heading.
+A minimal React + TypeScript application bootstrapped with Vite.
 
 ## TEAM_BRIEF
 stack: TypeScript/React+Vite
@@ -13,6 +13,7 @@ coverage_applies: false
 ## Prerequisites
 
 - Node.js >= 18
+- npm >= 9
 - Python >= 3.9 (for running structural tests)
 - pytest (`pip install pytest`)
 
@@ -36,11 +37,17 @@ The dev server starts on http://localhost:5173 by default.
 npm run build
 ```
 
-## Running Tests
+## Preview Production Build
+
+```bash
+npm run preview
+```
+
+## Run Tests
 
 ```bash
 pytest tests/
 ```
 
-The test suite validates project structure and file contents using Python/pytest.
-No Node.js runtime is required for running the tests.
+The test suite validates that all required project files exist and contain
+the expected content markers.
