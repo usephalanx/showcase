@@ -2,67 +2,56 @@
 
 ## Overview
 
-A lightweight Todo REST API built with **Python 3.11+** and **FastAPI**.
-Data is stored in-memory (development) or in SQLite (healthcheck variant).
+A minimal Todo REST API built with **Python 3.11+** and **FastAPI**.
+Data is stored in-memory using a Python dictionary (no database).
 
-## Tech Stack
+## Runtime & Dependencies
 
-| Layer       | Choice                |
-|-------------|-----------------------|
-| Runtime     | Python 3.11+          |
-| Framework   | FastAPI               |
-| Server      | Uvicorn (ASGI)        |
-| Validation  | Pydantic v2           |
-| Testing     | pytest, httpx         |
-| Container   | Docker + Compose      |
-
-## Dependencies
-
-- `fastapi>=0.110.0,<1`
-- `uvicorn[standard]>=0.29.0,<1`
-- `httpx>=0.27.0,<1`
-- `pytest>=8.0.0,<9`
-- `pytest-cov>=5.0.0,<6`
-- `pydantic>=2.0.0`
+| Dependency | Purpose |
+|---|---|
+| fastapi >=0.110 | Web framework |
+| uvicorn[standard] >=0.29 | ASGI server |
+| httpx >=0.27 | Test HTTP client (used by FastAPI TestClient) |
+| pytest >=8 | Test runner |
+| pytest-cov >=5 | Coverage reporting |
 
 ## Project Layout
 
 ```
 .
-├── main.py              # FastAPI app with /health and root
+├── main.py              # FastAPI app, /health & root endpoints
 ├── routes.py            # Todo CRUD router
-├── models.py            # Pydantic request/response models
-├── storage.py           # In-memory todo store
-├── requirements.txt     # Pinned dependencies
+├── models.py            # Pydantic request/response schemas
+├── storage.py           # In-memory TodoStore
+├── conftest.py          # Root pytest configuration
+├── requirements.txt     # Python dependencies
 ├── Dockerfile           # Container image definition
 ├── docker-compose.yml   # One-command local startup
 ├── tests/
 │   ├── __init__.py
 │   └── test_health.py   # /health endpoint tests
-└── RUNNING.md           # How to run locally
+└── RUNNING.md           # Setup & run instructions
 ```
 
 ## API Contract
 
-### GET /health
+### `GET /health`
 
-**Purpose:** Liveness / readiness probe.
+**Response:** `200 OK`
 
-- **Response:** `200 OK`
-- **Body:** `{"status": "ok"}`
+```json
+{"status": "ok"}
+```
 
-### GET /
+This endpoint carries no authentication and is intended for
+liveness/readiness probes.
 
-- **Response:** `200 OK`
-- **Body:** `{"message": "Welcome to the Todo API"}`
+> **Note:** FastAPI will redirect `/health/` (trailing slash) to
+> `/health` with a 307 by default.
 
-### Todo CRUD — /todos
+## Design Decisions
 
-See `routes.py` for full endpoint documentation.
-
-## Notes
-
-- No database required for the default in-memory mode.
-- No authentication/authorisation.
-- FastAPI automatically returns `405 Method Not Allowed` for unsupported methods.
-- Trailing-slash requests (e.g. `/health/`) are redirected by FastAPI by default.
+- **No database** — storage is in-memory (`storage.py`), suitable for
+  development and demos.
+- **No authentication** — all endpoints are public.
+- **Single-process** — designed to run as a single uvicorn worker.

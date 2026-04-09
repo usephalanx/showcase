@@ -12,43 +12,47 @@ coverage_applies: true
 
 - Python 3.11+ **or** Docker + Docker Compose
 
-## Option A — Docker (recommended)
+## Quick Start (Docker)
 
 ```bash
-# Build and start
 docker compose up --build -d
-
-# Verify
-curl http://localhost:8000/health
-# {"status": "ok"}
-
-# Run tests inside the container
-docker compose exec app pytest tests/ -v --tb=short
-
-# Stop
-docker compose down
 ```
 
-## Option B — Local virtualenv
+Open <http://localhost:8000/health> — you should see:
+
+```json
+{"status": "ok"}
+```
+
+## Quick Start (local venv)
 
 ```bash
 python -m venv .venv
-source .venv/bin/activate
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
-
-# Start the server
 uvicorn main:app --host 0.0.0.0 --port 8000
-
-# In another terminal
-curl http://localhost:8000/health
 ```
 
 ## Running Tests
+
+### Docker
+
+```bash
+docker compose exec app pytest tests/ -v --tb=short
+```
+
+### Local
 
 ```bash
 pytest tests/ -v --tb=short
 ```
 
+### With Coverage
+
+```bash
+pytest tests/ --cov=. --cov-report=term-missing
+```
+
 ## Demo Credentials
 
-No authentication is required — the API is open.
+No authentication is required — all endpoints are public.
