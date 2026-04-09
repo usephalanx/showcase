@@ -1,33 +1,57 @@
-# Running the Todo API
+# Running the Project
+
+## TEAM_BRIEF
+stack: TypeScript/React+Vite
+test_runner: pytest tests/
+lint_tool: none
+coverage_tool: none
+coverage_threshold: 0
+coverage_applies: false
 
 ## Prerequisites
 
-- Python 3.10 or later
+- Node.js >= 18
+- npm >= 9
+- Python >= 3.9 (for scaffold validation tests)
 
-## Install dependencies
-
-```bash
-pip install fastapi uvicorn pydantic
-```
-
-For running the test suite you will also need:
+## Setup
 
 ```bash
-pip install httpx pytest
+npm install
 ```
 
-## Start the server
+## Development Server
 
 ```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+npm run dev
 ```
 
-The API will be available at <http://localhost:8000>.
+Opens on http://localhost:5173 by default.
 
-Interactive docs are served at <http://localhost:8000/docs>.
+## Build for Production
 
-## Run the tests
+```bash
+npm run build
+```
+
+Outputs to `dist/`.
+
+## Preview Production Build
+
+```bash
+npm run preview
+```
+
+## Run Component Tests (Vitest)
+
+```bash
+npm test
+```
+
+## Run Scaffold Validation Tests (pytest)
 
 ```bash
 pytest tests/
 ```
+
+These Python tests validate that configuration files (package.json, tsconfig.json, vite.config.ts, etc.) are present and correctly structured. They do not require `npm install`.
