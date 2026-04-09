@@ -1,7 +1,7 @@
-"""Structural tests for the Vite + React + TypeScript project scaffold.
+"""Structural tests for the React Hello World project.
 
-Validates that all required configuration files exist at the expected
-paths and contain the mandatory content markers.
+Validates that all required files exist with the correct content markers.
+These tests run with pytest and inspect the repository files on disk.
 """
 
 from __future__ import annotations
@@ -10,290 +10,290 @@ import json
 from pathlib import Path
 from typing import Any, Dict
 
-import pytest
-
+# Repository root is one level above the tests/ directory.
 ROOT: Path = Path(__file__).resolve().parent.parent
 
 
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
-
-
-def _read_text(relative_path: str) -> str:
-    """Read a file relative to the repository root and return its text content."""
+def _read(relative_path: str) -> str:
+    """Read and return the text content of a file relative to the repo root."""
     path = ROOT / relative_path
-    assert path.exists(), f"{relative_path} does not exist"
+    assert path.exists(), f"Expected file not found: {relative_path}"
     return path.read_text(encoding="utf-8")
 
 
 def _load_package_json() -> Dict[str, Any]:
-    """Parse and return the top-level package.json as a dictionary."""
-    content = _read_text("package.json")
+    """Parse and return the package.json as a dictionary."""
+    content = _read("package.json")
     return json.loads(content)
 
 
-# ---------------------------------------------------------------------------
-# package.json tests
-# ---------------------------------------------------------------------------
+# --------------------------------------------------------------------------
+# package.json
+# --------------------------------------------------------------------------
 
 
-class TestPackageJson:
-    """Tests for package.json structure and content."""
-
-    def test_package_json_exists(self) -> None:
-        """package.json must exist at repository root."""
-        assert (ROOT / "package.json").exists()
-
-    def test_package_json_valid_json(self) -> None:
-        """package.json must be valid JSON."""
-        pkg = _load_package_json()
-        assert isinstance(pkg, dict)
-
-    def test_has_name(self) -> None:
-        """package.json must have a name field."""
-        pkg = _load_package_json()
-        assert "name" in pkg
-        assert isinstance(pkg["name"], str)
-        assert len(pkg["name"]) > 0
-
-    def test_type_module(self) -> None:
-        """package.json must set type to module for ESM."""
-        pkg = _load_package_json()
-        assert pkg.get("type") == "module"
-
-    def test_has_react_dependency(self) -> None:
-        """react must be listed in dependencies."""
-        pkg = _load_package_json()
-        deps = pkg.get("dependencies", {})
-        assert "react" in deps
-
-    def test_has_react_dom_dependency(self) -> None:
-        """react-dom must be listed in dependencies."""
-        pkg = _load_package_json()
-        deps = pkg.get("dependencies", {})
-        assert "react-dom" in deps
-
-    def test_has_vite_dev_dependency(self) -> None:
-        """vite must be listed in devDependencies."""
-        pkg = _load_package_json()
-        dev_deps = pkg.get("devDependencies", {})
-        assert "vite" in dev_deps
-
-    def test_has_vitejs_plugin_react_dev_dependency(self) -> None:
-        """@vitejs/plugin-react must be listed in devDependencies."""
-        pkg = _load_package_json()
-        dev_deps = pkg.get("devDependencies", {})
-        assert "@vitejs/plugin-react" in dev_deps
-
-    def test_has_typescript_dev_dependency(self) -> None:
-        """typescript must be listed in devDependencies."""
-        pkg = _load_package_json()
-        dev_deps = pkg.get("devDependencies", {})
-        assert "typescript" in dev_deps
-
-    def test_has_types_react_dev_dependency(self) -> None:
-        """@types/react must be listed in devDependencies."""
-        pkg = _load_package_json()
-        dev_deps = pkg.get("devDependencies", {})
-        assert "@types/react" in dev_deps
-
-    def test_has_types_react_dom_dev_dependency(self) -> None:
-        """@types/react-dom must be listed in devDependencies."""
-        pkg = _load_package_json()
-        dev_deps = pkg.get("devDependencies", {})
-        assert "@types/react-dom" in dev_deps
-
-    def test_dev_script(self) -> None:
-        """scripts.dev must be 'vite'."""
-        pkg = _load_package_json()
-        scripts = pkg.get("scripts", {})
-        assert scripts.get("dev") == "vite"
-
-    def test_build_script(self) -> None:
-        """scripts.build must include tsc and vite build."""
-        pkg = _load_package_json()
-        scripts = pkg.get("scripts", {})
-        build_cmd = scripts.get("build", "")
-        assert "tsc" in build_cmd
-        assert "vite build" in build_cmd
-
-    def test_preview_script(self) -> None:
-        """scripts.preview must be 'vite preview'."""
-        pkg = _load_package_json()
-        scripts = pkg.get("scripts", {})
-        assert scripts.get("preview") == "vite preview"
+def test_package_json_exists() -> None:
+    """package.json must exist at the repository root."""
+    assert (ROOT / "package.json").exists()
 
 
-# ---------------------------------------------------------------------------
-# vite.config.ts tests
-# ---------------------------------------------------------------------------
+def test_package_json_has_react_dependency() -> None:
+    """package.json must list react as a dependency."""
+    pkg = _load_package_json()
+    assert "react" in pkg.get("dependencies", {})
 
 
-class TestViteConfig:
-    """Tests for vite.config.ts existence and content."""
-
-    def test_vite_config_exists(self) -> None:
-        """vite.config.ts must exist at repository root."""
-        assert (ROOT / "vite.config.ts").exists()
-
-    def test_imports_react_plugin(self) -> None:
-        """vite.config.ts must import from @vitejs/plugin-react."""
-        content = _read_text("vite.config.ts")
-        assert "@vitejs/plugin-react" in content
-
-    def test_imports_define_config(self) -> None:
-        """vite.config.ts must import defineConfig from vite."""
-        content = _read_text("vite.config.ts")
-        assert "defineConfig" in content
-
-    def test_uses_react_plugin(self) -> None:
-        """vite.config.ts must call react() in the plugins array."""
-        content = _read_text("vite.config.ts")
-        assert "plugins" in content
-        assert "react()" in content
+def test_package_json_has_react_dom_dependency() -> None:
+    """package.json must list react-dom as a dependency."""
+    pkg = _load_package_json()
+    assert "react-dom" in pkg.get("dependencies", {})
 
 
-# ---------------------------------------------------------------------------
-# tsconfig.json tests
-# ---------------------------------------------------------------------------
+def test_package_json_has_vite_dev_dependency() -> None:
+    """package.json must list vite as a devDependency."""
+    pkg = _load_package_json()
+    assert "vite" in pkg.get("devDependencies", {})
 
 
-class TestTsConfig:
-    """Tests for tsconfig.json existence and content."""
-
-    def test_tsconfig_exists(self) -> None:
-        """tsconfig.json must exist at repository root."""
-        assert (ROOT / "tsconfig.json").exists()
-
-    def test_tsconfig_valid_json(self) -> None:
-        """tsconfig.json must be valid JSON."""
-        content = _read_text("tsconfig.json")
-        data = json.loads(content)
-        assert isinstance(data, dict)
-
-    def test_jsx_react_jsx(self) -> None:
-        """compilerOptions.jsx must be 'react-jsx'."""
-        content = _read_text("tsconfig.json")
-        data = json.loads(content)
-        compiler = data.get("compilerOptions", {})
-        assert compiler.get("jsx") == "react-jsx"
-
-    def test_strict_mode(self) -> None:
-        """compilerOptions.strict must be true."""
-        content = _read_text("tsconfig.json")
-        data = json.loads(content)
-        compiler = data.get("compilerOptions", {})
-        assert compiler.get("strict") is True
-
-    def test_target_esnext_or_es2020(self) -> None:
-        """compilerOptions.target must be ESNext or ES2020."""
-        content = _read_text("tsconfig.json")
-        data = json.loads(content)
-        compiler = data.get("compilerOptions", {})
-        target = compiler.get("target", "").upper()
-        assert target in ("ESNEXT", "ES2020")
-
-    def test_module_esnext(self) -> None:
-        """compilerOptions.module must be ESNext."""
-        content = _read_text("tsconfig.json")
-        data = json.loads(content)
-        compiler = data.get("compilerOptions", {})
-        assert compiler.get("module", "").upper() == "ESNEXT"
-
-    def test_include_src(self) -> None:
-        """tsconfig.json must include the 'src' directory."""
-        content = _read_text("tsconfig.json")
-        data = json.loads(content)
-        include = data.get("include", [])
-        assert "src" in include
+def test_package_json_has_typescript_dev_dependency() -> None:
+    """package.json must list typescript as a devDependency."""
+    pkg = _load_package_json()
+    assert "typescript" in pkg.get("devDependencies", {})
 
 
-# ---------------------------------------------------------------------------
-# index.html tests
-# ---------------------------------------------------------------------------
+def test_package_json_has_react_plugin_dev_dependency() -> None:
+    """package.json must list @vitejs/plugin-react as a devDependency."""
+    pkg = _load_package_json()
+    assert "@vitejs/plugin-react" in pkg.get("devDependencies", {})
 
 
-class TestIndexHtml:
-    """Tests for index.html existence and content."""
-
-    def test_index_html_exists(self) -> None:
-        """index.html must exist at repository root."""
-        assert (ROOT / "index.html").exists()
-
-    def test_has_doctype(self) -> None:
-        """index.html must start with a DOCTYPE declaration."""
-        content = _read_text("index.html")
-        assert content.strip().lower().startswith("<!doctype html>")
-
-    def test_has_root_div(self) -> None:
-        """index.html must contain a div with id='root'."""
-        content = _read_text("index.html")
-        assert 'id="root"' in content
-
-    def test_has_module_script(self) -> None:
-        """index.html must include a script tag with type='module'."""
-        content = _read_text("index.html")
-        assert 'type="module"' in content
-
-    def test_script_points_to_main_tsx(self) -> None:
-        """index.html script tag must reference /src/main.tsx."""
-        content = _read_text("index.html")
-        assert '/src/main.tsx' in content
-
-    def test_has_charset_meta(self) -> None:
-        """index.html must declare charset UTF-8."""
-        content = _read_text("index.html")
-        assert 'charset="UTF-8"' in content or 'charset="utf-8"' in content
-
-    def test_has_viewport_meta(self) -> None:
-        """index.html must include a viewport meta tag."""
-        content = _read_text("index.html")
-        assert "viewport" in content
-
-    def test_has_title(self) -> None:
-        """index.html must have a <title> tag."""
-        content = _read_text("index.html")
-        assert "<title>" in content.lower()
+def test_package_json_has_dev_script() -> None:
+    """package.json scripts.dev must be 'vite'."""
+    pkg = _load_package_json()
+    assert pkg.get("scripts", {}).get("dev") == "vite"
 
 
-# ---------------------------------------------------------------------------
-# Source entry-point tests
-# ---------------------------------------------------------------------------
+def test_package_json_has_build_script() -> None:
+    """package.json scripts.build must be 'tsc && vite build'."""
+    pkg = _load_package_json()
+    assert pkg.get("scripts", {}).get("build") == "tsc && vite build"
 
 
-class TestSourceFiles:
-    """Tests for the React source entry files."""
+def test_package_json_has_preview_script() -> None:
+    """package.json scripts.preview must be 'vite preview'."""
+    pkg = _load_package_json()
+    assert pkg.get("scripts", {}).get("preview") == "vite preview"
 
-    def test_main_tsx_exists(self) -> None:
-        """src/main.tsx must exist."""
-        assert (ROOT / "src" / "main.tsx").exists()
 
-    def test_main_tsx_imports_react_dom(self) -> None:
-        """src/main.tsx must import from react-dom/client."""
-        content = _read_text("src/main.tsx")
-        assert "react-dom/client" in content
+def test_package_json_type_module() -> None:
+    """package.json must set type to 'module'."""
+    pkg = _load_package_json()
+    assert pkg.get("type") == "module"
 
-    def test_main_tsx_creates_root(self) -> None:
-        """src/main.tsx must call createRoot."""
-        content = _read_text("src/main.tsx")
-        assert "createRoot" in content
 
-    def test_main_tsx_references_root_element(self) -> None:
-        """src/main.tsx must reference the 'root' DOM element."""
-        content = _read_text("src/main.tsx")
-        assert "root" in content
+# --------------------------------------------------------------------------
+# vite.config.ts
+# --------------------------------------------------------------------------
 
-    def test_app_tsx_exists(self) -> None:
-        """src/App.tsx must exist."""
-        assert (ROOT / "src" / "App.tsx").exists()
 
-    def test_app_tsx_exports_default(self) -> None:
-        """src/App.tsx must have a default export."""
-        content = _read_text("src/App.tsx")
-        assert "export default" in content
+def test_vite_config_exists() -> None:
+    """vite.config.ts must exist at the repository root."""
+    assert (ROOT / "vite.config.ts").exists()
 
-    def test_app_tsx_contains_hello_world(self) -> None:
-        """src/App.tsx must render 'Hello World'."""
-        content = _read_text("src/App.tsx")
-        assert "Hello World" in content
+
+def test_vite_config_imports_react_plugin() -> None:
+    """vite.config.ts must import the React plugin."""
+    content = _read("vite.config.ts")
+    assert "@vitejs/plugin-react" in content
+
+
+def test_vite_config_uses_define_config() -> None:
+    """vite.config.ts must use defineConfig."""
+    content = _read("vite.config.ts")
+    assert "defineConfig" in content
+
+
+def test_vite_config_uses_react_plugin() -> None:
+    """vite.config.ts must include react() in plugins."""
+    content = _read("vite.config.ts")
+    assert "plugins" in content
+    assert "react()" in content
+
+
+# --------------------------------------------------------------------------
+# tsconfig.json
+# --------------------------------------------------------------------------
+
+
+def test_tsconfig_exists() -> None:
+    """tsconfig.json must exist at the repository root."""
+    assert (ROOT / "tsconfig.json").exists()
+
+
+def test_tsconfig_react_jsx() -> None:
+    """tsconfig.json must set jsx to 'react-jsx'."""
+    content = _read("tsconfig.json")
+    cfg = json.loads(content)
+    assert cfg.get("compilerOptions", {}).get("jsx") == "react-jsx"
+
+
+def test_tsconfig_strict() -> None:
+    """tsconfig.json must enable strict mode."""
+    content = _read("tsconfig.json")
+    cfg = json.loads(content)
+    assert cfg.get("compilerOptions", {}).get("strict") is True
+
+
+def test_tsconfig_includes_src() -> None:
+    """tsconfig.json must include the 'src' directory."""
+    content = _read("tsconfig.json")
+    cfg = json.loads(content)
+    assert "src" in cfg.get("include", [])
+
+
+# --------------------------------------------------------------------------
+# index.html
+# --------------------------------------------------------------------------
+
+
+def test_index_html_exists() -> None:
+    """index.html must exist at the repository root."""
+    assert (ROOT / "index.html").exists()
+
+
+def test_index_html_has_root_div() -> None:
+    """index.html must contain a div with id='root'."""
+    content = _read("index.html")
+    assert 'id="root"' in content
+
+
+def test_index_html_references_main_tsx() -> None:
+    """index.html must reference src/main.tsx as a module script."""
+    content = _read("index.html")
+    assert 'src="/src/main.tsx"' in content
+    assert 'type="module"' in content
+
+
+def test_index_html_has_doctype() -> None:
+    """index.html must start with a DOCTYPE declaration."""
+    content = _read("index.html")
+    assert content.strip().startswith("<!DOCTYPE html>")
+
+
+def test_index_html_has_title() -> None:
+    """index.html must include a <title> element."""
+    content = _read("index.html")
+    assert "<title>" in content
+
+
+# --------------------------------------------------------------------------
+# src/App.tsx
+# --------------------------------------------------------------------------
+
+
+def test_app_tsx_exists() -> None:
+    """src/App.tsx must exist."""
+    assert (ROOT / "src" / "App.tsx").exists()
+
+
+def test_app_tsx_has_hello_world() -> None:
+    """src/App.tsx must render 'Hello World' in an h1 element."""
+    content = _read("src/App.tsx")
+    assert "Hello World" in content
+    assert "<h1>" in content or "<h1 " in content
+
+
+def test_app_tsx_has_default_export() -> None:
+    """src/App.tsx must have a default export."""
+    content = _read("src/App.tsx")
+    assert "export default" in content
+
+
+def test_app_tsx_has_flex_centering() -> None:
+    """src/App.tsx must use flex centering styles."""
+    content = _read("src/App.tsx")
+    assert "display" in content
+    assert "flex" in content
+    assert "justifyContent" in content
+    assert "alignItems" in content
+    assert "center" in content
+
+
+def test_app_tsx_has_min_height_100vh() -> None:
+    """src/App.tsx must set minHeight to 100vh on the wrapper div."""
+    content = _read("src/App.tsx")
+    assert "minHeight" in content
+    assert "100vh" in content
+
+
+def test_app_tsx_function_component() -> None:
+    """src/App.tsx must define App as a function component."""
+    content = _read("src/App.tsx")
+    assert "function App" in content
+
+
+def test_app_tsx_has_type_annotation() -> None:
+    """src/App.tsx App function must have a JSX.Element return type."""
+    content = _read("src/App.tsx")
+    assert "JSX.Element" in content
+
+
+# --------------------------------------------------------------------------
+# src/main.tsx
+# --------------------------------------------------------------------------
+
+
+def test_main_tsx_exists() -> None:
+    """src/main.tsx must exist."""
+    assert (ROOT / "src" / "main.tsx").exists()
+
+
+def test_main_tsx_imports_react() -> None:
+    """src/main.tsx must import React."""
+    content = _read("src/main.tsx")
+    assert "import React" in content
+
+
+def test_main_tsx_imports_react_dom() -> None:
+    """src/main.tsx must import ReactDOM from react-dom/client."""
+    content = _read("src/main.tsx")
+    assert "react-dom/client" in content
+
+
+def test_main_tsx_imports_app() -> None:
+    """src/main.tsx must import the App component."""
+    content = _read("src/main.tsx")
+    assert "import App" in content
+    assert "./App" in content
+
+
+def test_main_tsx_uses_create_root() -> None:
+    """src/main.tsx must call createRoot."""
+    content = _read("src/main.tsx")
+    assert "createRoot" in content
+
+
+def test_main_tsx_targets_root_element() -> None:
+    """src/main.tsx must target the element with id 'root'."""
+    content = _read("src/main.tsx")
+    assert "getElementById('root')" in content or 'getElementById("root")' in content
+
+
+def test_main_tsx_renders_app() -> None:
+    """src/main.tsx must render <App />."""
+    content = _read("src/main.tsx")
+    assert "<App />" in content or "<App/>" in content
+
+
+def test_main_tsx_uses_strict_mode() -> None:
+    """src/main.tsx must use React.StrictMode."""
+    content = _read("src/main.tsx")
+    assert "StrictMode" in content
+
+
+def test_main_tsx_is_minimal() -> None:
+    """src/main.tsx should be minimal — no unnecessary imports."""
+    content = _read("src/main.tsx")
+    lines = [line.strip() for line in content.strip().splitlines() if line.strip()]
+    # Expect roughly 3 imports + the render call (a few lines)
+    assert len(lines) <= 10, f"main.tsx has {len(lines)} non-empty lines, expected <= 10"
