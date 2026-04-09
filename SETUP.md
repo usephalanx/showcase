@@ -1,25 +1,15 @@
 # Setup Instructions
 
-## Install Dependencies
+After cloning the repository, run the following commands to install
+dependencies and generate lock files:
 
 ```bash
-pip install -r requirements.txt
+# Install Node.js dependencies (generates package-lock.json and node_modules/)
+npm install
+
+# Install Python test dependencies
+pip install pytest
 ```
 
-## Install Test Dependencies
-
-```bash
-pip install pytest httpx
-```
-
-## Run Tests
-
-```bash
-pytest tests/ -v
-```
-
-## Run the Application
-
-```bash
-uvicorn main:app --reload
-```
+Do **not** commit `node_modules/`, `package-lock.json`, or `dist/` to
+version control — they are generated artefacts.

@@ -11,47 +11,41 @@ coverage_applies: false
 ## Prerequisites
 
 - Node.js >= 18
-- npm >= 9
-- Python >= 3.9 (for scaffold validation tests)
+- Python >= 3.9 (for pytest-based HTML validation tests)
 
 ## Setup
 
 ```bash
+# Install Node.js dependencies
 npm install
+
+# Install Python test dependencies
+pip install pytest
 ```
 
-## Development Server
+## Development
 
 ```bash
+# Start the Vite dev server
 npm run dev
 ```
 
-Opens on http://localhost:5173 by default.
-
-## Build for Production
+## Build
 
 ```bash
 npm run build
 ```
 
-Outputs to `dist/`.
+## Tests
 
-## Preview Production Build
-
-```bash
-npm run preview
-```
-
-## Run Component Tests (Vitest)
-
-```bash
-npm test
-```
-
-## Run Scaffold Validation Tests (pytest)
+### Python tests (HTML structure validation)
 
 ```bash
 pytest tests/
 ```
 
-These Python tests validate that configuration files (package.json, tsconfig.json, vite.config.ts, etc.) are present and correctly structured. They do not require `npm install`.
+### Vitest component tests
+
+```bash
+npm test
+```

@@ -1,12 +1,14 @@
+/**
+ * Unit tests for the App component.
+ *
+ * Verifies the heading text, initial counter value, and increment behaviour.
+ */
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import App from './App';
 
-/**
- * Unit tests for the App component.
- */
 describe('App', () => {
-  it('renders the Hello World heading', () => {
+  it('renders Hello World heading', () => {
     render(<App />);
     const heading = screen.getByRole('heading', { level: 1 });
     expect(heading).toHaveTextContent('Hello World');
@@ -18,7 +20,7 @@ describe('App', () => {
     expect(button).toHaveTextContent('Count: 0');
   });
 
-  it('increments the counter on click', () => {
+  it('counter increments on click', () => {
     render(<App />);
     const button = screen.getByRole('button');
 
