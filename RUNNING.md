@@ -1,6 +1,4 @@
-# Hello World React + Vite
-
-A minimal React + TypeScript application bootstrapped with Vite.
+# Running the Project
 
 ## TEAM_BRIEF
 stack: TypeScript/React+Vite
@@ -10,50 +8,37 @@ coverage_tool: none
 coverage_threshold: 0
 coverage_applies: false
 
-## Prerequisites
+## Quick Start
 
-- Node.js 20+ and npm
-- Python 3.9+ (for running tests)
-- Docker and Docker Compose (optional, for containerised development)
+### Using Docker (recommended)
 
-## Setup
+```bash
+docker compose up
+```
+
+The application will be available at http://localhost:5173.
+
+### Using npm directly
 
 ```bash
 npm install
-```
-
-## Development
-
-```bash
 npm run dev
 ```
 
-The development server starts at http://localhost:5173.
-
-## Build
+## Running Tests
 
 ```bash
-npm run build
-```
-
-## Preview Production Build
-
-```bash
-npm run preview
-```
-
-## Docker
-
-```bash
-docker compose up --build
-```
-
-Access at http://localhost:5173.
-
-## Tests
-
-Python-based structural tests that verify file existence and content:
-
-```bash
+pip install pytest
 pytest tests/
 ```
+
+## Project Structure
+
+- `index.html` — Vite entry HTML file with root div and module script
+- `tsconfig.json` — TypeScript compiler configuration
+- `package.json` — Project metadata and dependencies
+- `vite.config.ts` — Vite build tool configuration with React plugin
+- `src/main.tsx` — React entry point
+- `src/App.tsx` — Main App component rendering "Hello World"
+- `Dockerfile` — Container definition for development
+- `docker-compose.yml` — Docker Compose configuration for one-command startup

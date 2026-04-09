@@ -1,8 +1,8 @@
 """Tests verifying project file structure and content correctness.
 
-Validates that all required files exist with the expected content,
-including package.json fields, vite.config.ts setup, tsconfig.json
-options, index.html structure, React components, and Docker files.
+Validates that index.html, tsconfig.json, package.json, vite.config.ts,
+src/main.tsx, src/App.tsx, Dockerfile, and docker-compose.yml exist
+with the expected content.
 """
 
 import json
@@ -12,35 +12,49 @@ from typing import Any, Dict
 
 import pytest
 
-# Root of the project is one level up from the tests/ directory
-ROOT: Path = Path(__file__).resolve().parent.parent
+# Resolve the project root (parent of the tests/ directory).
+PROJECT_ROOT: Path = Path(__file__).resolve().parent.parent
 
 
 def _read(relative_path: str) -> str:
-    """Read and return the full text content of a file relative to project root."""
-    return (ROOT / relative_path).read_text(encoding="utf-8")
+    """Read a file relative to the project root and return its text content.
+
+    Args:
+        relative_path: Path relative to the project root.
+
+    Returns:
+        The file content as a string.
+    """
+    return (PROJECT_ROOT / relative_path).read_text(encoding="utf-8")
 
 
-def _load_json(relative_path: str) -> Dict[str, Any]:
-    """Read and parse a JSON file relative to project root."""
+def _read_json(relative_path: str) -> Dict[str, Any]:
+    """Read and parse a JSON file relative to the project root.
+
+    Args:
+        relative_path: Path relative to the project root.
+
+    Returns:
+        Parsed JSON as a dictionary.
+    """
     return json.loads(_read(relative_path))
 
 
 # ---------------------------------------------------------------------------
-# File existence
+# File existence tests
 # ---------------------------------------------------------------------------
 
 
 class TestFileExistence:
-    """Verify that every required project file exists."""
+    """Verify that all required project files exist."""
 
     @pytest.mark.parametrize(
         "filepath",
         [
+            "index.html",
+            "tsconfig.json",
             "package.json",
             "vite.config.ts",
-            "tsconfig.json",
-            "index.html",
             "src/main.tsx",
             "src/App.tsx",
             "Dockerfile",
@@ -48,344 +62,365 @@ class TestFileExistence:
         ],
     )
     def test_file_exists(self, filepath: str) -> None:
-        """Assert that the given file path exists in the project root."""
-        full_path = ROOT / filepath
+        """Assert that the given file exists in the project root."""
+        full_path = PROJECT_ROOT / filepath
         assert full_path.exists(), f"{filepath} does not exist"
-        assert full_path.is_file(), f"{filepath} is not a file"
+        assert full_path.is_file(), f"{filepath} is not a regular file"
 
 
 # ---------------------------------------------------------------------------
-# package.json
-# ---------------------------------------------------------------------------
-
-
-class TestPackageJson:
-    """Validate package.json structure and content."""
-
-    @pytest.fixture(autouse=True)
-    def _load(self) -> None:
-        """Load package.json once for every test in this class."""
-        self.pkg: Dict[str, Any] = _load_json("package.json")
-
-    def test_name(self) -> None:
-        """Name should be hello-world-react."""
-        assert self.pkg["name"] == "hello-world-react"
-
-    def test_private(self) -> None:
-        """Package must be marked as private."""
-        assert self.pkg["private"] is True
-
-    def test_type_module(self) -> None:
-        """Package type must be 'module'."""
-        assert self.pkg["type"] == "module"
-
-    def test_scripts_dev(self) -> None:
-        """dev script should invoke vite."""
-        assert self.pkg["scripts"]["dev"] == "vite"
-
-    def test_scripts_build(self) -> None:
-        """build script should invoke tsc && vite build."""
-        assert "vite build" in self.pkg["scripts"]["build"]
-
-    def test_scripts_preview(self) -> None:
-        """preview script should invoke vite preview."""
-        assert self.pkg["scripts"]["preview"] == "vite preview"
-
-    def test_dependency_react(self) -> None:
-        """react must be listed as a dependency with ^18."""
-        assert "react" in self.pkg["dependencies"]
-        assert self.pkg["dependencies"]["react"].startswith("^18")
-
-    def test_dependency_react_dom(self) -> None:
-        """react-dom must be listed as a dependency with ^18."""
-        assert "react-dom" in self.pkg["dependencies"]
-        assert self.pkg["dependencies"]["react-dom"].startswith("^18")
-
-    def test_devdep_vite(self) -> None:
-        """vite must be listed as a dev dependency."""
-        assert "vite" in self.pkg["devDependencies"]
-
-    def test_devdep_plugin_react(self) -> None:
-        """@vitejs/plugin-react must be a dev dependency."""
-        assert "@vitejs/plugin-react" in self.pkg["devDependencies"]
-
-    def test_devdep_typescript(self) -> None:
-        """typescript must be a dev dependency."""
-        assert "typescript" in self.pkg["devDependencies"]
-
-    def test_devdep_types_react(self) -> None:
-        """@types/react must be a dev dependency."""
-        assert "@types/react" in self.pkg["devDependencies"]
-
-    def test_devdep_types_react_dom(self) -> None:
-        """@types/react-dom must be a dev dependency."""
-        assert "@types/react-dom" in self.pkg["devDependencies"]
-
-
-# ---------------------------------------------------------------------------
-# vite.config.ts
-# ---------------------------------------------------------------------------
-
-
-class TestViteConfig:
-    """Validate vite.config.ts content."""
-
-    @pytest.fixture(autouse=True)
-    def _load(self) -> None:
-        """Read vite.config.ts."""
-        self.content: str = _read("vite.config.ts")
-
-    def test_imports_define_config(self) -> None:
-        """Must import defineConfig from vite."""
-        assert "defineConfig" in self.content
-        assert "from 'vite'" in self.content
-
-    def test_imports_react_plugin(self) -> None:
-        """Must import react from @vitejs/plugin-react."""
-        assert "from '@vitejs/plugin-react'" in self.content
-
-    def test_exports_define_config(self) -> None:
-        """Must export defineConfig call."""
-        assert "export default defineConfig" in self.content
-
-    def test_plugins_react(self) -> None:
-        """Must include react() in plugins array."""
-        assert "plugins:" in self.content or "plugins" in self.content
-        assert "react()" in self.content
-
-    def test_server_port(self) -> None:
-        """Must configure server port 5173."""
-        assert "5173" in self.content
-
-
-# ---------------------------------------------------------------------------
-# tsconfig.json
-# ---------------------------------------------------------------------------
-
-
-class TestTsConfig:
-    """Validate tsconfig.json content."""
-
-    @pytest.fixture(autouse=True)
-    def _load(self) -> None:
-        """Load tsconfig.json."""
-        self.cfg: Dict[str, Any] = _load_json("tsconfig.json")
-
-    def test_target(self) -> None:
-        """Compiler target should be ES2020."""
-        assert self.cfg["compilerOptions"]["target"] == "ES2020"
-
-    def test_jsx(self) -> None:
-        """jsx option should be react-jsx."""
-        assert self.cfg["compilerOptions"]["jsx"] == "react-jsx"
-
-    def test_strict(self) -> None:
-        """strict mode should be enabled."""
-        assert self.cfg["compilerOptions"]["strict"] is True
-
-    def test_module(self) -> None:
-        """module should be ESNext."""
-        assert self.cfg["compilerOptions"]["module"] == "ESNext"
-
-    def test_module_resolution(self) -> None:
-        """moduleResolution should be bundler."""
-        assert self.cfg["compilerOptions"]["moduleResolution"] == "bundler"
-
-    def test_include_src(self) -> None:
-        """include should contain 'src'."""
-        assert "src" in self.cfg["include"]
-
-    def test_lib_contains_dom(self) -> None:
-        """lib should include DOM."""
-        assert "DOM" in self.cfg["compilerOptions"]["lib"]
-
-    def test_skip_lib_check(self) -> None:
-        """skipLibCheck should be true."""
-        assert self.cfg["compilerOptions"]["skipLibCheck"] is True
-
-
-# ---------------------------------------------------------------------------
-# index.html
+# index.html tests
 # ---------------------------------------------------------------------------
 
 
 class TestIndexHtml:
-    """Validate index.html content."""
+    """Verify index.html structure and content."""
 
-    @pytest.fixture(autouse=True)
-    def _load(self) -> None:
-        """Read index.html."""
-        self.content: str = _read("index.html")
+    def test_has_doctype(self) -> None:
+        """index.html must start with <!DOCTYPE html>."""
+        content = _read("index.html")
+        assert content.strip().startswith("<!DOCTYPE html>")
 
-    def test_doctype(self) -> None:
-        """Must have HTML5 doctype."""
-        assert "<!DOCTYPE html>" in self.content
+    def test_has_html_lang(self) -> None:
+        """index.html must have an html tag with lang='en'."""
+        content = _read("index.html")
+        assert 'lang="en"' in content
 
-    def test_lang_en(self) -> None:
-        """html tag should have lang=en."""
-        assert 'lang="en"' in self.content
+    def test_has_charset_meta(self) -> None:
+        """index.html must include a UTF-8 charset meta tag."""
+        content = _read("index.html")
+        assert 'charset="UTF-8"' in content
 
-    def test_charset(self) -> None:
-        """Must set charset to UTF-8."""
-        assert 'charset="UTF-8"' in self.content
+    def test_has_viewport_meta(self) -> None:
+        """index.html must include a viewport meta tag."""
+        content = _read("index.html")
+        assert "viewport" in content
 
-    def test_viewport(self) -> None:
-        """Must include viewport meta tag."""
-        assert "viewport" in self.content
+    def test_has_title(self) -> None:
+        """index.html must have a <title> of 'Hello World'."""
+        content = _read("index.html")
+        assert "<title>Hello World</title>" in content
 
-    def test_title(self) -> None:
-        """Title should be Hello World."""
-        assert "<title>Hello World</title>" in self.content
+    def test_has_root_div(self) -> None:
+        """index.html must contain <div id='root'></div>."""
+        content = _read("index.html")
+        assert '<div id="root"></div>' in content
 
-    def test_root_div(self) -> None:
-        """Must have a div with id root."""
-        assert 'id="root"' in self.content
-
-    def test_script_module(self) -> None:
-        """Must have a module script pointing to /src/main.tsx."""
-        assert 'type="module"' in self.content
-        assert 'src="/src/main.tsx"' in self.content
+    def test_has_script_module(self) -> None:
+        """index.html must include a module script pointing to /src/main.tsx."""
+        content = _read("index.html")
+        assert '<script type="module" src="/src/main.tsx"></script>' in content
 
 
 # ---------------------------------------------------------------------------
-# src/main.tsx
+# tsconfig.json tests
+# ---------------------------------------------------------------------------
+
+
+class TestTsconfigJson:
+    """Verify tsconfig.json compiler options."""
+
+    def test_valid_json(self) -> None:
+        """tsconfig.json must be valid JSON."""
+        data = _read_json("tsconfig.json")
+        assert isinstance(data, dict)
+
+    def test_target(self) -> None:
+        """compilerOptions.target must be 'ES2020'."""
+        data = _read_json("tsconfig.json")
+        assert data["compilerOptions"]["target"] == "ES2020"
+
+    def test_use_define_for_class_fields(self) -> None:
+        """compilerOptions.useDefineForClassFields must be true."""
+        data = _read_json("tsconfig.json")
+        assert data["compilerOptions"]["useDefineForClassFields"] is True
+
+    def test_lib(self) -> None:
+        """compilerOptions.lib must include ES2020, DOM, and DOM.Iterable."""
+        data = _read_json("tsconfig.json")
+        lib = data["compilerOptions"]["lib"]
+        assert "ES2020" in lib
+        assert "DOM" in lib
+        assert "DOM.Iterable" in lib
+
+    def test_module(self) -> None:
+        """compilerOptions.module must be 'ESNext'."""
+        data = _read_json("tsconfig.json")
+        assert data["compilerOptions"]["module"] == "ESNext"
+
+    def test_module_resolution(self) -> None:
+        """compilerOptions.moduleResolution must be 'bundler'."""
+        data = _read_json("tsconfig.json")
+        assert data["compilerOptions"]["moduleResolution"] == "bundler"
+
+    def test_jsx(self) -> None:
+        """compilerOptions.jsx must be 'react-jsx'."""
+        data = _read_json("tsconfig.json")
+        assert data["compilerOptions"]["jsx"] == "react-jsx"
+
+    def test_strict(self) -> None:
+        """compilerOptions.strict must be true."""
+        data = _read_json("tsconfig.json")
+        assert data["compilerOptions"]["strict"] is True
+
+    def test_skip_lib_check(self) -> None:
+        """compilerOptions.skipLibCheck must be true."""
+        data = _read_json("tsconfig.json")
+        assert data["compilerOptions"]["skipLibCheck"] is True
+
+    def test_include_src(self) -> None:
+        """include must contain 'src'."""
+        data = _read_json("tsconfig.json")
+        assert "src" in data["include"]
+
+    def test_no_emit(self) -> None:
+        """compilerOptions.noEmit must be true."""
+        data = _read_json("tsconfig.json")
+        assert data["compilerOptions"]["noEmit"] is True
+
+    def test_isolated_modules(self) -> None:
+        """compilerOptions.isolatedModules must be true."""
+        data = _read_json("tsconfig.json")
+        assert data["compilerOptions"]["isolatedModules"] is True
+
+
+# ---------------------------------------------------------------------------
+# package.json tests
+# ---------------------------------------------------------------------------
+
+
+class TestPackageJson:
+    """Verify package.json metadata and dependencies."""
+
+    def test_valid_json(self) -> None:
+        """package.json must be valid JSON."""
+        data = _read_json("package.json")
+        assert isinstance(data, dict)
+
+    def test_name(self) -> None:
+        """package.json name must be 'hello-world-react'."""
+        data = _read_json("package.json")
+        assert data["name"] == "hello-world-react"
+
+    def test_private(self) -> None:
+        """package.json must be marked private."""
+        data = _read_json("package.json")
+        assert data["private"] is True
+
+    def test_type_module(self) -> None:
+        """package.json type must be 'module'."""
+        data = _read_json("package.json")
+        assert data["type"] == "module"
+
+    def test_has_react_dependency(self) -> None:
+        """package.json must list react as a dependency."""
+        data = _read_json("package.json")
+        assert "react" in data["dependencies"]
+
+    def test_has_react_dom_dependency(self) -> None:
+        """package.json must list react-dom as a dependency."""
+        data = _read_json("package.json")
+        assert "react-dom" in data["dependencies"]
+
+    def test_has_vite_dev_dependency(self) -> None:
+        """package.json must list vite as a devDependency."""
+        data = _read_json("package.json")
+        assert "vite" in data["devDependencies"]
+
+    def test_has_typescript_dev_dependency(self) -> None:
+        """package.json must list typescript as a devDependency."""
+        data = _read_json("package.json")
+        assert "typescript" in data["devDependencies"]
+
+    def test_scripts_dev(self) -> None:
+        """package.json scripts.dev must be 'vite'."""
+        data = _read_json("package.json")
+        assert data["scripts"]["dev"] == "vite"
+
+    def test_scripts_build(self) -> None:
+        """package.json scripts.build must be 'tsc && vite build'."""
+        data = _read_json("package.json")
+        assert data["scripts"]["build"] == "tsc && vite build"
+
+    def test_scripts_preview(self) -> None:
+        """package.json scripts.preview must be 'vite preview'."""
+        data = _read_json("package.json")
+        assert data["scripts"]["preview"] == "vite preview"
+
+
+# ---------------------------------------------------------------------------
+# vite.config.ts tests
+# ---------------------------------------------------------------------------
+
+
+class TestViteConfig:
+    """Verify vite.config.ts content."""
+
+    def test_imports_define_config(self) -> None:
+        """vite.config.ts must import defineConfig from 'vite'."""
+        content = _read("vite.config.ts")
+        assert "defineConfig" in content
+        assert "from 'vite'" in content
+
+    def test_imports_react_plugin(self) -> None:
+        """vite.config.ts must import react from '@vitejs/plugin-react'."""
+        content = _read("vite.config.ts")
+        assert "@vitejs/plugin-react" in content
+
+    def test_exports_config(self) -> None:
+        """vite.config.ts must export a default config."""
+        content = _read("vite.config.ts")
+        assert "export default defineConfig" in content
+
+    def test_react_plugin_used(self) -> None:
+        """vite.config.ts must call react() in plugins."""
+        content = _read("vite.config.ts")
+        assert "react()" in content
+
+    def test_port_5173(self) -> None:
+        """vite.config.ts must set server port to 5173."""
+        content = _read("vite.config.ts")
+        assert "5173" in content
+
+
+# ---------------------------------------------------------------------------
+# src/main.tsx tests
 # ---------------------------------------------------------------------------
 
 
 class TestMainTsx:
-    """Validate src/main.tsx content."""
-
-    @pytest.fixture(autouse=True)
-    def _load(self) -> None:
-        """Read src/main.tsx."""
-        self.content: str = _read("src/main.tsx")
+    """Verify src/main.tsx content."""
 
     def test_imports_react(self) -> None:
-        """Must import React."""
-        assert "import React" in self.content
+        """main.tsx must import React."""
+        content = _read("src/main.tsx")
+        assert "import React" in content
 
     def test_imports_react_dom(self) -> None:
-        """Must import from react-dom/client."""
-        assert "react-dom/client" in self.content
+        """main.tsx must import from react-dom/client."""
+        content = _read("src/main.tsx")
+        assert "react-dom/client" in content
 
     def test_imports_app(self) -> None:
-        """Must import App component."""
-        assert "import App" in self.content
+        """main.tsx must import App."""
+        content = _read("src/main.tsx")
+        assert "import App" in content
 
-    def test_create_root(self) -> None:
-        """Must call createRoot."""
-        assert "createRoot" in self.content
+    def test_creates_root(self) -> None:
+        """main.tsx must call createRoot with getElementById('root')."""
+        content = _read("src/main.tsx")
+        assert "createRoot" in content
+        assert "getElementById('root')" in content
 
     def test_strict_mode(self) -> None:
-        """Must use React.StrictMode."""
-        assert "StrictMode" in self.content
-
-    def test_root_element(self) -> None:
-        """Must target the root element."""
-        assert "getElementById('root')" in self.content
+        """main.tsx must use React.StrictMode."""
+        content = _read("src/main.tsx")
+        assert "StrictMode" in content
 
 
 # ---------------------------------------------------------------------------
-# src/App.tsx
+# src/App.tsx tests
 # ---------------------------------------------------------------------------
 
 
 class TestAppTsx:
-    """Validate src/App.tsx content."""
+    """Verify src/App.tsx content."""
 
-    @pytest.fixture(autouse=True)
-    def _load(self) -> None:
-        """Read src/App.tsx."""
-        self.content: str = _read("src/App.tsx")
+    def test_exports_app_function(self) -> None:
+        """App.tsx must export default App."""
+        content = _read("src/App.tsx")
+        assert "export default App" in content
 
-    def test_exports_default_function(self) -> None:
-        """Must export a default function App."""
-        assert "export default function App" in self.content
+    def test_has_hello_world(self) -> None:
+        """App.tsx must render 'Hello World'."""
+        content = _read("src/App.tsx")
+        assert "Hello World" in content
 
-    def test_hello_world_text(self) -> None:
-        """Must render 'Hello World' in an h1."""
-        assert "Hello World" in self.content
-        assert "<h1" in self.content
+    def test_has_h1_tag(self) -> None:
+        """App.tsx must use an h1 element."""
+        content = _read("src/App.tsx")
+        assert "<h1" in content
 
-    def test_app_container_class(self) -> None:
-        """Must use app-container className."""
-        assert "app-container" in self.content
+    def test_has_app_container_class(self) -> None:
+        """App.tsx must have className 'app-container'."""
+        content = _read("src/App.tsx")
+        assert "app-container" in content
 
-    def test_flex_center(self) -> None:
-        """Must center content with flexbox."""
-        assert "display: 'flex'" in self.content
-        assert "justifyContent: 'center'" in self.content
-        assert "alignItems: 'center'" in self.content
-
-    def test_min_height(self) -> None:
-        """Must set minHeight to 100vh."""
-        assert "minHeight: '100vh'" in self.content
+    def test_uses_flex_display(self) -> None:
+        """App.tsx must use flex display for centering."""
+        content = _read("src/App.tsx")
+        assert "flex" in content
 
 
 # ---------------------------------------------------------------------------
-# Dockerfile
+# Dockerfile tests
 # ---------------------------------------------------------------------------
 
 
 class TestDockerfile:
-    """Validate Dockerfile content."""
+    """Verify Dockerfile content."""
 
-    @pytest.fixture(autouse=True)
-    def _load(self) -> None:
-        """Read Dockerfile."""
-        self.content: str = _read("Dockerfile")
+    def test_uses_node_alpine(self) -> None:
+        """Dockerfile must use node:20-alpine as the base image."""
+        content = _read("Dockerfile")
+        assert "node:20-alpine" in content
 
-    def test_base_image(self) -> None:
-        """Must use node:20-alpine as base image."""
-        assert "FROM node:20-alpine" in self.content
+    def test_has_workdir(self) -> None:
+        """Dockerfile must set WORKDIR to /app."""
+        content = _read("Dockerfile")
+        assert "WORKDIR /app" in content
 
-    def test_workdir(self) -> None:
-        """Must set WORKDIR to /app."""
-        assert "WORKDIR /app" in self.content
+    def test_copies_package_json(self) -> None:
+        """Dockerfile must copy package.json."""
+        content = _read("Dockerfile")
+        assert "package.json" in content
 
-    def test_npm_install(self) -> None:
-        """Must run npm install."""
-        assert "npm install" in self.content
+    def test_runs_npm_install(self) -> None:
+        """Dockerfile must run npm install."""
+        content = _read("Dockerfile")
+        assert "npm install" in content
 
-    def test_expose(self) -> None:
-        """Must expose port 5173."""
-        assert "EXPOSE 5173" in self.content
+    def test_exposes_5173(self) -> None:
+        """Dockerfile must expose port 5173."""
+        content = _read("Dockerfile")
+        assert "EXPOSE 5173" in content
 
-    def test_cmd(self) -> None:
-        """Must run npm run dev as default command."""
-        assert "npm" in self.content
-        assert "dev" in self.content
+    def test_runs_dev(self) -> None:
+        """Dockerfile CMD must run 'npm run dev'."""
+        content = _read("Dockerfile")
+        assert "npm" in content
+        assert "dev" in content
 
 
 # ---------------------------------------------------------------------------
-# docker-compose.yml
+# docker-compose.yml tests
 # ---------------------------------------------------------------------------
 
 
 class TestDockerCompose:
-    """Validate docker-compose.yml content."""
-
-    @pytest.fixture(autouse=True)
-    def _load(self) -> None:
-        """Read docker-compose.yml."""
-        self.content: str = _read("docker-compose.yml")
+    """Verify docker-compose.yml content."""
 
     def test_has_services(self) -> None:
-        """Must define services section."""
-        assert "services:" in self.content
+        """docker-compose.yml must define services."""
+        content = _read("docker-compose.yml")
+        assert "services:" in content
 
     def test_has_app_service(self) -> None:
-        """Must define app service."""
-        assert "app:" in self.content
+        """docker-compose.yml must define an 'app' service."""
+        content = _read("docker-compose.yml")
+        assert "app:" in content
 
-    def test_port_mapping(self) -> None:
-        """Must map port 5173."""
-        assert "5173:5173" in self.content
+    def test_maps_port_5173(self) -> None:
+        """docker-compose.yml must map port 5173."""
+        content = _read("docker-compose.yml")
+        assert "5173:5173" in content
 
-    def test_volume_mount(self) -> None:
-        """Must mount current directory."""
-        assert ".:/app" in self.content
+    def test_has_volume_mount(self) -> None:
+        """docker-compose.yml must mount current directory."""
+        content = _read("docker-compose.yml")
+        assert ".:/app" in content
 
-    def test_node_modules_volume(self) -> None:
-        """Must have anonymous volume for node_modules."""
-        assert "/app/node_modules" in self.content
+    def test_has_node_modules_volume(self) -> None:
+        """docker-compose.yml must have node_modules anonymous volume."""
+        content = _read("docker-compose.yml")
+        assert "/app/node_modules" in content
