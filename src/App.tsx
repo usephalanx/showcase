@@ -1,13 +1,10 @@
-/**
- * Main application component.
- *
- * Renders a Hello World heading and an interactive counter button.
- */
 import { useState } from 'react';
 import './App.css';
 
 /**
- * Root App component that displays a greeting and a click counter.
+ * Main application component.
+ *
+ * Renders a "Hello World" heading and an interactive counter button.
  */
 function App(): JSX.Element {
   const [count, setCount] = useState<number>(0);

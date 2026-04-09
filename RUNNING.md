@@ -11,6 +11,7 @@ coverage_applies: false
 ## Prerequisites
 
 - Node.js >= 18
+- npm (comes with Node.js)
 - Python >= 3.9 (for Python-level tests)
 
 ## Setup
@@ -21,14 +22,28 @@ npm install
 
 ## Development
 
+Start the development server:
+
 ```bash
 npm run dev
 ```
 
-## Build
+The app runs on **http://localhost:5173** by default.
+
+## Production Build
+
+Create an optimized production build:
 
 ```bash
 npm run build
+```
+
+## Preview Production Build
+
+Preview the production build locally:
+
+```bash
+npm run preview
 ```
 
 ## Testing

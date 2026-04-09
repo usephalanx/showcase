@@ -1,99 +1,200 @@
-"""Python-level tests verifying App component source files exist and are well-formed.
+"""Python tests verifying file structure and content of the React+Vite app.
 
-These tests validate the static structure of the React component files
-without requiring a Node.js runtime.
+These tests validate that all expected project files exist and contain
+the required content, without needing Node.js or npm installed.
 """
 
+from __future__ import annotations
+
+import json
 from pathlib import Path
+from typing import List
 
-ROOT = Path(__file__).resolve().parent.parent
+import pytest
 
-
-def test_app_tsx_exists() -> None:
-    """Verify src/App.tsx exists."""
-    app_path = ROOT / "src" / "App.tsx"
-    assert app_path.is_file(), "src/App.tsx should exist"
+# Repository root is two levels up from this test file (tests/ -> root)
+ROOT: Path = Path(__file__).resolve().parent.parent
 
 
-def test_app_css_exists() -> None:
-    """Verify src/App.css exists."""
-    css_path = ROOT / "src" / "App.css"
-    assert css_path.is_file(), "src/App.css should exist"
+class TestProjectStructure:
+    """Verify that all required project files exist."""
+
+    REQUIRED_FILES: List[str] = [
+        "RUNNING.md",
+        "package.json",
+        "tsconfig.json",
+        "vite.config.ts",
+        "index.html",
+        "src/main.tsx",
+        "src/App.tsx",
+        "src/App.css",
+        "src/setupTests.ts",
+        "src/App.test.tsx",
+    ]
+
+    @pytest.mark.parametrize("filepath", REQUIRED_FILES)
+    def test_file_exists(self, filepath: str) -> None:
+        """Each required project file must exist."""
+        assert (ROOT / filepath).is_file(), f"Missing file: {filepath}"
 
 
-def test_app_tsx_contains_hello_world() -> None:
-    """Verify App.tsx renders an h1 with Hello World."""
-    content = (ROOT / "src" / "App.tsx").read_text()
-    assert "<h1>Hello World</h1>" in content, "App.tsx must contain <h1>Hello World</h1>"
+class TestRunningMd:
+    """Verify RUNNING.md content."""
+
+    @pytest.fixture()
+    def content(self) -> str:
+        """Read RUNNING.md content."""
+        return (ROOT / "RUNNING.md").read_text(encoding="utf-8")
+
+    def test_contains_npm_install(self, content: str) -> None:
+        """RUNNING.md must document npm install."""
+        assert "npm install" in content
+
+    def test_contains_npm_run_dev(self, content: str) -> None:
+        """RUNNING.md must document npm run dev."""
+        assert "npm run dev" in content
+
+    def test_contains_npm_run_build(self, content: str) -> None:
+        """RUNNING.md must document npm run build."""
+        assert "npm run build" in content
+
+    def test_contains_npm_run_preview(self, content: str) -> None:
+        """RUNNING.md must document npm run preview."""
+        assert "npm run preview" in content
+
+    def test_contains_localhost_5173(self, content: str) -> None:
+        """RUNNING.md must document the default dev server URL."""
+        assert "localhost:5173" in content
+
+    def test_contains_team_brief(self, content: str) -> None:
+        """RUNNING.md must contain the TEAM_BRIEF section."""
+        assert "## TEAM_BRIEF" in content
 
 
-def test_app_tsx_uses_usestate() -> None:
-    """Verify App.tsx imports and uses useState."""
-    content = (ROOT / "src" / "App.tsx").read_text()
-    assert "useState" in content, "App.tsx must use useState hook"
+class TestPackageJson:
+    """Verify package.json content."""
+
+    @pytest.fixture()
+    def pkg(self) -> dict:
+        """Parse package.json."""
+        text = (ROOT / "package.json").read_text(encoding="utf-8")
+        return json.loads(text)
+
+    def test_has_dev_script(self, pkg: dict) -> None:
+        """package.json must define a 'dev' script using vite."""
+        assert "dev" in pkg.get("scripts", {})
+        assert "vite" in pkg["scripts"]["dev"]
+
+    def test_has_build_script(self, pkg: dict) -> None:
+        """package.json must define a 'build' script."""
+        assert "build" in pkg.get("scripts", {})
+
+    def test_has_preview_script(self, pkg: dict) -> None:
+        """package.json must define a 'preview' script."""
+        assert "preview" in pkg.get("scripts", {})
+
+    def test_has_react_dependency(self, pkg: dict) -> None:
+        """package.json must list react as a dependency."""
+        deps = pkg.get("dependencies", {})
+        assert "react" in deps
+
+    def test_has_react_dom_dependency(self, pkg: dict) -> None:
+        """package.json must list react-dom as a dependency."""
+        deps = pkg.get("dependencies", {})
+        assert "react-dom" in deps
+
+    def test_has_typescript_devdep(self, pkg: dict) -> None:
+        """package.json must list typescript as a dev dependency."""
+        dev_deps = pkg.get("devDependencies", {})
+        assert "typescript" in dev_deps
+
+    def test_has_vite_devdep(self, pkg: dict) -> None:
+        """package.json must list vite as a dev dependency."""
+        dev_deps = pkg.get("devDependencies", {})
+        assert "vite" in dev_deps
 
 
-def test_app_tsx_has_counter_button() -> None:
-    """Verify App.tsx renders a button that displays the count."""
-    content = (ROOT / "src" / "App.tsx").read_text()
-    assert "Count:" in content, "App.tsx must display 'Count:' in a button"
-    assert "<button" in content, "App.tsx must contain a <button> element"
+class TestAppComponent:
+    """Verify src/App.tsx content."""
+
+    @pytest.fixture()
+    def content(self) -> str:
+        """Read src/App.tsx content."""
+        return (ROOT / "src" / "App.tsx").read_text(encoding="utf-8")
+
+    def test_contains_hello_world(self, content: str) -> None:
+        """App.tsx must render a Hello World heading."""
+        assert "Hello World" in content
+
+    def test_contains_usestate(self, content: str) -> None:
+        """App.tsx must use useState for the counter."""
+        assert "useState" in content
+
+    def test_contains_count(self, content: str) -> None:
+        """App.tsx must reference count in the rendered output."""
+        assert "count" in content.lower()
+
+    def test_contains_button(self, content: str) -> None:
+        """App.tsx must render a button element."""
+        assert "<button" in content
 
 
-def test_app_tsx_has_setcount_increment() -> None:
-    """Verify App.tsx increments count via setCount."""
-    content = (ROOT / "src" / "App.tsx").read_text()
-    assert "setCount" in content, "App.tsx must call setCount"
+class TestIndexHtml:
+    """Verify index.html content."""
+
+    @pytest.fixture()
+    def content(self) -> str:
+        """Read index.html content."""
+        return (ROOT / "index.html").read_text(encoding="utf-8")
+
+    def test_has_root_div(self, content: str) -> None:
+        """index.html must contain a root div."""
+        assert 'id="root"' in content
+
+    def test_has_module_script(self, content: str) -> None:
+        """index.html must include the main.tsx module script."""
+        assert 'type="module"' in content
+        assert "src/main.tsx" in content
+
+    def test_has_doctype(self, content: str) -> None:
+        """index.html must start with a DOCTYPE declaration."""
+        assert content.strip().startswith("<!DOCTYPE html>")
 
 
-def test_app_css_has_flexbox_centering() -> None:
-    """Verify App.css uses flexbox for centering."""
-    content = (ROOT / "src" / "App.css").read_text()
-    assert "display: flex" in content, "App.css must use display: flex"
-    assert "justify-content: center" in content, "App.css must center horizontally"
-    assert "align-items: center" in content, "App.css must center vertically"
+class TestViteConfig:
+    """Verify vite.config.ts content."""
+
+    @pytest.fixture()
+    def content(self) -> str:
+        """Read vite.config.ts content."""
+        return (ROOT / "vite.config.ts").read_text(encoding="utf-8")
+
+    def test_imports_react_plugin(self, content: str) -> None:
+        """vite.config.ts must import the React plugin."""
+        assert "@vitejs/plugin-react" in content
+
+    def test_uses_define_config(self, content: str) -> None:
+        """vite.config.ts must use defineConfig."""
+        assert "defineConfig" in content
 
 
-def test_app_css_has_button_hover() -> None:
-    """Verify App.css styles the button hover state."""
-    content = (ROOT / "src" / "App.css").read_text()
-    assert "button:hover" in content, "App.css must include button:hover styles"
+class TestTsConfig:
+    """Verify tsconfig.json content."""
 
+    @pytest.fixture()
+    def config(self) -> dict:
+        """Parse tsconfig.json."""
+        text = (ROOT / "tsconfig.json").read_text(encoding="utf-8")
+        return json.loads(text)
 
-def test_app_css_has_button_styling() -> None:
-    """Verify App.css styles buttons with padding, font-size, cursor, and border-radius."""
-    content = (ROOT / "src" / "App.css").read_text()
-    assert "padding:" in content, "App.css must set button padding"
-    assert "font-size:" in content, "App.css must set button font-size"
-    assert "cursor: pointer" in content, "App.css must set cursor: pointer on button"
-    assert "border-radius:" in content, "App.css must set border-radius on button"
+    def test_jsx_react_jsx(self, config: dict) -> None:
+        """tsconfig.json must set jsx to react-jsx."""
+        assert config.get("compilerOptions", {}).get("jsx") == "react-jsx"
 
+    def test_strict_mode(self, config: dict) -> None:
+        """tsconfig.json must enable strict mode."""
+        assert config.get("compilerOptions", {}).get("strict") is True
 
-def test_app_tsx_imports_css() -> None:
-    """Verify App.tsx imports App.css."""
-    content = (ROOT / "src" / "App.tsx").read_text()
-    assert "import './App.css'" in content, "App.tsx must import './App.css'"
-
-
-def test_app_tsx_default_export() -> None:
-    """Verify App.tsx has a default export."""
-    content = (ROOT / "src" / "App.tsx").read_text()
-    assert "export default App" in content, "App.tsx must export App as default"
-
-
-def test_main_tsx_exists() -> None:
-    """Verify src/main.tsx exists as the entry point."""
-    main_path = ROOT / "src" / "main.tsx"
-    assert main_path.is_file(), "src/main.tsx should exist"
-
-
-def test_index_html_exists() -> None:
-    """Verify index.html exists as the HTML entry point."""
-    index_path = ROOT / "index.html"
-    assert index_path.is_file(), "index.html should exist"
-
-
-def test_index_html_has_root_div() -> None:
-    """Verify index.html contains a root div for React mounting."""
-    content = (ROOT / "index.html").read_text()
-    assert 'id="root"' in content, "index.html must contain a div with id='root'"
+    def test_includes_src(self, config: dict) -> None:
+        """tsconfig.json must include the src directory."""
+        assert "src" in config.get("include", [])

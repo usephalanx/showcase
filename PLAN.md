@@ -4,39 +4,44 @@
 
 ```
 .
-├── index.html              # HTML entry point
-├── package.json            # Dependencies and scripts
-├── tsconfig.json           # TypeScript configuration
-├── vite.config.ts          # Vite + Vitest configuration
-├── RUNNING.md              # Run instructions
-├── PLAN.md                 # This file
+├── RUNNING.md              # Setup and run instructions
+├── PLAN.md                 # This file — architecture documentation
+├── package.json            # Node.js project manifest and scripts
+├── tsconfig.json           # TypeScript compiler configuration
+├── vite.config.ts          # Vite build and test configuration
+├── index.html              # HTML entry point served by Vite
+├── conftest.py             # Root pytest configuration
 ├── src/
-│   ├── App.tsx             # Main application component
-│   ├── App.css             # Component styles
-│   ├── main.tsx            # React DOM mount point
-│   ├── setupTests.ts       # Test setup (jest-dom)
-│   └── App.test.tsx        # Component tests
+│   ├── main.tsx            # React app entry point
+│   ├── App.tsx             # Main component (Hello World + counter)
+│   ├── App.css             # Styles for the App component
+│   ├── App.test.tsx        # Vitest component tests
+│   └── setupTests.ts       # Test setup (jest-dom matchers)
 └── tests/
-    └── test_app_component.py  # Python structural tests
+    ├── __init__.py
+    └── test_app_component.py  # Python tests for file structure
 ```
 
 ## Component Responsibilities
 
-### App (src/App.tsx)
+### `src/App.tsx`
 - Renders an `<h1>Hello World</h1>` heading
-- Manages a `count` state variable via `useState<number>(0)`
-- Renders a `<button>` displaying "Count: {count}" that increments on click
-- Imports App.css for styling
+- Manages a counter via `useState<number>(0)`
+- Renders a `<button>` that increments the counter on click
+- Imports `App.css` for styling
 
-### Styling (src/App.css)
-- Uses flexbox on `#root` for vertical and horizontal centering
-- Styles the heading with sans-serif font
-- Styles the button with padding, border-radius, and hover state
+### `src/main.tsx`
+- Mounts the `<App />` component into the DOM `#root` element
+- Wraps the app in `React.StrictMode`
+
+### `index.html`
+- Provides the `<div id="root">` mount point
+- Loads `src/main.tsx` as an ES module
 
 ## Design Decisions
 
-1. **Vite + React**: Chosen for fast development builds and native TypeScript support
-2. **useState hook**: Simple state management appropriate for a single counter
-3. **Functional component**: Modern React pattern with hooks
-4. **Vitest**: Native Vite test runner with jsdom environment for component testing
-5. **Python structural tests**: Validate file existence and content without Node.js dependency
+1. **Vite** — chosen as the build tool for fast HMR and optimised production builds
+2. **TypeScript** — strict mode enabled for type safety
+3. **React 18** — uses `createRoot` API for concurrent features
+4. **Vitest + Testing Library** — component tests run in jsdom environment
+5. **Python tests** — verify file structure without requiring Node.js, enabling CI validation of project scaffolding
