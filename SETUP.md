@@ -1,27 +1,27 @@
-# Setup
+# Setup Instructions
 
-This project requires Node.js >= 18 and npm >= 9.
+This document describes how to generate tooling-managed files that are
+not committed to the repository.
 
-## Install dependencies
+## Node.js Dependencies
+
+Run the following command from the project root to install JavaScript
+dependencies and generate `package-lock.json` and `node_modules/`:
 
 ```bash
 npm install
 ```
 
-This generates `package-lock.json` and `node_modules/` — both are
-git-ignored and must be produced by npm on each developer's machine.
+## Python Test Dependencies
 
-## Run the development server
-
-```bash
-npm run dev
-```
-
-## Run structural tests (Python)
-
-Requires Python 3.8+ and pytest:
+Install pytest to run the structural tests:
 
 ```bash
 pip install pytest
-pytest tests/
+```
+
+Then run:
+
+```bash
+pytest tests/test_structure.py -v
 ```
