@@ -1,4 +1,7 @@
-# Running the Application
+# Yellow World App
+
+A single-page React application that displays "Yellow World" as a large heading
+centered on a bright yellow (#FFD700) background with a welcoming subheading.
 
 ## TEAM_BRIEF
 stack: TypeScript/React+Vite
@@ -8,33 +11,27 @@ coverage_tool: none
 coverage_threshold: 0
 coverage_applies: false
 
-## Prerequisites
-
-- Node.js >= 18
-- npm
-
-## Setup
+## Running Locally
 
 ```bash
 npm install
-```
-
-## Development
-
-```bash
 npm run dev
 ```
 
-The development server will start and serve the application at `http://localhost:5173`.
+The app will be available at http://localhost:5173 (default Vite port).
 
-## Build
+## Building for Production
 
 ```bash
 npm run build
 ```
 
-## Project Structure
+The static assets are output to the `dist/` directory.
 
-- `index.html` — HTML entry point with `#root` div and script tag pointing to `/src/main.tsx`
-- `src/main.tsx` — React entry point, renders `<App />` into `#root`
-- `src/App.tsx` — Root App component
+## Serving with Python (static fallback)
+
+```bash
+python server.py
+```
+
+Serves the `public/` directory on port 8000 (override via `PORT` env var).
