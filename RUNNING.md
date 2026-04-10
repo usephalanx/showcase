@@ -1,33 +1,97 @@
-# Running the Todo API
+# React Counter App
+
+A minimal Vite + React application featuring a Counter component with increment and decrement functionality.
+
+## TEAM_BRIEF
+
+stack: TypeScript/React+Vite
+test_runner: npx vitest run
+lint_tool: none
+coverage_tool: none
+coverage_threshold: 0
+coverage_applies: false
 
 ## Prerequisites
 
-- Python 3.10 or later
+- Node.js 18+ and npm
+- Docker (optional, for containerised setup)
 
-## Install dependencies
-
-```bash
-pip install fastapi uvicorn pydantic
-```
-
-For running the test suite you will also need:
+## Local Setup
 
 ```bash
-pip install httpx pytest
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Run tests
+npm test
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
 ```
 
-## Start the server
+## Docker Setup
+
+### Development
 
 ```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+# Build the Docker image
+docker build -t react-counter-app .
+
+# Run the container (development mode)
+docker run -it --rm -p 5173:5173 react-counter-app npm run dev -- --host 0.0.0.0
+
+# Run tests inside container
+docker run -it --rm react-counter-app npm test
 ```
 
-The API will be available at <http://localhost:8000>.
-
-Interactive docs are served at <http://localhost:8000/docs>.
-
-## Run the tests
+### Using Docker Compose (if available)
 
 ```bash
-pytest tests/
+docker compose up
 ```
+
+## Project Structure
+
+```
+.
+├── index.html                  # HTML entry point
+├── package.json                # Dependencies and scripts
+├── vite.config.js              # Vite configuration with React plugin
+├── src/
+│   ├── main.jsx                # React entry point
+│   ├── App.jsx                 # Root component
+│   ├── App.css                 # Centering styles
+│   ├── setupTests.js           # Test setup (jest-dom matchers)
+│   └── components/
+│       ├── Counter.jsx         # Counter component with state
+│       └── Counter.test.jsx    # Counter component tests
+└── RUNNING.md                  # This file
+```
+
+## Testing
+
+Tests use **Vitest** with **@testing-library/react** and **@testing-library/jest-dom**.
+
+```bash
+# Run tests once
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+```
+
+## Scripts
+
+| Script         | Description                          |
+| -------------- | ------------------------------------ |
+| `npm run dev`  | Start Vite dev server with HMR       |
+| `npm run build`| Build for production                 |
+| `npm run preview` | Preview production build locally  |
+| `npm test`     | Run tests with Vitest                |
+| `npm run test:watch` | Run tests in watch mode        |
