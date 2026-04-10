@@ -11,14 +11,38 @@ coverage_tool: none
 coverage_threshold: 0
 coverage_applies: false
 
+## Prerequisites
+
+- [Node.js](https://nodejs.org/) (v18 or later recommended)
+- npm (comes bundled with Node.js)
+
 ## Running Locally
 
-```bash
-npm install
-npm run dev
-```
+1. **Install dependencies:**
 
-The app will be available at http://localhost:5173 (default Vite port).
+   ```bash
+   npm install
+   ```
+
+2. **Start the development server:**
+
+   ```bash
+   npm run dev
+   ```
+
+3. **Open the app in your browser:**
+
+   Navigate to [http://localhost:5173](http://localhost:5173).
+
+### What to Expect
+
+When the dev server starts and you open http://localhost:5173 you will see a
+yellow-themed page displaying **"Yellow World"** as a large, centered heading.
+The page features:
+
+- A bright yellow (#FFD700) background
+- The text "Yellow World" prominently displayed in the center
+- A welcoming subheading beneath the main title
 
 ## Building for Production
 
