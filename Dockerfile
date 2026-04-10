@@ -6,7 +6,10 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app/ ./app/
-COPY models.py storage.py routes.py main.py conftest.py ./
+COPY main.py .
+COPY routes.py .
+COPY models.py .
+COPY storage.py .
 
 EXPOSE 8000
 

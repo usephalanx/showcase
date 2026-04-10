@@ -1,4 +1,7 @@
-"""Tests for the /health endpoint."""
+"""Tests for the /health endpoint.
+
+Verifies that GET /health returns HTTP 200 with JSON body {"status": "ok"}.
+"""
 
 from __future__ import annotations
 
@@ -15,13 +18,14 @@ def test_health_returns_200() -> None:
     assert response.status_code == 200
 
 
-def test_health_returns_ok_status() -> None:
-    """GET /health should return JSON body {"status": "ok"}."""
+def test_health_returns_status_ok() -> None:
+    """GET /health should return JSON with status 'ok'."""
     response = client.get("/health")
-    assert response.json() == {"status": "ok"}
+    data = response.json()
+    assert data == {"status": "ok"}
 
 
-def test_health_content_type_is_json() -> None:
+def test_health_content_type_json() -> None:
     """GET /health should return application/json content type."""
     response = client.get("/health")
     assert "application/json" in response.headers["content-type"]
