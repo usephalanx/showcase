@@ -1,4 +1,29 @@
+# Dependencies
 node_modules/
+
+# Build output
 dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
 .DS_Store
-*.local
+Thumbs.db
+
+# Environment
+.env
+.env.local
+
+# Test & coverage
+coverage/
+
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+.venv/

@@ -1,4 +1,4 @@
-# Hello World React App
+# Running the Application
 
 ## TEAM_BRIEF
 stack: TypeScript/React+Vite
@@ -11,39 +11,49 @@ coverage_applies: false
 ## Prerequisites
 
 - Node.js >= 18
-- npm
+- npm >= 9
 
-## Setup
+## Local Development
 
 ```bash
+# Install dependencies
 npm install
-```
 
-## Development
-
-```bash
+# Start dev server (default: http://localhost:5173)
 npm run dev
-```
 
-Open http://localhost:5173 in your browser.
-
-## Build
-
-```bash
-npm run build
-```
-
-## Run Tests
-
-```bash
+# Run tests
 npm test
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
 ```
 
 ## Docker
 
 ```bash
-docker build -t hello-world-app .
-docker run -p 8080:80 hello-world-app
+# Build the image
+docker build -t hello-world-spa .
+
+# Run the container
+docker run -p 5173:5173 hello-world-spa
+
+# Open in browser
+# http://localhost:5173
 ```
 
-Open http://localhost:8080 in your browser.
+## What You Should See
+
+Opening the app in a browser displays only the text **hello-world** in the viewport.
+
+## Running Tests
+
+```bash
+npm install
+npx vitest run
+```
+
+The test suite verifies that the `<App />` component renders the text "hello-world".
