@@ -1,0 +1,13 @@
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #ffd700;
+}
+
+.heading {
+  font-size: 3rem;
+  color: #333;
+  font-family: Arial, Helvetica, sans-serif;
+}
