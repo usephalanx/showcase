@@ -1,4 +1,7 @@
-"""Tests for the GET /hello endpoint."""
+"""Tests for the GET /hello endpoint.
+
+Verifies that the endpoint returns HTTP 200 and the expected JSON body.
+"""
 
 from __future__ import annotations
 
@@ -28,12 +31,12 @@ def test_get_hello_content_type() -> None:
 
 
 def test_post_hello_not_allowed() -> None:
-    """POST /hello should return 405 Method Not Allowed."""
+    """POST /hello should return HTTP 405 Method Not Allowed."""
     response = client.post("/hello")
     assert response.status_code == 405
 
 
-def test_nonexistent_route_returns_404() -> None:
-    """Requesting a non-existent path should return 404."""
+def test_nonexistent_endpoint_returns_404() -> None:
+    """Requesting a non-existent path should return HTTP 404."""
     response = client.get("/nonexistent")
     assert response.status_code == 404
