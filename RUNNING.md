@@ -1,6 +1,6 @@
 # React Counter App
 
-A minimal React application featuring a Counter component centered on the page.
+A minimal React counter application built with Vite, featuring increment and decrement buttons with a comprehensive test suite.
 
 ## TEAM_BRIEF
 stack: TypeScript/React+Vite
@@ -12,81 +12,80 @@ coverage_applies: false
 
 ## Prerequisites
 
-- Node.js >= 18
-- npm >= 9
+- Node.js 18+ and npm
+- Docker (optional, for containerized setup)
 
-## Setup
+## Local Setup
 
 ```bash
+# Install dependencies
 npm install
-```
 
-## Running the App
-
-```bash
+# Start development server
 npm run dev
-```
 
-The app will be available at `http://localhost:5173` by default.
-
-## Building for Production
-
-```bash
-npm run build
-npm run preview
-```
-
-## Running Tests
-
-```bash
+# Run tests
 npm test
-```
 
-Or in watch mode:
-
-```bash
-npm run test:watch
+# Build for production
+npm run build
 ```
 
 ## Docker Setup
 
-### Dockerfile
-
-Create a `Dockerfile` at the project root:
-
-```dockerfile
-FROM node:18-alpine AS base
-WORKDIR /app
-COPY package.json ./
-RUN npm install
-COPY . .
-
-# Run tests
-FROM base AS test
-RUN npm test
-
-# Build for production
-FROM base AS build
-RUN npm run build
-
-# Serve with a lightweight server
-FROM nginx:alpine AS production
-COPY --from=build /app/dist /usr/share/nginx/html
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
-```
-
-### Running with Docker
+### Build and Run
 
 ```bash
-# Build and run tests
-docker build --target test -t counter-app-test .
+# Build the Docker image
+docker build -t react-counter-app .
 
-# Build production image
-docker build --target production -t counter-app .
-
-# Run production container
-docker run -p 8080:80 counter-app
+# Run the container (development server on port 5173)
+docker run -p 5173:5173 react-counter-app
 ```
 
-The production app will be available at `http://localhost:8080`.
+### Run Tests in Docker
+
+```bash
+# Run the test suite inside a container
+docker run --rm react-counter-app npm test
+```
+
+## Project Structure
+
+```
+├── index.html                    # HTML entry point
+├── package.json                  # Dependencies and scripts
+├── vite.config.js                # Vite + Vitest configuration
+├── src/
+│   ├── main.jsx                  # React entry point
+│   ├── App.jsx                   # Root App component
+│   ├── App.css                   # Global and centering styles
+│   ├── setupTests.js             # Test setup (jest-dom matchers)
+│   └── components/
+│       ├── Counter.jsx           # Counter component
+│       └── Counter.test.jsx      # Test suite for Counter and App
+```
+
+## Testing
+
+Tests are written using [Vitest](https://vitest.dev/) and [@testing-library/react](https://testing-library.com/docs/react-testing-library/intro/).
+
+```bash
+# Run all tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+```
+
+### Test Coverage
+
+- Initial count renders as 0
+- Increment button increases count by 1
+- Decrement button decreases count by 1
+- Mixed increment/decrement sequences
+- Count can go negative
+- Rapid clicking updates correctly
+- Accessibility labels and aria-live region
+- Centering classes are applied
+- App renders Counter within centered container
