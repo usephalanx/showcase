@@ -1,7 +1,5 @@
 /**
- * Main application component.
- *
- * Renders a simple "hello-world" message as the root UI element.
+ * Main application component that renders the hello-world message.
  */
 function App(): JSX.Element {
   return <div>hello-world</div>;
