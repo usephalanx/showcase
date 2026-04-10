@@ -1,4 +1,4 @@
-# Running the Mini React Todo App
+# Running the Application
 
 ## TEAM_BRIEF
 stack: TypeScript/React+Vite
@@ -11,15 +11,12 @@ coverage_applies: false
 ## Prerequisites
 
 - Node.js 18+ and npm
-- (Optional) Docker and Docker Compose
+- Docker and Docker Compose (optional, for containerised development)
 
-## Local Development (npm)
+## Local Development
 
 ```bash
-# Install dependencies
 npm install
-
-# Start the Vite dev server
 npm run dev
 ```
 
@@ -28,23 +25,18 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 ## Docker
 
 ```bash
-# Build and start
 docker compose up --build
-
-# Or run in background
-docker compose up --build -d
 ```
 
 Open [http://localhost:5173](http://localhost:5173) in your browser.
 
 ## Authentication
 
-No authentication is required. The app runs entirely client-side with no backend.
+No authentication is required. The application is a client-side-only todo app.
 
 ## Build for Production
 
 ```bash
 npm run build
+npm run preview
 ```
-
-Output is placed in the `dist/` directory and can be served by any static file server.
