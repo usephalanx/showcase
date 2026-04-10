@@ -1,0 +1,10 @@
+version: "3.9"
+
+services:
+  yellow-world:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    restart: unless-stopped

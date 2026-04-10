@@ -1,0 +1,20 @@
+/* Yellow-themed styling for the App component */
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #ffd700;
+}
+
+.heading {
+  color: #8b7500;
+  font-size: 3rem;
+  font-weight: bold;
+  text-align: center;
+  padding: 2rem;
+  background-color: #ffecb3;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}

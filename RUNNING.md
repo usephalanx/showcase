@@ -1,33 +1,80 @@
-# Running the Todo API
+# Yellow World Web App
+
+A minimal React/Vite/TypeScript application that displays "yellow world" with yellow-themed styling.
+
+## TEAM_BRIEF
+stack: TypeScript/React+Vite
+test_runner: npx vitest run
+lint_tool: none
+coverage_tool: none
+coverage_threshold: 0
+coverage_applies: false
 
 ## Prerequisites
 
-- Python 3.10 or later
+- Node.js 18+ and npm
+- Docker and Docker Compose (for containerised run)
 
-## Install dependencies
+## Local Development
 
 ```bash
-pip install fastapi uvicorn pydantic
+# Install dependencies
+npm install
+
+# Start dev server
+npm run dev
+
+# Run tests
+npm test
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
 ```
 
-For running the test suite you will also need:
+## Docker
 
 ```bash
-pip install httpx pytest
+# Build and run with Docker Compose
+docker compose up --build
+
+# Open in browser
+# http://localhost:5173
 ```
 
-## Start the server
+## Project Structure
 
-```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+```
+├── index.html              # HTML entry point
+├── src/
+│   ├── main.tsx            # React entry point
+│   ├── main.css            # Global styles
+│   ├── App.tsx             # Main App component
+│   ├── App.module.css      # Yellow-themed CSS module
+│   ├── setupTests.ts       # Test setup (jest-dom matchers)
+│   └── __tests__/
+│       └── App.test.tsx    # App component test suite
+├── vite.config.ts          # Vite + Vitest configuration
+├── tsconfig.json           # TypeScript configuration
+├── package.json            # Dependencies and scripts
+├── Dockerfile              # Multi-stage Docker build
+└── docker-compose.yml      # Docker Compose config
 ```
 
-The API will be available at <http://localhost:8000>.
+## Testing
 
-Interactive docs are served at <http://localhost:8000/docs>.
+Tests use Vitest with React Testing Library and jest-dom matchers.
+The test suite verifies:
 
-## Run the tests
+1. The "yellow world" text is rendered in the DOM
+2. The text appears inside an `<h1>` element
+3. CSS module classes (`container`, `heading`) are correctly applied
+4. The DOM structure is correct (div wrapping h1)
+
+Run tests:
 
 ```bash
-pytest tests/
+npm test
 ```
