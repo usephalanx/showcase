@@ -6,81 +6,61 @@ import Counter from './Counter.jsx';
 describe('Counter component', () => {
   it('renders initial count of 0', () => {
     render(<Counter />);
-    const countDisplay = screen.getByTestId('count-display');
-    expect(countDisplay).toHaveTextContent('0');
+    const display = screen.getByTestId('count-display');
+    expect(display).toHaveTextContent('0');
   });
 
   it('increments count when increment button is clicked', () => {
     render(<Counter />);
     const incrementBtn = screen.getByRole('button', { name: /increment/i });
-    const countDisplay = screen.getByTestId('count-display');
-
     fireEvent.click(incrementBtn);
-    expect(countDisplay).toHaveTextContent('1');
-
-    fireEvent.click(incrementBtn);
-    expect(countDisplay).toHaveTextContent('2');
+    expect(screen.getByTestId('count-display')).toHaveTextContent('1');
   });
 
   it('decrements count when decrement button is clicked', () => {
     render(<Counter />);
     const decrementBtn = screen.getByRole('button', { name: /decrement/i });
-    const countDisplay = screen.getByTestId('count-display');
-
     fireEvent.click(decrementBtn);
-    expect(countDisplay).toHaveTextContent('-1');
-
-    fireEvent.click(decrementBtn);
-    expect(countDisplay).toHaveTextContent('-2');
+    expect(screen.getByTestId('count-display')).toHaveTextContent('-1');
   });
 
-  it('handles rapid increment and decrement clicks correctly', () => {
+  it('handles multiple increments correctly', () => {
+    render(<Counter />);
+    const incrementBtn = screen.getByRole('button', { name: /increment/i });
+    fireEvent.click(incrementBtn);
+    fireEvent.click(incrementBtn);
+    fireEvent.click(incrementBtn);
+    expect(screen.getByTestId('count-display')).toHaveTextContent('3');
+  });
+
+  it('handles multiple decrements correctly', () => {
+    render(<Counter />);
+    const decrementBtn = screen.getByRole('button', { name: /decrement/i });
+    fireEvent.click(decrementBtn);
+    fireEvent.click(decrementBtn);
+    expect(screen.getByTestId('count-display')).toHaveTextContent('-2');
+  });
+
+  it('handles mixed increment and decrement clicks', () => {
     render(<Counter />);
     const incrementBtn = screen.getByRole('button', { name: /increment/i });
     const decrementBtn = screen.getByRole('button', { name: /decrement/i });
-    const countDisplay = screen.getByTestId('count-display');
+    fireEvent.click(incrementBtn);
+    fireEvent.click(incrementBtn);
+    fireEvent.click(decrementBtn);
+    expect(screen.getByTestId('count-display')).toHaveTextContent('1');
+  });
 
-    // Click increment 5 times
-    for (let i = 0; i < 5; i++) {
-      fireEvent.click(incrementBtn);
-    }
-    expect(countDisplay).toHaveTextContent('5');
-
-    // Click decrement 3 times
-    for (let i = 0; i < 3; i++) {
-      fireEvent.click(decrementBtn);
-    }
-    expect(countDisplay).toHaveTextContent('2');
+  it('renders the count display centered (text-align: center)', () => {
+    render(<Counter />);
+    const display = screen.getByTestId('count-display');
+    expect(display.style.textAlign).toBe('center');
   });
 
   it('renders the counter container with centered alignment', () => {
-    render(<Counter />);
-    const container = screen.getByTestId('counter-container');
-    expect(container).toBeInTheDocument();
-  });
-
-  it('renders the Counter title', () => {
-    render(<Counter />);
-    const title = screen.getByText('Counter');
-    expect(title).toBeInTheDocument();
-  });
-
-  it('renders both increment and decrement buttons', () => {
-    render(<Counter />);
-    const incrementBtn = screen.getByRole('button', { name: /increment/i });
-    const decrementBtn = screen.getByRole('button', { name: /decrement/i });
-    expect(incrementBtn).toBeInTheDocument();
-    expect(decrementBtn).toBeInTheDocument();
-  });
-
-  it('allows count to go negative', () => {
-    render(<Counter />);
-    const decrementBtn = screen.getByRole('button', { name: /decrement/i });
-    const countDisplay = screen.getByTestId('count-display');
-
-    fireEvent.click(decrementBtn);
-    fireEvent.click(decrementBtn);
-    fireEvent.click(decrementBtn);
-    expect(countDisplay).toHaveTextContent('-3');
+    const { container } = render(<Counter />);
+    const counterDiv = container.querySelector('.counter');
+    expect(counterDiv).not.toBeNull();
+    expect(counterDiv.style.alignItems).toBe('center');
   });
 });

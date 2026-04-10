@@ -4,7 +4,9 @@ import './App.css';
 
 /**
  * Root application component.
- * Renders the Counter component centered on the page.
+ *
+ * Renders the Counter component centered on the page using a
+ * flexbox-based container layout.
  */
 function App() {
   return (

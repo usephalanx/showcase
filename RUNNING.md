@@ -1,4 +1,6 @@
-# Mini React Counter App
+# React Counter App
+
+A minimal React application featuring a Counter component centered on the page.
 
 ## TEAM_BRIEF
 stack: TypeScript/React+Vite
@@ -10,69 +12,81 @@ coverage_applies: false
 
 ## Prerequisites
 
-- Node.js 18+ and npm
-- Docker (optional, for containerised setup)
+- Node.js >= 18
+- npm >= 9
 
-## Local Development
+## Setup
 
 ```bash
-# Install dependencies
 npm install
+```
 
-# Start development server
+## Running the App
+
+```bash
 npm run dev
+```
 
-# Build for production
+The app will be available at `http://localhost:5173` by default.
+
+## Building for Production
+
+```bash
 npm run build
+npm run preview
+```
 
-# Run tests
+## Running Tests
+
+```bash
 npm test
+```
 
-# Run tests in watch mode
+Or in watch mode:
+
+```bash
 npm run test:watch
 ```
 
 ## Docker Setup
 
-### Build and run
+### Dockerfile
+
+Create a `Dockerfile` at the project root:
+
+```dockerfile
+FROM node:18-alpine AS base
+WORKDIR /app
+COPY package.json ./
+RUN npm install
+COPY . .
+
+# Run tests
+FROM base AS test
+RUN npm test
+
+# Build for production
+FROM base AS build
+RUN npm run build
+
+# Serve with a lightweight server
+FROM nginx:alpine AS production
+COPY --from=build /app/dist /usr/share/nginx/html
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
+```
+
+### Running with Docker
 
 ```bash
-# Build the Docker image
-docker build -t counter-app .
+# Build and run tests
+docker build --target test -t counter-app-test .
 
-# Run the container (development server on port 5173)
-docker run -p 5173:5173 counter-app
+# Build production image
+docker build --target production -t counter-app .
 
-# Run tests inside Docker
-docker run --rm counter-app npm test
+# Run production container
+docker run -p 8080:80 counter-app
 ```
 
-### Using docker-compose (if available)
-
-```bash
-docker-compose up
-```
-
-## Project Structure
-
-```
-src/
-├── main.jsx                    # React entry point
-├── App.jsx                     # Root component
-├── App.css                     # Global centering styles
-├── setupTests.js               # Test setup (jest-dom)
-└── components/
-    ├── Counter.jsx             # Counter component
-    ├── Counter.module.css      # Counter scoped styles
-    └── Counter.test.jsx        # Counter unit tests
-```
-
-## Testing
-
-Tests are written using Vitest and @testing-library/react.
-
-```bash
-npm test
-```
-
-This runs all `*.test.jsx` files via `vitest run`.
+The production app will be available at `http://localhost:8080`.

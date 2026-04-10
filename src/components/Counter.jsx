@@ -1,47 +1,80 @@
 import React, { useState } from 'react';
-import styles from './Counter.module.css';
 
 /**
  * Counter component.
  *
- * Displays the current count value with increment and decrement buttons.
- * The count starts at 0 and can go negative.
+ * Displays a numeric count with increment and decrement buttons.
+ * The count state is managed locally via useState and can go negative.
  */
 function Counter() {
   const [count, setCount] = useState(0);
 
   /**
-   * Increment the count by 1.
+   * Increment the counter by 1.
    */
   const handleIncrement = () => {
     setCount((prev) => prev + 1);
   };
 
   /**
-   * Decrement the count by 1.
+   * Decrement the counter by 1.
    */
   const handleDecrement = () => {
     setCount((prev) => prev - 1);
   };
 
   return (
-    <div className={styles.counter} data-testid="counter-container">
-      <h2 className={styles.title}>Counter</h2>
-      <p className={styles.count} data-testid="count-display">
+    <div
+      className="counter"
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '16px',
+        padding: '32px',
+        borderRadius: '12px',
+        backgroundColor: '#ffffff',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+      }}
+    >
+      <h1 style={{ fontSize: '2rem', margin: 0 }}>Counter</h1>
+      <p
+        data-testid="count-display"
+        style={{
+          fontSize: '3rem',
+          fontWeight: 'bold',
+          margin: 0,
+          textAlign: 'center',
+        }}
+      >
         {count}
       </p>
-      <div className={styles.buttons}>
+      <div style={{ display: 'flex', gap: '12px' }}>
         <button
-          className={styles.button}
           onClick={handleDecrement}
           aria-label="Decrement"
+          style={{
+            fontSize: '1.25rem',
+            padding: '8px 20px',
+            cursor: 'pointer',
+            borderRadius: '6px',
+            border: '1px solid #ccc',
+            backgroundColor: '#f0f0f0',
+          }}
         >
           −
         </button>
         <button
-          className={styles.button}
           onClick={handleIncrement}
           aria-label="Increment"
+          style={{
+            fontSize: '1.25rem',
+            padding: '8px 20px',
+            cursor: 'pointer',
+            borderRadius: '6px',
+            border: '1px solid #ccc',
+            backgroundColor: '#f0f0f0',
+          }}
         >
           +
         </button>
