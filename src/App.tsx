@@ -1,21 +1,18 @@
 /**
  * Main App component.
  *
- * Renders a modern-styled "Hello World" heading as the application root.
+ * Renders the top-level application UI.
  */
-import React from 'react';
-import styles from './App.module.css';
 
 /**
- * Top-level application component.
+ * Root application component that displays a Hello World heading.
  *
- * @returns A React element displaying "Hello World" with modern styling.
+ * @returns The rendered App component.
  */
-export default function App(): React.ReactElement {
+export default function App(): JSX.Element {
   return (
-    <div className={styles.container}>
-      <h1 className={styles.heading}>Hello World</h1>
-      <p className={styles.subtitle}>Welcome to your React + Vite application</p>
+    <div className="app">
+      <h1>Hello World</h1>
     </div>
   );
 }

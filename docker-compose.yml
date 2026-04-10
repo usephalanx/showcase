@@ -1,12 +1,12 @@
 # Docker Compose configuration for local development.
 #
-# Runs the Vite dev server with hot-reload via volume mounting.
-
-version: "3.8"
+# Maps port 5173 and mounts source code for live reload.
 
 services:
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "5173:5173"
     volumes:

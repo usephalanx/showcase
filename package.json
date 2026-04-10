@@ -3,6 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "description": "A minimal Hello World React + Vite + TypeScript application.",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",

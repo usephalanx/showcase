@@ -1,7 +1,7 @@
 /**
  * Test setup file.
  *
- * Imports @testing-library/jest-dom to add custom DOM matchers
- * (e.g. toBeInTheDocument) to vitest expectations.
+ * Imports jest-dom matchers so they are available in all test files
+ * without explicit imports.
  */
 import '@testing-library/jest-dom';
