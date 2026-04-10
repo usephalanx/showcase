@@ -1,33 +1,56 @@
-# Running the Todo API
+# Mini React Counter App
+
+## TEAM_BRIEF
+stack: JavaScript/React+Vite
+test_runner: npm test
+lint_tool: none
+coverage_tool: none
+coverage_threshold: 0
+coverage_applies: false
 
 ## Prerequisites
 
-- Python 3.10 or later
+- Docker installed and running
+- OR Node.js 20+ and npm installed locally
 
-## Install dependencies
-
-```bash
-pip install fastapi uvicorn pydantic
-```
-
-For running the test suite you will also need:
+## Running with Docker
 
 ```bash
-pip install httpx pytest
+# 1. Build the Docker image
+docker build -t mini-react-counter .
+
+# 2. Run the container
+docker run -p 3000:3000 mini-react-counter
 ```
 
-## Start the server
+Open http://localhost:3000 in your browser.
+
+## Running Locally (without Docker)
 
 ```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+# 1. Install dependencies
+npm install
+
+# 2. Start the development server
+npm run dev
 ```
 
-The API will be available at <http://localhost:8000>.
+Open the URL printed in the terminal (usually http://localhost:5173).
 
-Interactive docs are served at <http://localhost:8000/docs>.
-
-## Run the tests
+## Running Tests
 
 ```bash
-pytest tests/
+# Install dependencies (if not already done)
+npm install
+
+# Run the test suite
+npm test
 ```
+
+## Building for Production
+
+```bash
+npm run build
+```
+
+The production-ready files will be in the `dist/` directory.
