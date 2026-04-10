@@ -1,15 +1,16 @@
 {
-  "name": "hello-world-react",
+  "name": "hello-world-app",
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "A minimal Hello World React + Vite + TypeScript application.",
+  "description": "Minimal React Hello World application with TypeScript and Vite",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "lint": "eslint src/ --ext .ts,.tsx"
   },
   "dependencies": {

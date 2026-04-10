@@ -27,4 +27,24 @@ describe('App', () => {
     expect(heading).toBeInTheDocument();
     expect(heading).toHaveTextContent('Hello World');
   });
+
+  it('h1 is nested inside the .app container', () => {
+    const { container } = render(<App />);
+    const appDiv = container.querySelector('.app');
+    expect(appDiv).not.toBeNull();
+    const h1 = appDiv!.querySelector('h1');
+    expect(h1).not.toBeNull();
+    expect(h1!.textContent).toBe('Hello World');
+  });
+
+  it('renders exactly one h1 element', () => {
+    const { container } = render(<App />);
+    const headings = container.querySelectorAll('h1');
+    expect(headings).toHaveLength(1);
+  });
+
+  it('does not render unexpected text', () => {
+    render(<App />);
+    expect(screen.queryByText('Goodbye World')).not.toBeInTheDocument();
+  });
 });

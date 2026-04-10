@@ -1,23 +1,19 @@
-# Dockerfile for the Hello World React + Vite application.
-#
-# Uses node:18-alpine as the base image for a lightweight container.
-# Installs dependencies and exposes port 5173 for the Vite dev server.
-
-FROM node:18-alpine AS base
+# Dockerfile for Hello World React+Vite application
+FROM node:18-alpine
 
 WORKDIR /app
 
-# Copy dependency manifests first for better Docker layer caching
+# Copy package manifest first for layer caching
 COPY package.json ./
 
 # Install dependencies
 RUN npm install
 
-# Copy the rest of the application source
+# Copy the rest of the source code
 COPY . .
 
-# Expose the Vite dev server port
+# Expose Vite dev server port
 EXPOSE 5173
 
-# Start the Vite development server
-CMD ["npm", "run", "dev"]
+# Start the Vite dev server, binding to all interfaces
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
