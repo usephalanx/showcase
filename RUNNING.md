@@ -1,4 +1,4 @@
-# Running the Todo API
+# Running the Application
 
 ## TEAM_BRIEF
 stack: Python/FastAPI
@@ -11,7 +11,7 @@ coverage_applies: true
 ## Prerequisites
 
 - Python 3.11+
-- Docker and Docker Compose (for containerised usage)
+- Docker and Docker Compose (optional, for containerised usage)
 
 ## Local Development
 
@@ -24,12 +24,12 @@ pip install -r requirements.txt
 ### Run the application
 
 ```bash
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
-Open: <http://localhost:8000/health>
+Open http://localhost:8000/health to verify the service is running.
 
-### Run tests
+### Run the tests
 
 ```bash
 pytest tests/
@@ -43,16 +43,10 @@ pytest tests/
 docker compose up --build
 ```
 
-The API will be available at: <http://localhost:8000/health>
+The API will be available at http://localhost:8000/health.
 
 ### Stop
 
 ```bash
 docker compose down
 ```
-
-## Endpoints
-
-| Method | Path      | Description              |
-|--------|-----------|--------------------------|
-| GET    | `/health` | Returns `{"status": "ok"}` |
