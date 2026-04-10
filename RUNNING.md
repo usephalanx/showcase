@@ -1,6 +1,4 @@
-# Counter App
-
-A minimal React counter application built with Vite.
+# Mini React Counter App
 
 ## TEAM_BRIEF
 stack: TypeScript/React+Vite
@@ -10,6 +8,11 @@ coverage_tool: none
 coverage_threshold: 0
 coverage_applies: false
 
+## Overview
+
+A minimal React application built with Vite that displays a counter with
+increment and decrement buttons, centered on the page.
+
 ## Prerequisites
 
 - Node.js >= 18
@@ -18,52 +21,59 @@ coverage_applies: false
 ## Setup
 
 ```bash
+# Install dependencies
 npm install
 ```
 
 ## Development
 
 ```bash
+# Start the Vite dev server (default: http://localhost:5173)
 npm run dev
 ```
-
-The app will be available at `http://localhost:5173`.
 
 ## Build
 
 ```bash
+# Create a production build in dist/
 npm run build
+
+# Preview the production build
+npm run preview
 ```
 
-## Run Tests
+## Running Tests
 
 ```bash
-npm test
+# Run all tests
+npx vitest run
 ```
 
-This runs all Vitest test suites (`src/**/*.test.jsx`).
-
-## Docker
+## Docker Setup (Optional)
 
 ```bash
-docker build -t counter-app .
-docker run -p 5173:5173 counter-app
+# Build the Docker image
+docker build -t mini-react-counter .
+
+# Run the container
+docker run -p 5173:5173 mini-react-counter
 ```
+
+Then open http://localhost:5173 in your browser.
 
 ## Project Structure
 
 ```
-├── index.html                  # Root HTML with #root div
-├── package.json                # Dependencies and scripts
-├── vite.config.js              # Vite + React plugin config
+├── index.html                 # Root HTML file with #root div
+├── package.json               # Dependencies and scripts
+├── vite.config.js             # Vite configuration with React plugin
 ├── src/
-│   ├── main.jsx                # React entry point
-│   ├── App.jsx                 # Root App component
-│   ├── App.test.jsx            # App smoke tests
-│   ├── setupTests.js           # Test setup (jest-dom)
+│   ├── main.jsx               # Application entry point
+│   ├── index.css              # Global styles for page layout
+│   ├── App.jsx                # Main App component
+│   ├── App.test.jsx           # App smoke tests
+│   ├── setupTests.js          # Test setup (jest-dom)
 │   └── components/
-│       ├── Counter.jsx         # Counter component (logic + UI)
-│       ├── Counter.module.css  # Counter styles (CSS Modules)
-│       └── Counter.test.jsx    # Counter unit tests
-└── RUNNING.md                  # This file
+│       ├── Counter.jsx        # Counter component with state logic
+│       └── Counter.test.jsx   # Counter unit tests
 ```

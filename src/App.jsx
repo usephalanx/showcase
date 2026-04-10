@@ -1,20 +1,17 @@
-/**
- * Main App component.
- *
- * Serves as the root component of the application and renders
- * the Counter component.
- */
+import React from 'react';
 import Counter from './components/Counter';
 
 /**
- * App functional component.
+ * Main application component.
  *
- * @returns {JSX.Element} The rendered App.
+ * Renders the Counter component centered on the page.
  */
-export default function App() {
+function App() {
   return (
-    <div>
+    <div className="app">
       <Counter />
     </div>
   );
 }
+
+export default App;

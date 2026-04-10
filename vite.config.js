@@ -1,6 +1,3 @@
-/**
- * Vite configuration for the React Counter application.
- */
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
