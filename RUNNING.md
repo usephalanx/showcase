@@ -10,17 +10,17 @@ coverage_applies: false
 
 ## Prerequisites
 
-- Node.js 18+ and npm
-- Docker and Docker Compose (optional, for containerised development)
+- Node.js >= 18
+- npm >= 9 (or Docker + Docker Compose)
 
-## Local Development
+## Local Development (npm)
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open [http://localhost:5173](http://localhost:5173) in your browser.
+Open <http://localhost:5173> in your browser.
 
 ## Docker
 
@@ -28,15 +28,18 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 docker compose up --build
 ```
 
-Open [http://localhost:5173](http://localhost:5173) in your browser.
+Open <http://localhost:5173> in your browser.
 
 ## Authentication
 
-No authentication is required. The application is a client-side-only todo app.
+No authentication is required. The app runs entirely in the browser with no
+backend dependencies.
 
-## Build for Production
+## Running Tests
 
 ```bash
-npm run build
-npm run preview
+pytest tests/
 ```
+
+Tests validate component structure and file presence. No browser or Node.js
+runtime is required for the test suite.
