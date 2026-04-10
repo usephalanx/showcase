@@ -4,12 +4,13 @@ import App from "./App";
 import "./main.css";
 
 /**
- * Application bootstrap.
+ * Application entry point.
  *
- * Mounts the root <App /> component into the #root DOM element.
+ * Imports global styles and renders the root App component into the
+ * #root element defined in index.html.
  */
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <App />
-  </React.StrictMode>,
+  </React.StrictMode>
 );

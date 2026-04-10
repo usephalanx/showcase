@@ -1,20 +1,17 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
-/// <reference types="vitest" />
+/**
+ * Vite configuration for the Yellow World React/TypeScript project.
+ *
+ * Enables the React plugin and configures Vitest for unit testing
+ * with jsdom as the DOM environment.
+ */
 export default defineConfig({
   plugins: [react()],
-  server: {
-    host: "0.0.0.0",
-    port: 5173,
-  },
-  preview: {
-    host: "0.0.0.0",
-    port: 5173,
-  },
   test: {
-    environment: "jsdom",
     globals: true,
+    environment: "jsdom",
     setupFiles: ["./src/__tests__/setup.ts"],
     css: {
       modules: {
