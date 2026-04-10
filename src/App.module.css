@@ -1,0 +1,45 @@
+/**
+ * CSS Module for the App component.
+ *
+ * Provides a centred, modern layout with gradient text and subtle animations.
+ */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  text-align: center;
+  padding: 2rem;
+}
+
+.heading {
+  font-size: 3.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 0 0 0.5rem;
+  animation: fadeIn 0.6s ease-out;
+}
+
+.subtitle {
+  font-size: 1.25rem;
+  color: #6b7280;
+  margin: 0;
+  animation: fadeIn 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

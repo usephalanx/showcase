@@ -1,33 +1,84 @@
-# Running the Todo API
+# Hello World React+Vite App
+
+## TEAM_BRIEF
+stack: TypeScript/React+Vite
+test_runner: npx vitest run
+lint_tool: npx eslint src/ --ext .ts,.tsx
+coverage_tool: vitest --coverage
+coverage_threshold: 80
+coverage_applies: true
 
 ## Prerequisites
 
-- Python 3.10 or later
+- **Node.js** >= 18
+- **npm** >= 9
+- **Docker** and **Docker Compose** (optional, for containerised workflow)
 
-## Install dependencies
-
-```bash
-pip install fastapi uvicorn pydantic
-```
-
-For running the test suite you will also need:
+## Local Setup (without Docker)
 
 ```bash
-pip install httpx pytest
+# Install dependencies
+npm install
+
+# Start the development server
+npm run dev
+# App available at http://localhost:5173
+
+# Run tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run tests with coverage
+npm run test:coverage
+
+# Run linter
+npm run lint
+
+# Build for production
+npm run build
 ```
 
-## Start the server
+## Docker Setup
 
 ```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+# Build and start the container
+docker compose up --build
+
+# App available at http://localhost:5173
+
+# Run tests inside the container
+docker compose exec app npm test
+
+# Run linter inside the container
+docker compose exec app npm run lint
+
+# Stop and clean up
+docker compose down
 ```
 
-The API will be available at <http://localhost:8000>.
+## Project Structure
 
-Interactive docs are served at <http://localhost:8000/docs>.
-
-## Run the tests
-
-```bash
-pytest tests/
 ```
+├── index.html            # HTML entry point for Vite
+├── src/
+│   ├── main.tsx          # React DOM render entry
+│   ├── App.tsx           # Main App component (renders Hello World)
+│   ├── App.test.tsx      # Test suite for App component
+│   ├── index.css         # Global styles (centred layout)
+│   └── setupTests.ts     # Vitest setup (jest-dom matchers)
+├── package.json          # Dependencies and scripts
+├── tsconfig.json         # TypeScript configuration
+├── vite.config.ts        # Vite + Vitest configuration
+├── .eslintrc.json        # ESLint configuration
+├── Dockerfile            # Container image definition
+└── docker-compose.yml    # Docker Compose service definition
+```
+
+## Acceptance Criteria
+
+1. `npm test` passes — confirms "Hello World" renders correctly
+2. The app displays "Hello World" in a centred `<h1>` element
+3. `npm run lint` completes with no errors
+4. Styles from `src/index.css` are applied (flexbox centering)
