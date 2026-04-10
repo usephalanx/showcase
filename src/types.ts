@@ -1,15 +1,17 @@
 /**
- * Core type definitions for the Todo application.
+ * Core type definitions for the Mini React Todo App.
  */
 
 /**
- * Represents a single todo item in the application.
+ * Represents a single Todo item.
  */
 export interface Todo {
-  /** Unique identifier for the todo item. */
+  /** Unique identifier generated via crypto.randomUUID(). */
   id: string;
-  /** The text content of the todo item. */
+
+  /** The text description of the todo item. */
   text: string;
+
   /** Whether the todo item has been completed. */
   completed: boolean;
 }
