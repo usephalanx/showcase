@@ -10,47 +10,62 @@ coverage_applies: true
 
 ## Prerequisites
 
-- Python 3.12+
-- Docker and Docker Compose (for containerised usage)
+- Docker and Docker Compose installed on your machine.
 
-## Local Development
-
-### Install dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### Run the application
-
-```bash
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-```
-
-The API will be available at:
-- http://localhost:8000/hello
-- http://localhost:8000/health
-
-### Run tests
-
-```bash
-pytest tests/
-```
-
-## Docker
-
-### Build and run with Docker Compose
+## Running with Docker Compose
 
 ```bash
 docker compose up --build
 ```
 
-The API will be accessible at:
-- http://localhost:8000/hello
-- http://localhost:8000/health
+The application will be available at:
 
-### Stop the service
+- **Hello endpoint:** [http://localhost:8000/hello](http://localhost:8000/hello)
+- **Health endpoint:** [http://localhost:8000/health](http://localhost:8000/health)
+
+To stop the application:
 
 ```bash
 docker compose down
+```
+
+## Running Locally (without Docker)
+
+1. Create and activate a virtual environment:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+```
+
+2. Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+3. Start the server:
+
+```bash
+uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
+
+## Running Tests
+
+```bash
+pip install -r requirements.txt
+pytest tests/
+```
+
+To run tests with coverage:
+
+```bash
+pip install pytest-cov
+pytest tests/ --cov=app --cov-report=term-missing
+```
+
+## Running Tests in Docker
+
+```bash
+docker compose run --rm app pytest tests/
 ```

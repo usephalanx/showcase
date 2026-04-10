@@ -11,8 +11,8 @@ from app.api.hello import router as hello_router
 from app.api.health import router as health_router
 
 app = FastAPI(
-    title="Todo API",
-    description="A simple Todo REST API with in-memory storage.",
+    title="Hello & Health API",
+    description="A minimal FastAPI app with /hello and /health endpoints.",
     version="1.0.0",
 )
 
