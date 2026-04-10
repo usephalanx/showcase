@@ -1,24 +1,30 @@
-import React from "react";
-import { render, screen } from "@testing-library/react";
-import { describe, it, expect } from "vitest";
-import App from "./App";
+import React from 'react';
+import { describe, it, expect } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import '@testing-library/jest-dom';
+import App from './App';
 
-describe("App component", () => {
-  it("renders the application heading", () => {
+describe('App component', () => {
+  it('renders the app heading', () => {
     render(<App />);
-    expect(screen.getByText("Mini React Counter App")).toBeInTheDocument();
+    expect(screen.getByText('Mini React Counter App')).toBeInTheDocument();
   });
 
-  it("renders the Counter component", () => {
+  it('renders the Counter component within the App', () => {
     render(<App />);
-    expect(screen.getByText("Counter")).toBeInTheDocument();
-    expect(screen.getByTestId("count-display")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /increment/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /decrement/i })).toBeInTheDocument();
+    expect(screen.getByText('Counter')).toBeInTheDocument();
+    expect(screen.getByTestId('count')).toBeInTheDocument();
+    expect(screen.getByText('Increment')).toBeInTheDocument();
+    expect(screen.getByText('Decrement')).toBeInTheDocument();
   });
 
-  it("renders the count display starting at 0", () => {
+  it('Counter inside App is functional', () => {
     render(<App />);
-    expect(screen.getByTestId("count-display")).toHaveTextContent("0");
+    const incrementBtn = screen.getByText('Increment');
+    const countElement = screen.getByTestId('count');
+
+    expect(countElement).toHaveTextContent('0');
+    incrementBtn.click();
+    expect(countElement).toHaveTextContent('1');
   });
 });

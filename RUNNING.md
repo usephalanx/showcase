@@ -10,67 +10,73 @@ coverage_applies: false
 
 ## Overview
 
-A minimal React counter application built with Vite. Displays a counter with
-Increment and Decrement buttons.
+A minimal React counter application with increment/decrement buttons and a comprehensive test suite using Vitest and React Testing Library.
 
 ## Prerequisites
 
-- Node.js 18+ or Docker
+- Docker (for containerized setup), OR
+- Node.js 18+ and npm
+
+## Running with Docker (3 commands)
+
+```bash
+docker build -t counter-app .
+docker run -p 5173:5173 counter-app
+# Open http://localhost:5173 in your browser
+```
+
+## Running Tests with Docker
+
+```bash
+docker build -t counter-app .
+docker run --rm counter-app npm test
+```
 
 ## Running Locally (without Docker)
 
 ```bash
 npm install
 npm run dev
+# Open http://localhost:5173 in your browser
 ```
 
-The app will be available at http://localhost:5173.
-
-## Running with Docker
-
-```bash
-docker build -t counter-app .
-docker run -p 5173:5173 counter-app
-```
-
-The app will be available at http://localhost:5173.
-
-## Running Tests
+## Running Tests Locally
 
 ```bash
 npm install
 npm test
 ```
 
-Or equivalently:
-
-```bash
-npx vitest run
-```
-
-## Building for Production
-
-```bash
-npm run build
-npm run preview
-```
-
 ## Project Structure
 
 ```
-src/
-  main.jsx           - Entry point, mounts App into the DOM
-  App.jsx            - Root component, renders Counter
-  App.test.jsx       - Tests for App component
-  index.css          - Global styles
-  setupTests.js      - Test setup (jest-dom matchers)
-  components/
-    Counter.jsx      - Counter component with state management
-    Counter.test.jsx - Tests for Counter component
-public/
-  index.html         - HTML template (fallback)
-index.html           - Vite HTML entry point
-package.json         - Dependencies and scripts
-vite.config.js       - Vite + vitest configuration
-Dockerfile           - Docker container setup
+├── public/
+│   └── index.html          # HTML entry point
+├── src/
+│   ├── components/
+│   │   ├── Counter.jsx      # Counter component
+│   │   └── Counter.test.jsx # Counter unit tests
+│   ├── App.jsx              # Root App component
+│   ├── App.test.jsx         # App integration tests
+│   ├── main.jsx             # React DOM entry point
+│   ├── index.css            # Global styles
+│   └── setupTests.js        # Vitest setup (jest-dom)
+├── vite.config.js           # Vite + Vitest config
+├── package.json             # Dependencies and scripts
+├── Dockerfile               # Docker configuration
+└── RUNNING.md               # This file
 ```
+
+## Test Coverage
+
+The test suite covers:
+- Counter renders with initial count of 0
+- Counter heading and buttons render correctly
+- Increment button increases count by 1
+- Decrement button decreases count by 1
+- Mixed increment/decrement sequences
+- Rapid clicking updates correctly
+- Negative numbers display correctly (no lower bound)
+- Return to zero after equal operations
+- App renders Counter component
+- Counter is functional within App

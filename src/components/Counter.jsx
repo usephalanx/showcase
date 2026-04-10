@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 
 /**
  * Counter component with increment and decrement functionality.
  *
- * Renders the current count value alongside two buttons that allow
- * the user to increase or decrease the count by one.
+ * Renders the current count value and two buttons to modify it.
+ * The count has no upper or lower bounds.
  */
 function Counter() {
   const [count, setCount] = useState(0);
@@ -20,7 +20,7 @@ function Counter() {
   return (
     <div className="counter">
       <h2>Counter</h2>
-      <p className="count-display" data-testid="count-display">
+      <p className="count" data-testid="count">
         {count}
       </p>
       <div className="counter-buttons">
