@@ -1,56 +1,40 @@
-# Running Yellow World
+# Running the Application
 
 ## TEAM_BRIEF
-stack: HTML/CSS/JS + Python http.server
+stack: TypeScript/React+Vite
 test_runner: pytest tests/
-lint_tool: ruff check .
-coverage_tool: pytest-cov
-coverage_threshold: 70
-coverage_applies: true
+lint_tool: none
+coverage_tool: none
+coverage_threshold: 0
+coverage_applies: false
 
 ## Prerequisites
 
-- Python 3.10+ (standard library only — no pip packages required for the server)
-- Docker & Docker Compose (optional, for containerised run)
+- Node.js >= 18
+- npm
 
-## Run Locally
-
-```bash
-python server.py
-```
-
-Then open <http://localhost:8000> in your browser.
-
-To use a custom port:
+## Setup
 
 ```bash
-PORT=3000 python server.py
+npm install
 ```
 
-## Run with Docker Compose
+## Development
 
 ```bash
-docker compose up --build
+npm run dev
 ```
 
-The app will be available at <http://localhost:8000>.
+The development server will start and serve the application at `http://localhost:5173`.
 
-## Run Tests
+## Build
 
 ```bash
-pip install pytest pytest-cov
-pytest tests/ -v --tb=short
+npm run build
 ```
 
-With coverage:
+## Project Structure
 
-```bash
-pytest tests/ --cov=. --cov-report=term-missing
-```
-
-## Lint
-
-```bash
-pip install ruff
-ruff check .
-```
+- `index.html` — HTML entry point with `#root` div and script tag pointing to `/src/main.tsx`
+- `src/main.tsx` — React entry point, renders `<App />` into `#root`
+- `src/App.tsx` — Root App component
