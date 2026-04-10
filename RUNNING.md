@@ -1,4 +1,4 @@
-# Running the Application
+# Running the Hello API
 
 ## TEAM_BRIEF
 stack: Python/FastAPI
@@ -10,20 +10,19 @@ coverage_applies: true
 
 ## Prerequisites
 
-- Docker and Docker Compose installed
-- (Optional) Python 3.11+ for running locally without Docker
+- Docker and Docker Compose installed on your machine.
 
-## Running with Docker
+## Start the Server
 
-### Start the server
+Build and start the application container:
 
 ```bash
 docker compose up --build
 ```
 
-The API will be available at `http://localhost:8000`.
+The API will be available at **http://localhost:8000**.
 
-### Verify the endpoint
+Verify it is running:
 
 ```bash
 curl http://localhost:8000/hello
@@ -35,37 +34,30 @@ Expected response:
 {"message": "hello"}
 ```
 
-### Stop the server
+## Stop the Server
 
 ```bash
 docker compose down
 ```
 
-## Running Tests
+## Run Tests
 
-### With Docker
+Run the test suite inside the container:
 
 ```bash
-docker compose run --rm api pytest tests/
+docker compose run --rm app pytest tests/
 ```
 
-### Locally (without Docker)
+Or, if you have Python 3.11+ and the dependencies installed locally:
 
 ```bash
 pip install -r requirements.txt
 pytest tests/
 ```
 
-## Running with Coverage
-
-```bash
-pip install pytest-cov
-pytest tests/ --cov=app --cov-report=term-missing
-```
-
-## Local Development (without Docker)
+## Run Without Docker
 
 ```bash
 pip install -r requirements.txt
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
