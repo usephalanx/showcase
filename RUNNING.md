@@ -11,35 +11,58 @@ coverage_applies: false
 ## Prerequisites
 
 - Node.js 18+ (or Docker)
-- npm
 
-## Local Setup (without Docker)
+## Local Development (without Docker)
 
 ```bash
+# Install dependencies
 npm install
+
+# Run development server
 npm run dev
+
+# Run tests
+npm test
+
+# Build for production
+npm run build
 ```
 
-Open http://localhost:5173 in your browser.
+The dev server will be available at http://localhost:5173.
 
-## Running Tests
+## Docker-based Setup
+
+### Run Tests in Docker
 
 ```bash
-npm install
-npm test
+docker build --target test -t hello-world-test .
 ```
 
-## Docker Setup
+### Run Development Server with Docker Compose
 
 ```bash
 docker compose up --build
 ```
 
-Open http://localhost:5173 in your browser.
+The app will be available at http://localhost:5173.
 
-## Build for Production
+### Stop the Server
 
 ```bash
-npm run build
-npm run preview
+docker compose down
+```
+
+## Project Structure
+
+```
+├── index.html              # HTML entry point
+├── package.json            # Dependencies and scripts
+├── vite.config.js          # Vite + Vitest configuration
+├── Dockerfile              # Multi-stage Docker build
+├── docker-compose.yml      # Docker Compose for dev server
+└── src/
+    ├── main.jsx            # React entry point
+    ├── App.jsx             # Main App component
+    ├── App.module.css      # Scoped CSS module styles
+    └── App.test.jsx        # Test suite for App component
 ```
