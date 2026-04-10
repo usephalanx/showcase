@@ -1,4 +1,9 @@
-/* Global styles for the Mini React Counter application. */
+/**
+ * Global application styles.
+ *
+ * Provides baseline resets, font settings, and centers the app
+ * content vertically and horizontally.
+ */
 
 *,
 *::before,
@@ -9,51 +14,25 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-    Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  background-color: #f0f2f5;
+  color: #333333;
   min-height: 100vh;
-  background-color: #f5f5f5;
-  color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.counter-container {
-  text-align: center;
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 2rem 3rem;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+#root {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.counter-container h1 {
-  margin-bottom: 1rem;
-  font-size: 1.5rem;
-}
-
-.counter-container .count {
-  font-size: 3rem;
-  font-weight: bold;
-  margin: 1rem 0;
-}
-
-.counter-container button {
-  font-size: 1rem;
-  padding: 0.5rem 1.5rem;
-  margin: 0 0.5rem;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  background-color: #4a90d9;
-  color: #ffffff;
-  transition: background-color 0.2s ease;
-}
-
-.counter-container button:hover {
-  background-color: #357abd;
-}
-
-.counter-container button:active {
-  background-color: #2a5f9e;
+.app {
+  width: 100%;
+  max-width: 600px;
+  padding: 2rem;
 }

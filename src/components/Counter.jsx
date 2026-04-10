@@ -1,42 +1,44 @@
 /**
  * Counter component with increment and decrement functionality.
- * Displays a numeric count and two buttons to modify the value.
- */
-import React, { useState } from 'react';
-
-/**
- * A counter component that manages its own count state.
- * The count starts at 0 and can be incremented or decremented
- * without any upper or lower bounds.
  *
- * @returns {JSX.Element} The rendered counter UI.
+ * Displays the current count value centered, with two buttons to
+ * increment and decrement the count.
  */
+import React, { useState } from "react";
+import "./Counter.css";
+
 function Counter() {
   const [count, setCount] = useState(0);
 
-  /**
-   * Increase the count by 1.
-   */
   const handleIncrement = () => {
     setCount((prev) => prev + 1);
   };
 
-  /**
-   * Decrease the count by 1.
-   */
   const handleDecrement = () => {
     setCount((prev) => prev - 1);
   };
 
   return (
-    <div className="counter-container">
-      <h1>Counter</h1>
-      <div className="count" data-testid="count">
+    <div className="counter">
+      <h1 className="counter__title">Counter</h1>
+      <p className="counter__display" data-testid="count-display">
         {count}
-      </div>
-      <div>
-        <button onClick={handleDecrement}>Decrement</button>
-        <button onClick={handleIncrement}>Increment</button>
+      </p>
+      <div className="counter__buttons">
+        <button
+          className="counter__button counter__button--decrement"
+          onClick={handleDecrement}
+          aria-label="Decrement"
+        >
+          Decrement
+        </button>
+        <button
+          className="counter__button counter__button--increment"
+          onClick={handleIncrement}
+          aria-label="Increment"
+        >
+          Increment
+        </button>
       </div>
     </div>
   );

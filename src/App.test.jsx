@@ -1,27 +1,22 @@
 /**
  * Unit tests for the App component.
- * Verifies that the Counter component is rendered within App.
+ *
+ * Verifies that the App renders the Counter component successfully.
  */
-import React from 'react';
-import { render, screen } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
-import App from './App';
+import React from "react";
+import { render, screen } from "@testing-library/react";
+import { describe, it, expect } from "vitest";
+import App from "./App";
 
-describe('App', () => {
-  it('renders the Counter component', () => {
+describe("App component", () => {
+  it("renders the Counter component", () => {
     render(<App />);
-    // The Counter component renders a heading with text "Counter"
-    expect(screen.getByText('Counter')).toBeInTheDocument();
+    expect(screen.getByTestId("count-display")).toBeInTheDocument();
   });
 
-  it('renders the count display', () => {
+  it("renders Increment and Decrement buttons via Counter", () => {
     render(<App />);
-    expect(screen.getByTestId('count')).toBeInTheDocument();
-  });
-
-  it('renders increment and decrement buttons', () => {
-    render(<App />);
-    expect(screen.getByText('Increment')).toBeInTheDocument();
-    expect(screen.getByText('Decrement')).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /increment/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /decrement/i })).toBeInTheDocument();
   });
 });

@@ -1,0 +1,72 @@
+/**
+ * Styles for the Counter component.
+ *
+ * Provides centered layout, count display styling, and button styles
+ * with hover/active states for both increment and decrement actions.
+ */
+
+.counter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  border-radius: 12px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.counter__title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #333333;
+  margin: 0 0 1rem 0;
+}
+
+.counter__display {
+  font-size: 4rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0.5rem 0 1.5rem 0;
+  min-width: 120px;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.counter__buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+.counter__button {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  color: #ffffff;
+}
+
+.counter__button:active {
+  transform: scale(0.96);
+}
+
+.counter__button--increment {
+  background-color: #4361ee;
+}
+
+.counter__button--increment:hover {
+  background-color: #3a56d4;
+}
+
+.counter__button--decrement {
+  background-color: #e63946;
+}
+
+.counter__button--decrement:hover {
+  background-color: #cf2f3c;
+}

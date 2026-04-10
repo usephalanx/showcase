@@ -1,15 +1,17 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-
 /**
- * Vite configuration for the React Counter application.
- * Uses the official React plugin for JSX transform and Fast Refresh.
+ * Vite configuration for the React Counter App.
+ *
+ * Enables the React plugin and configures vitest for component testing
+ * with jsdom as the test environment.
  */
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+
 export default defineConfig({
   plugins: [react()],
   test: {
-    environment: 'jsdom',
+    environment: "jsdom",
     globals: true,
-    setupFiles: './src/setupTests.js',
+    setupFiles: ["./src/setupTests.js"],
   },
 });

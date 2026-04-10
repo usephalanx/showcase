@@ -1,14 +1,12 @@
 /**
  * Root application component.
- * Renders the Counter component as the main content of the page.
+ *
+ * Renders the Counter component as the main content of the app.
  */
-import React from 'react';
-import Counter from './components/Counter';
+import React from "react";
+import Counter from "./components/Counter";
+import "./index.css";
 
-/**
- * App component that serves as the root of the component tree.
- * @returns {JSX.Element} The rendered application.
- */
 function App() {
   return (
     <div className="app">

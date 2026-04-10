@@ -1,8 +1,8 @@
-# Mini React Counter App
+# React Counter App
 
 ## TEAM_BRIEF
-stack: JavaScript/React+Vite
-test_runner: npm test
+stack: TypeScript/React+Vite
+test_runner: npx vitest run
 lint_tool: none
 coverage_tool: none
 coverage_threshold: 0
@@ -11,41 +11,48 @@ coverage_applies: false
 ## Prerequisites
 
 - Docker installed and running
-- OR Node.js 20+ and npm installed locally
 
 ## Running with Docker
 
-```bash
-# 1. Build the Docker image
-docker build -t mini-react-counter .
-
-# 2. Run the container
-docker run -p 3000:3000 mini-react-counter
-```
-
-Open http://localhost:3000 in your browser.
-
-## Running Locally (without Docker)
+### 1. Build the Docker image
 
 ```bash
-# 1. Install dependencies
-npm install
-
-# 2. Start the development server
-npm run dev
+docker build -t react-counter-app .
 ```
 
-Open the URL printed in the terminal (usually http://localhost:5173).
+### 2. Run the container
+
+```bash
+docker run -p 5173:5173 react-counter-app
+```
+
+### 3. Open the app
+
+Navigate to [http://localhost:5173](http://localhost:5173) in your browser.
 
 ## Running Tests
 
-```bash
-# Install dependencies (if not already done)
-npm install
+### Inside Docker
 
-# Run the test suite
+```bash
+docker run --rm react-counter-app npm test
+```
+
+### Locally (requires Node.js 18+)
+
+```bash
+npm install
 npm test
 ```
+
+## Development (local)
+
+```bash
+npm install
+npm run dev
+```
+
+The dev server starts at http://localhost:5173 with hot module replacement enabled.
 
 ## Building for Production
 
@@ -53,4 +60,4 @@ npm test
 npm run build
 ```
 
-The production-ready files will be in the `dist/` directory.
+Output is written to the `dist/` directory.
