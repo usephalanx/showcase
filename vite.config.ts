@@ -1,22 +1,21 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
-/**
- * Vite configuration for the Yellow World React/TypeScript project.
- *
- * Enables the React plugin and configures Vitest for unit testing
- * with jsdom as the DOM environment.
- */
 export default defineConfig({
   plugins: [react()],
+  css: {
+    modules: {
+      localsConvention: 'camelCase',
+    },
+  },
   test: {
     globals: true,
-    environment: "jsdom",
-    setupFiles: ["./src/__tests__/setup.ts"],
+    environment: 'jsdom',
+    setupFiles: ['./src/setupTests.ts'],
     css: {
       modules: {
-        classNameStrategy: "non-scoped",
+        classNameStrategy: 'non-scoped',
       },
     },
   },
-});
+} as any);
