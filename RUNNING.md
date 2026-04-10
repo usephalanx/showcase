@@ -10,34 +10,34 @@ coverage_applies: false
 
 ## Prerequisites
 
-- **Docker** and **Docker Compose** installed, OR
-- **Node.js >= 18** with npm
+- Node.js 18+ and npm (or Docker)
 
-## Running with Docker
-
-```bash
-docker compose up --build
-```
-
-Open [http://localhost:5173](http://localhost:5173) in your browser.
-
-## Running Locally (without Docker)
+## Local Development (npm)
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open [http://localhost:5173](http://localhost:5173) in your browser.
+Open **http://localhost:5173** in your browser.
+
+## Docker
+
+```bash
+docker build -t todo-react-app .
+docker run -p 5173:5173 todo-react-app
+```
+
+Open **http://localhost:5173** in your browser.
 
 ## Authentication
 
-No authentication is required. The app runs entirely in the browser with no backend.
+No authentication is required. The app is fully client-side with no backend.
 
-## Build for Production
+## Available Scripts
 
-```bash
-npm run build
-```
-
-Output is written to `dist/`.
+| Command           | Description                        |
+|-------------------|------------------------------------|
+| `npm run dev`     | Start the Vite dev server          |
+| `npm run build`   | Create a production build          |
+| `npm run preview` | Preview the production build       |

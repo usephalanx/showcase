@@ -1,22 +1,20 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 
 /**
  * Props for the TodoInput component.
  */
 interface TodoInputProps {
-  /** Callback invoked with the trimmed text when a new todo is submitted. */
+  /** Callback invoked with the trimmed text when the user submits a new todo. */
   onAdd: (text: string) => void;
 }
 
 /**
- * A controlled input with a form that allows adding new todo items.
+ * Input component that allows users to type and submit new todo items.
  *
- * - Calls `onAdd(text)` on form submission with the trimmed input value.
- * - Clears the input field after successful submission.
- * - Prevents adding empty or whitespace-only todos.
+ * Prevents adding empty or whitespace-only todos.
  */
-const TodoInput: React.FC<TodoInputProps> = ({ onAdd }) => {
-  const [text, setText] = useState<string>("");
+function TodoInput({ onAdd }: TodoInputProps): React.JSX.Element {
+  const [text, setText] = useState<string>('');
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
@@ -25,22 +23,23 @@ const TodoInput: React.FC<TodoInputProps> = ({ onAdd }) => {
       return;
     }
     onAdd(trimmed);
-    setText("");
+    setText('');
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form className="todo-input-form" onSubmit={handleSubmit}>
       <input
         type="text"
+        className="todo-input"
         value={text}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-          setText(e.target.value)
-        }
-        placeholder="Add a new todo"
+        onChange={(e) => setText(e.target.value)}
+        placeholder="Add a new todo..."
       />
-      <button type="submit">Add</button>
+      <button type="submit" className="todo-add-btn">
+        Add
+      </button>
     </form>
   );
-};
+}
 
 export default TodoInput;

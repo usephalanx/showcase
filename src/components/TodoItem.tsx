@@ -1,47 +1,44 @@
-import React from "react";
-import { Todo } from "../types/Todo";
+import React from 'react';
+import { Todo } from '../types/Todo';
 
 /**
  * Props for the TodoItem component.
  */
-export interface TodoItemProps {
+interface TodoItemProps {
   /** The todo item to render. */
   todo: Todo;
-  /** Callback invoked with the todo id when the user toggles completion. */
+  /** Callback to toggle the completed status of this todo. */
   onToggle: (id: string) => void;
-  /** Callback invoked with the todo id when the user deletes the item. */
+  /** Callback to delete this todo. */
   onDelete: (id: string) => void;
 }
 
 /**
- * Renders a single todo item with toggle and delete controls.
+ * Renders a single todo item with a checkbox, text, and delete button.
+ *
+ * Completed items are displayed with a line-through style.
  */
-const TodoItem: React.FC<TodoItemProps> = ({ todo, onToggle, onDelete }) => {
+function TodoItem({ todo, onToggle, onDelete }: TodoItemProps): React.JSX.Element {
   return (
-    <li className="todo-item" data-testid={`todo-item-${todo.id}`}>
-      <label
-        style={{
-          textDecoration: todo.completed ? "line-through" : "none",
-          cursor: "pointer",
-          flex: 1,
-        }}
-      >
+    <li className={`todo-item${todo.completed ? ' completed' : ''}`}>
+      <label className="todo-label">
         <input
           type="checkbox"
+          className="todo-checkbox"
           checked={todo.completed}
           onChange={() => onToggle(todo.id)}
-          aria-label={`Toggle ${todo.text}`}
         />
-        <span>{todo.text}</span>
+        <span className="todo-text">{todo.text}</span>
       </label>
       <button
+        type="button"
+        className="todo-delete-btn"
         onClick={() => onDelete(todo.id)}
-        aria-label={`Delete ${todo.text}`}
       >
         Delete
       </button>
     </li>
   );
-};
+}
 
 export default TodoItem;
