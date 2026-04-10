@@ -1,10 +1,9 @@
-/**
- * Main App component that renders the Hello World message.
- *
- * Uses CSS Modules for scoped styling to prevent CSS leakage.
- */
 import styles from './App.module.css';
 
+/**
+ * App component — renders a centered "Hello World" message
+ * with modern styling applied via CSS Modules.
+ */
 function App() {
   return (
     <div className={styles.container}>
