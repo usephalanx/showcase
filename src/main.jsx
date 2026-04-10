@@ -1,12 +1,12 @@
-/**
- * Application entry point.
- *
- * Mounts the React App component into the #root DOM element.
- */
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
 
+/**
+ * Application entry point.
+ *
+ * Mounts the root <App /> component into the DOM element with id "root".
+ */
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <App />

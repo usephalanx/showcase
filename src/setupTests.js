@@ -1,6 +1,7 @@
 /**
- * Test setup file for vitest.
+ * Test setup file loaded before every test suite.
  *
- * Imports jest-dom matchers so they are available in all test files.
+ * Imports @testing-library/jest-dom to extend vitest matchers
+ * with DOM-specific assertions (e.g. toBeInTheDocument).
  */
 import "@testing-library/jest-dom";

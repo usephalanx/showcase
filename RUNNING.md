@@ -1,4 +1,4 @@
-# React Counter App
+# Mini React Counter App
 
 ## TEAM_BRIEF
 stack: TypeScript/React+Vite
@@ -8,56 +8,69 @@ coverage_tool: none
 coverage_threshold: 0
 coverage_applies: false
 
+## Overview
+
+A minimal React counter application built with Vite. Displays a counter with
+Increment and Decrement buttons.
+
 ## Prerequisites
 
-- Docker installed and running
+- Node.js 18+ or Docker
 
-## Running with Docker
-
-### 1. Build the Docker image
-
-```bash
-docker build -t react-counter-app .
-```
-
-### 2. Run the container
-
-```bash
-docker run -p 5173:5173 react-counter-app
-```
-
-### 3. Open the app
-
-Navigate to [http://localhost:5173](http://localhost:5173) in your browser.
-
-## Running Tests
-
-### Inside Docker
-
-```bash
-docker run --rm react-counter-app npm test
-```
-
-### Locally (requires Node.js 18+)
-
-```bash
-npm install
-npm test
-```
-
-## Development (local)
+## Running Locally (without Docker)
 
 ```bash
 npm install
 npm run dev
 ```
 
-The dev server starts at http://localhost:5173 with hot module replacement enabled.
+The app will be available at http://localhost:5173.
+
+## Running with Docker
+
+```bash
+docker build -t counter-app .
+docker run -p 5173:5173 counter-app
+```
+
+The app will be available at http://localhost:5173.
+
+## Running Tests
+
+```bash
+npm install
+npm test
+```
+
+Or equivalently:
+
+```bash
+npx vitest run
+```
 
 ## Building for Production
 
 ```bash
 npm run build
+npm run preview
 ```
 
-Output is written to the `dist/` directory.
+## Project Structure
+
+```
+src/
+  main.jsx           - Entry point, mounts App into the DOM
+  App.jsx            - Root component, renders Counter
+  App.test.jsx       - Tests for App component
+  index.css          - Global styles
+  setupTests.js      - Test setup (jest-dom matchers)
+  components/
+    Counter.jsx      - Counter component with state management
+    Counter.test.jsx - Tests for Counter component
+public/
+  index.html         - HTML template (fallback)
+index.html           - Vite HTML entry point
+package.json         - Dependencies and scripts
+vite.config.js       - Vite + vitest configuration
+Dockerfile           - Docker container setup
+```

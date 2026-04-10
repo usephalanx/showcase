@@ -1,12 +1,12 @@
-/**
- * Vite configuration for the React Counter App.
- *
- * Enables the React plugin and configures vitest for component testing
- * with jsdom as the test environment.
- */
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
+/**
+ * Vite configuration for the Mini React Counter App.
+ *
+ * Uses the official React plugin for JSX transform and
+ * configures vitest with jsdom for component testing.
+ */
 export default defineConfig({
   plugins: [react()],
   test: {
