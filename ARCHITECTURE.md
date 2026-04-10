@@ -2,19 +2,18 @@
 
 ## Overview
 
-A lightweight todo application built with React, TypeScript, and Vite. The app
-follows a unidirectional data-flow pattern with all state owned by the root
-`App` component and passed down via props.
+A lightweight, client-side todo application built with **React 18**, **TypeScript**, and **Vite**. All state lives in-memory inside the React component tree — there is no backend, no database, and no `localStorage` persistence in the base implementation.
 
 ## Type Definitions
 
-The core data type lives in `src/types/Todo.ts`:
+A single shared type is used across all components:
 
 ```typescript
+// src/types/Todo.ts
 export interface Todo {
-  id: string;        // Unique identifier (generated via crypto.randomUUID())
-  text: string;      // The todo item text
-  completed: boolean; // Whether the item is done
+  id: string;        // generated via crypto.randomUUID()
+  text: string;      // user-supplied todo text
+  completed: boolean; // toggled by the user
 }
 ```
 
@@ -24,70 +23,56 @@ export interface Todo {
 App
 ├── TodoInput
 └── TodoList
-    └── TodoItem   (one per todo)
+    └── TodoItem   (rendered once per todo)
 ```
 
-- **App** is the root component that owns the `Todo[]` state.
-- **TodoInput** captures new todo text from the user.
-- **TodoList** receives the array of todos and renders a `TodoItem` for each.
-- **TodoItem** renders a single todo with toggle and delete controls.
+- **App** is the root component that owns all state.
+- **TodoInput** is a sibling of **TodoList**, both are direct children of **App**.
+- **TodoItem** is rendered by **TodoList** for every item in the `todos` array.
 
 ## Component Responsibilities
 
 ### App (`src/App.tsx`)
 
-- Owns application state via `useState<Todo[]>`.
-- Defines three handler functions:
-  - `addTodo(text: string)` — creates a new `Todo` with `crypto.randomUUID()`,
-    prepends it to the array.
-  - `toggleTodo(id: string)` — flips the `completed` flag of the matching todo.
-  - `deleteTodo(id: string)` — removes the todo with the given id from state.
-- Passes `addTodo` to `TodoInput`, and `todos`, `toggleTodo`, `deleteTodo` to
-  `TodoList`.
+- Owns the single piece of application state: `const [todos, setTodos] = useState<Todo[]>([]);`
+- Defines three mutator functions:
+  - `addTodo(text: string): void` — creates a new `Todo` with `crypto.randomUUID()`, prepends it to state.
+  - `toggleTodo(id: string): void` — flips the `completed` flag of the matching todo.
+  - `deleteTodo(id: string): void` — removes the matching todo from state.
+- Renders `<TodoInput onAdd={addTodo} />` and `<TodoList todos={todos} onToggle={toggleTodo} onDelete={deleteTodo} />`.
 
 ### TodoInput (`src/components/TodoInput.tsx`)
 
-- Renders a text input and an "Add" button.
-- Maintains local `useState<string>` for the input value.
-- On submit, trims the input; if non-empty, calls `onAdd(text)` and clears
-  the field. Empty or whitespace-only input is rejected (no-op).
+- Props: `{ onAdd: (text: string) => void }`
+- Maintains local state for the input field value.
+- On form submit, trims the input; if non-empty, calls `onAdd(text)` and clears the field.
+- Prevents adding empty or whitespace-only todos.
 
 ### TodoList (`src/components/TodoList.tsx`)
 
-- Receives `todos: Todo[]`, `onToggle`, and `onDelete` as props.
-- Maps over `todos` rendering a `TodoItem` for each, keyed by `todo.id`.
-- When `todos.length === 0`, renders a friendly empty-state message.
+- Props: `{ todos: Todo[]; onToggle: (id: string) => void; onDelete: (id: string) => void }`
+- When `todos.length === 0`, renders a "No todos yet" message.
+- Otherwise maps over `todos` and renders a `<TodoItem>` for each, passing through `onToggle` and `onDelete`.
 
 ### TodoItem (`src/components/TodoItem.tsx`)
 
-- Receives a single `todo: Todo`, `onToggle(id: string)`, and
-  `onDelete(id: string)` as props.
-- Renders a checkbox bound to `todo.completed` that calls `onToggle(todo.id)`
-  on change.
-- Renders `todo.text` with `text-decoration: line-through` when `completed`
-  is `true`.
-- Renders a "Delete" button that calls `onDelete(todo.id)` on click.
-- Pure presentational — contains no internal state.
+- Props: `{ todo: Todo; onToggle: (id: string) => void; onDelete: (id: string) => void }`
+- Renders a checkbox bound to `todo.completed`, the todo text, and a delete button.
+- Checkbox change calls `onToggle(todo.id)`.
+- Delete button click calls `onDelete(todo.id)`.
 
 ## Data Flow
 
-The app follows the standard React unidirectional data-flow pattern:
+The application follows the standard React **unidirectional data flow** (props-down, callbacks-up):
 
-1. **Props down** — `App` passes the `todos` array and callback functions down
-   through `TodoList` and `TodoInput`.
-2. **Callbacks up** — Child components invoke callbacks (`onAdd`, `onToggle`,
-   `onDelete`) to request state changes.
-3. **State update** — `App` updates its `useState` hook, triggering a re-render
-   that flows new props back down the tree.
-
-No events are emitted sideways between siblings; all communication goes through
-the parent.
+1. **State** lives exclusively in `App` via `useState<Todo[]>`.
+2. **Props flow down**: `App` passes `todos` to `TodoList`, which passes individual `todo` objects to each `TodoItem`.
+3. **Callbacks flow up**: `App` passes `addTodo`, `toggleTodo`, and `deleteTodo` as callback props. Child components invoke these callbacks in response to user events (form submit, checkbox change, button click).
+4. When a callback updates state, React re-renders the affected subtree.
 
 ## State Management
 
-The application uses **only React `useState`** for state management. No external
-state libraries (Redux, Zustand, MobX, etc.) are used. The single
-`useState<Todo[]>` in `App` is the sole source of truth.
+Only React's built-in `useState` hook is used for state management. No external state libraries (Redux, Zustand, Jotai, MobX, etc.) are used. The todo array is the single source of truth, owned by `App`.
 
 ## File Structure
 
@@ -98,18 +83,24 @@ src/
 ├── types/
 │   └── Todo.ts                   # Todo interface definition
 └── components/
-    ├── TodoInput.tsx              # New-todo input form
-    ├── TodoList.tsx               # List container
-    └── TodoItem.tsx               # Single todo row
+    ├── TodoInput.tsx              # Text input + add button
+    ├── TodoList.tsx               # List container, empty-state handling
+    └── TodoItem.tsx               # Single todo row with toggle & delete
 ```
+
+## ID Generation
+
+Todo IDs are generated using `crypto.randomUUID()`, which produces RFC 4122 v4 UUIDs. This avoids collisions without needing an auto-increment counter or external library.
+
+## Persistence
+
+No persistence mechanism (localStorage, IndexedDB, backend API) is included in the base plan. All data is lost on page refresh.
 
 ## Edge Cases
 
-- **Empty list** — `TodoList` gracefully renders an empty-state message when
-  `todos` has length 0.
-- **Blank input** — `TodoInput` prevents adding empty or whitespace-only todos.
-- **ID collisions** — IDs are generated with `crypto.randomUUID()`, which
-  provides sufficient uniqueness for a client-side app.
-- **No persistence** — Todos live only in React state; refreshing the page
-  clears all data. No `localStorage` or backend persistence is included in
-  the base plan.
+| Scenario | Handling |
+|---|---|
+| Empty todo list | `TodoList` renders "No todos yet" message |
+| Whitespace-only input | `TodoInput` trims and rejects empty strings |
+| Rapid toggles | State updates are functional (`setTodos(prev => ...)`) to avoid stale closures |
+| Duplicate text | Allowed — each todo has a unique UUID regardless of text content |

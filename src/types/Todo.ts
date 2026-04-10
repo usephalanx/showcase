@@ -1,11 +1,11 @@
 /**
- * Core Todo item interface used throughout the application.
+ * Core Todo item type used throughout the application.
  */
 export interface Todo {
-  /** Unique identifier for the todo item. */
+  /** Unique identifier generated via crypto.randomUUID(). */
   id: string;
   /** The text content of the todo item. */
   text: string;
-  /** Whether the todo item has been completed. */
+  /** Whether the todo has been completed. */
   completed: boolean;
 }

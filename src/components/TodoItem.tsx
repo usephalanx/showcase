@@ -5,45 +5,35 @@ import { Todo } from "../types/Todo";
  * Props for the TodoItem component.
  */
 export interface TodoItemProps {
-  /** The todo object to render. */
+  /** The todo item to render. */
   todo: Todo;
-  /** Callback invoked with the todo's id when the checkbox is toggled. */
+  /** Callback invoked with the todo id when the user toggles completion. */
   onToggle: (id: string) => void;
-  /** Callback invoked with the todo's id when the delete button is clicked. */
+  /** Callback invoked with the todo id when the user deletes the item. */
   onDelete: (id: string) => void;
 }
 
 /**
- * Presentational component that renders a single todo item.
- *
- * Displays the todo text with a checkbox for toggling completion status
- * and a delete button for removing the item. When the todo is completed,
- * the text is rendered with a line-through style.
+ * Renders a single todo item with toggle and delete controls.
  */
 const TodoItem: React.FC<TodoItemProps> = ({ todo, onToggle, onDelete }) => {
   return (
-    <li
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: "8px",
-        padding: "8px 0",
-      }}
-    >
-      <input
-        type="checkbox"
-        checked={todo.completed}
-        onChange={() => onToggle(todo.id)}
-        aria-label={`Toggle ${todo.text}`}
-      />
-      <span
+    <li className="todo-item" data-testid={`todo-item-${todo.id}`}>
+      <label
         style={{
           textDecoration: todo.completed ? "line-through" : "none",
+          cursor: "pointer",
           flex: 1,
         }}
       >
-        {todo.text}
-      </span>
+        <input
+          type="checkbox"
+          checked={todo.completed}
+          onChange={() => onToggle(todo.id)}
+          aria-label={`Toggle ${todo.text}`}
+        />
+        <span>{todo.text}</span>
+      </label>
       <button
         onClick={() => onDelete(todo.id)}
         aria-label={`Delete ${todo.text}`}
