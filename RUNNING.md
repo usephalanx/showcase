@@ -1,8 +1,8 @@
-# Running the Application
+# Running the SPA
 
 ## TEAM_BRIEF
 stack: TypeScript/React+Vite
-test_runner: npx vitest run
+test_runner: cd spa && npx vitest run
 lint_tool: none
 coverage_tool: none
 coverage_threshold: 0
@@ -13,47 +13,45 @@ coverage_applies: false
 - Node.js >= 18
 - npm >= 9
 
-## Local Development
+## Setup
 
 ```bash
-# Install dependencies
+cd spa
 npm install
+```
 
-# Start dev server (default: http://localhost:5173)
+## Development
+
+```bash
+cd spa
 npm run dev
+```
 
-# Run tests
-npm test
+Open http://localhost:5173 in your browser.
 
-# Build for production
+## Build
+
+```bash
+cd spa
 npm run build
-
-# Preview production build
 npm run preview
 ```
+
+## Run Tests
+
+```bash
+cd spa
+npm test
+```
+
+This runs the Vitest test suite which verifies that the App component
+renders 'hello-world' as expected.
 
 ## Docker
 
 ```bash
-# Build the image
-docker build -t hello-world-spa .
-
-# Run the container
-docker run -p 5173:5173 hello-world-spa
-
-# Open in browser
-# http://localhost:5173
+docker build -t spa-hello-world -f Dockerfile.spa .
+docker run --rm -p 5173:5173 spa-hello-world
 ```
 
-## What You Should See
-
-Opening the app in a browser displays only the text **hello-world** in the viewport.
-
-## Running Tests
-
-```bash
-npm install
-npx vitest run
-```
-
-The test suite verifies that the `<App />` component renders the text "hello-world".
+Open http://localhost:5173 in your browser to see 'hello-world'.
