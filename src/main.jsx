@@ -1,6 +1,7 @@
 /**
  * Vite/React entry point.
- * Renders the App component into the #root DOM element.
+ *
+ * Mounts the App component into the DOM element with id "root".
  */
 import React from 'react';
 import ReactDOM from 'react-dom/client';

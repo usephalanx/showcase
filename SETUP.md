@@ -1,25 +1,24 @@
 # Setup Instructions
 
-## Install Dependencies
+This project uses npm for dependency management. Lock files are not committed
+and must be generated locally.
+
+## Install dependencies
 
 ```bash
-pip install -r requirements.txt
+npm install
 ```
 
-## Install Test Dependencies
+This will generate `package-lock.json` and the `node_modules/` directory.
+
+## Run tests
 
 ```bash
-pip install pytest httpx
+npm test
 ```
 
-## Run Tests
+## Start development server
 
 ```bash
-pytest tests/ -v
-```
-
-## Run the Application
-
-```bash
-uvicorn main:app --reload
+npm run dev
 ```
