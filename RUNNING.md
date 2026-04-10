@@ -1,33 +1,56 @@
-# Running the Todo API
+# Running Yellow World
+
+## TEAM_BRIEF
+stack: HTML/CSS/JS + Python http.server
+test_runner: pytest tests/
+lint_tool: ruff check .
+coverage_tool: pytest-cov
+coverage_threshold: 70
+coverage_applies: true
 
 ## Prerequisites
 
-- Python 3.10 or later
+- Python 3.10+ (standard library only — no pip packages required for the server)
+- Docker & Docker Compose (optional, for containerised run)
 
-## Install dependencies
+## Run Locally
 
 ```bash
-pip install fastapi uvicorn pydantic
+python server.py
 ```
 
-For running the test suite you will also need:
+Then open <http://localhost:8000> in your browser.
+
+To use a custom port:
 
 ```bash
-pip install httpx pytest
+PORT=3000 python server.py
 ```
 
-## Start the server
+## Run with Docker Compose
 
 ```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+docker compose up --build
 ```
 
-The API will be available at <http://localhost:8000>.
+The app will be available at <http://localhost:8000>.
 
-Interactive docs are served at <http://localhost:8000/docs>.
-
-## Run the tests
+## Run Tests
 
 ```bash
-pytest tests/
+pip install pytest pytest-cov
+pytest tests/ -v --tb=short
+```
+
+With coverage:
+
+```bash
+pytest tests/ --cov=. --cov-report=term-missing
+```
+
+## Lint
+
+```bash
+pip install ruff
+ruff check .
 ```
