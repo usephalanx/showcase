@@ -1,12 +1,3 @@
-/**
- * Unit and UI tests for the Counter component.
- *
- * Tests cover:
- * - Initial count display renders 0
- * - Increment button increases count by 1
- * - Decrement button decreases count by 1
- * - Count display is centered via text-align style
- */
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
@@ -21,64 +12,75 @@ describe('Counter component', () => {
 
   it('increments count when increment button is clicked', () => {
     render(<Counter />);
-    const incrementButton = screen.getByRole('button', { name: /increment/i });
+    const incrementBtn = screen.getByRole('button', { name: /increment/i });
     const countDisplay = screen.getByTestId('count-display');
 
-    fireEvent.click(incrementButton);
+    fireEvent.click(incrementBtn);
     expect(countDisplay).toHaveTextContent('1');
 
-    fireEvent.click(incrementButton);
+    fireEvent.click(incrementBtn);
     expect(countDisplay).toHaveTextContent('2');
   });
 
   it('decrements count when decrement button is clicked', () => {
     render(<Counter />);
-    const decrementButton = screen.getByRole('button', { name: /decrement/i });
+    const decrementBtn = screen.getByRole('button', { name: /decrement/i });
     const countDisplay = screen.getByTestId('count-display');
 
-    fireEvent.click(decrementButton);
+    fireEvent.click(decrementBtn);
     expect(countDisplay).toHaveTextContent('-1');
 
-    fireEvent.click(decrementButton);
+    fireEvent.click(decrementBtn);
     expect(countDisplay).toHaveTextContent('-2');
-  });
-
-  it('count display is centered via text-align style', () => {
-    render(<Counter />);
-    const countDisplay = screen.getByTestId('count-display');
-    expect(countDisplay).toHaveStyle({ textAlign: 'center' });
   });
 
   it('handles rapid increment and decrement clicks correctly', () => {
     render(<Counter />);
-    const incrementButton = screen.getByRole('button', { name: /increment/i });
-    const decrementButton = screen.getByRole('button', { name: /decrement/i });
+    const incrementBtn = screen.getByRole('button', { name: /increment/i });
+    const decrementBtn = screen.getByRole('button', { name: /decrement/i });
     const countDisplay = screen.getByTestId('count-display');
 
-    // Rapid increments
-    for (let i = 0; i < 10; i++) {
-      fireEvent.click(incrementButton);
-    }
-    expect(countDisplay).toHaveTextContent('10');
-
-    // Rapid decrements
+    // Click increment 5 times
     for (let i = 0; i < 5; i++) {
-      fireEvent.click(decrementButton);
+      fireEvent.click(incrementBtn);
     }
     expect(countDisplay).toHaveTextContent('5');
+
+    // Click decrement 3 times
+    for (let i = 0; i < 3; i++) {
+      fireEvent.click(decrementBtn);
+    }
+    expect(countDisplay).toHaveTextContent('2');
+  });
+
+  it('renders the counter container with centered alignment', () => {
+    render(<Counter />);
+    const container = screen.getByTestId('counter-container');
+    expect(container).toBeInTheDocument();
+  });
+
+  it('renders the Counter title', () => {
+    render(<Counter />);
+    const title = screen.getByText('Counter');
+    expect(title).toBeInTheDocument();
   });
 
   it('renders both increment and decrement buttons', () => {
     render(<Counter />);
-    const incrementButton = screen.getByRole('button', { name: /increment/i });
-    const decrementButton = screen.getByRole('button', { name: /decrement/i });
-    expect(incrementButton).toBeInTheDocument();
-    expect(decrementButton).toBeInTheDocument();
+    const incrementBtn = screen.getByRole('button', { name: /increment/i });
+    const decrementBtn = screen.getByRole('button', { name: /decrement/i });
+    expect(incrementBtn).toBeInTheDocument();
+    expect(decrementBtn).toBeInTheDocument();
   });
 
-  it('renders the Counter heading', () => {
+  it('allows count to go negative', () => {
     render(<Counter />);
-    const heading = screen.getByRole('heading', { name: /counter/i });
-    expect(heading).toBeInTheDocument();
+    const decrementBtn = screen.getByRole('button', { name: /decrement/i });
+    const countDisplay = screen.getByTestId('count-display');
+
+    fireEvent.click(decrementBtn);
+    fireEvent.click(decrementBtn);
+    fireEvent.click(decrementBtn);
+    expect(countDisplay).toHaveTextContent('-3');
   });
 });

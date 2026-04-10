@@ -1,8 +1,3 @@
-/**
- * React entry point.
- *
- * Renders the root App component into the #root div.
- */
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
