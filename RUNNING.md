@@ -1,12 +1,17 @@
-# Madhuri Real Estate - Single Page Application
+# Madhuri Real Estate — Running Guide
 
 ## TEAM_BRIEF
-stack: TypeScript/React+Vite
-test_runner: npx vitest run
+stack: TypeScript/React+CRA
+test_runner: npx react-scripts test --watchAll=false
 lint_tool: none
 coverage_tool: none
 coverage_threshold: 0
 coverage_applies: false
+
+## Prerequisites
+
+- Node.js >= 16
+- npm >= 8
 
 ## Setup
 
@@ -14,11 +19,13 @@ coverage_applies: false
 npm install
 ```
 
-## Development
+## Development Server
 
 ```bash
 npm run dev
 ```
+
+Opens at http://localhost:3000
 
 ## Run Tests
 
@@ -26,37 +33,10 @@ npm run dev
 npm test
 ```
 
-## Build
+## Build for Production
 
 ```bash
 npm run build
 ```
 
-## Project Structure
-
-```
-src/
-├── main.tsx                    # Entry point
-├── App.tsx                     # Main layout composition
-├── setupTests.ts               # Test setup (jest-dom)
-├── components/
-│   ├── Logo.tsx                # Company logo display
-│   ├── CompanyName.tsx         # Company name heading
-│   ├── Profile.tsx             # Agent profile with photo and bio
-│   ├── RecentSales.tsx         # Recent property sales grid
-│   └── ContactInfo.tsx         # Contact details and form
-├── styles/
-│   └── global.css              # Global styles, colors, responsive
-└── __tests__/
-    ├── App.test.tsx             # Integration tests for all sections
-    ├── RecentSales.test.tsx     # RecentSales component tests
-    └── ContactInfo.test.tsx     # ContactInfo form & display tests
-```
-
-## Section Order (in App.tsx)
-
-1. Logo
-2. CompanyName
-3. Profile
-4. RecentSales
-5. ContactInfo
+Output will be in the `build/` directory.

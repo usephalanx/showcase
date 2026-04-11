@@ -4,11 +4,11 @@ import CompanyName from './components/CompanyName';
 import Profile from './components/Profile';
 import RecentSales from './components/RecentSales';
 import ContactInfo from './components/ContactInfo';
+import './styles/global.css';
 
 /**
- * Main application component that composes all page sections in the
- * specified order: Logo, CompanyName, Profile, RecentSales, ContactInfo.
- * Applies global layout container styling.
+ * App is the main application component that composes all page sections
+ * in the correct order for the Madhuri Real Estate single-page website.
  */
 const App: React.FC = () => {
   return (

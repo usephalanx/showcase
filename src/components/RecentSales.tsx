@@ -12,6 +12,8 @@ export interface Sale {
   imageUrl: string;
   /** Date when the sale was completed. */
   date: string;
+  /** Optional sale status (e.g. "Sold", "Pending"). Defaults to "Sold". */
+  status?: string;
 }
 
 /** Default sales data used when no props are provided. */
@@ -22,6 +24,7 @@ const defaultSales: Sale[] = [
     price: '$450,000',
     imageUrl: '/sales/house1.jpg',
     date: 'January 2024',
+    status: 'Sold',
   },
   {
     id: 2,
@@ -29,6 +32,7 @@ const defaultSales: Sale[] = [
     price: '$625,000',
     imageUrl: '/sales/house2.jpg',
     date: 'December 2023',
+    status: 'Sold',
   },
   {
     id: 3,
@@ -36,11 +40,12 @@ const defaultSales: Sale[] = [
     price: '$380,000',
     imageUrl: '/sales/house3.jpg',
     date: 'November 2023',
+    status: 'Sold',
   },
 ];
 
 /** Props for the RecentSales component. */
-interface RecentSalesProps {
+export interface RecentSalesProps {
   /** Optional array of sales to display. Falls back to default data if not provided. */
   sales?: Sale[];
 }
@@ -60,21 +65,43 @@ const RecentSales: React.FC<RecentSalesProps> = ({ sales }) => {
           No recent sales to display at this time.
         </p>
       ) : (
-        <div className="sales-grid">
+        <div className="sales-grid" data-testid="sales-grid">
           {displaySales.map((sale) => (
             <div key={sale.id} className="sale-card" data-testid="sale-card">
-              <img
-                src={sale.imageUrl}
-                alt={`Property at ${sale.address}`}
-                onError={(e) => {
-                  const target = e.currentTarget;
-                  target.style.display = 'none';
-                }}
-              />
+              <div className="sale-card-image-wrapper">
+                <img
+                  src={sale.imageUrl}
+                  alt={`Property at ${sale.address}`}
+                  className="sale-card-image"
+                  onError={(e) => {
+                    const target = e.currentTarget;
+                    target.style.display = 'none';
+                    const fallback = target.nextElementSibling as HTMLElement | null;
+                    if (fallback) {
+                      fallback.style.display = 'flex';
+                    }
+                  }}
+                />
+                <div
+                  className="sale-card-image-fallback"
+                  style={{ display: 'none' }}
+                  data-testid="image-fallback"
+                >
+                  <span>No Image Available</span>
+                </div>
+              </div>
               <div className="sale-card-body">
-                <p className="sale-address">{sale.address}</p>
-                <p className="sale-price">{sale.price}</p>
-                <p className="sale-date">{sale.date}</p>
+                <p className="sale-address" data-testid="sale-address">{sale.address}</p>
+                <p className="sale-price" data-testid="sale-price">{sale.price}</p>
+                <div className="sale-card-footer">
+                  <span className="sale-date" data-testid="sale-date">{sale.date}</span>
+                  <span
+                    className={`sale-status sale-status--${(sale.status || 'Sold').toLowerCase()}`}
+                    data-testid="sale-status"
+                  >
+                    {sale.status || 'Sold'}
+                  </span>
+                </div>
               </div>
             </div>
           ))}
