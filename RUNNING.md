@@ -17,14 +17,17 @@ coverage_applies: true
 ```bash
 # Create and activate a virtual environment
 python -m venv .venv
-source .venv/bin/activate  # Linux/macOS
-# .venv\Scripts\activate   # Windows
+source .venv/bin/activate   # Linux / macOS
+# .venv\Scripts\activate    # Windows
 
 # Install dependencies
 pip install -r requirements.txt
 
 # Run the application
 uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+# Run the test suite
+pytest tests/
 ```
 
 ## Docker Setup
@@ -33,25 +36,13 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 # Build and start
 docker compose up --build
 
-# The API will be available at http://localhost:8000
+# Run tests inside the container
+docker compose run --rm app pytest tests/
 ```
 
-## Running Tests
+## Endpoints
 
-```bash
-# Local
-pytest tests/
-
-# With coverage
-pytest tests/ --cov=app --cov-report=term-missing
-
-# Inside Docker
-docker compose run --rm web pytest tests/
-```
-
-## Available Endpoints
-
-| Method | Path      | Description                          |
-|--------|-----------|--------------------------------------|
-| GET    | `/health` | Returns `{"status": "ok"}`           |
-| GET    | `/hello`  | Returns `{"message": "Hello, world!"}` |
+| Method | Path      | Response                          |
+|--------|-----------|-----------------------------------|
+| GET    | `/health` | `{"status": "ok"}`               |
+| GET    | `/hello`  | `{"message": "Hello, world!"}` |
