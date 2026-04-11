@@ -2,10 +2,13 @@
 
 Registers the --timeout option so that pytest does not fail with
 'unrecognized arguments' when pytest-timeout is not installed.
+Configures anyio backend for async tests.
 """
 
 import sys
 from pathlib import Path
+
+import pytest
 
 
 def pytest_addoption(parser):
@@ -20,3 +23,9 @@ def pytest_addoption(parser):
     except ValueError:
         # Already registered (pytest-timeout is installed)
         pass
+
+
+@pytest.fixture
+def anyio_backend() -> str:
+    """Select the asyncio backend for anyio-based tests."""
+    return "asyncio"
