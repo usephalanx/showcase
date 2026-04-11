@@ -1,33 +1,46 @@
-# Running the Todo API
+# Hello World React+Vite App
 
 ## Prerequisites
 
-- Python 3.10 or later
+- Node.js 18+ and npm
+- Docker and Docker Compose (optional)
 
-## Install dependencies
-
-```bash
-pip install fastapi uvicorn pydantic
-```
-
-For running the test suite you will also need:
+## Local Development
 
 ```bash
-pip install httpx pytest
+npm install
+npm run dev
 ```
 
-## Start the server
+Open [http://localhost:5173](http://localhost:5173) in your browser.
+
+## Build for Production
 
 ```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+npm run build
+npm run preview
 ```
 
-The API will be available at <http://localhost:8000>.
-
-Interactive docs are served at <http://localhost:8000/docs>.
-
-## Run the tests
+## Run Tests
 
 ```bash
-pytest tests/
+npm install
+npm test
 ```
+
+## Docker Setup
+
+```bash
+docker build -t hello-world-app .
+docker run -p 5173:5173 hello-world-app
+```
+
+Open [http://localhost:5173](http://localhost:5173) in your browser.
+
+## TEAM_BRIEF
+stack: TypeScript/React+Vite
+test_runner: npx vitest run
+lint_tool: none
+coverage_tool: none
+coverage_threshold: 0
+coverage_applies: false
