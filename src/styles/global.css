@@ -1,0 +1,219 @@
+/* Global styles for Madhuri Real Estate SPA */
+
+:root {
+  --color-primary: #1a365d;
+  --color-secondary: #2b6cb0;
+  --color-accent: #ed8936;
+  --color-bg: #f7fafc;
+  --color-text: #2d3748;
+  --color-text-light: #718096;
+  --color-error: #e53e3e;
+  --color-success: #38a169;
+  --color-white: #ffffff;
+  --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 2rem;
+  --spacing-xl: 3rem;
+  --border-radius: 8px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-family);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  line-height: 1.6;
+}
+
+.app-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--spacing-lg);
+}
+
+.logo-section {
+  text-align: center;
+  padding: var(--spacing-lg) 0;
+}
+
+.logo-image {
+  max-width: 200px;
+  height: auto;
+}
+
+.company-name-section {
+  text-align: center;
+  padding: var(--spacing-md) 0;
+}
+
+.company-name-heading {
+  font-size: 2.5rem;
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.profile-section {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-xl) 0;
+  align-items: center;
+}
+
+.profile-image {
+  width: 250px;
+  height: 250px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile-bio {
+  flex: 1;
+  min-width: 280px;
+}
+
+.recent-sales-section {
+  padding: var(--spacing-xl) 0;
+}
+
+.sales-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--spacing-lg);
+  margin-top: var(--spacing-lg);
+}
+
+.sale-card {
+  background: var(--color-white);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.sale-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.sale-details {
+  padding: var(--spacing-md);
+}
+
+.sale-address {
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.sale-price {
+  font-size: 1.25rem;
+  color: var(--color-accent);
+  font-weight: 700;
+}
+
+.sale-date {
+  color: var(--color-text-light);
+  font-size: 0.875rem;
+}
+
+.empty-state {
+  text-align: center;
+  padding: var(--spacing-xl);
+  color: var(--color-text-light);
+}
+
+.contact-section {
+  padding: var(--spacing-xl) 0;
+}
+
+.contact-details {
+  margin-bottom: var(--spacing-lg);
+}
+
+.contact-details p {
+  margin-bottom: var(--spacing-sm);
+}
+
+.form-group {
+  margin-bottom: var(--spacing-md);
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: var(--spacing-xs);
+  font-weight: 600;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: var(--spacing-sm);
+  border: 1px solid #cbd5e0;
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  font-family: var(--font-family);
+}
+
+.form-group textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.error {
+  color: var(--color-error);
+  font-size: 0.875rem;
+  margin-top: var(--spacing-xs);
+  display: block;
+}
+
+.success-message {
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: #f0fff4;
+  color: var(--color-success);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--color-success);
+}
+
+button[type='submit'] {
+  background: var(--color-secondary);
+  color: var(--color-white);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+button[type='submit']:hover {
+  background: var(--color-primary);
+}
+
+/* Responsive breakpoints */
+@media (max-width: 768px) {
+  .company-name-heading {
+    font-size: 1.75rem;
+  }
+
+  .profile-section {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .profile-image {
+    width: 180px;
+    height: 180px;
+  }
+
+  .sales-grid {
+    grid-template-columns: 1fr;
+  }
+}
