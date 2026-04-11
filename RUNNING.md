@@ -1,4 +1,4 @@
-# Running the Application
+# Running the FastAPI Application
 
 ## TEAM_BRIEF
 stack: Python/FastAPI
@@ -10,20 +10,21 @@ coverage_applies: true
 
 ## Prerequisites
 
-- Python 3.11+ (or Docker)
-- pip
+- Python 3.11+ **or** Docker / Docker Compose
 
-## Local Setup
+## Local Setup (without Docker)
 
 ```bash
+# Create and activate a virtual environment
+python -m venv .venv
+source .venv/bin/activate  # Linux/macOS
+# .venv\Scripts\activate   # Windows
+
 # Install dependencies
 pip install -r requirements.txt
 
 # Run the application
 uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-
-# Run the tests
-pytest tests/
 ```
 
 ## Docker Setup
@@ -32,13 +33,25 @@ pytest tests/
 # Build and start
 docker compose up --build
 
-# Run tests inside the container
+# The API will be available at http://localhost:8000
+```
+
+## Running Tests
+
+```bash
+# Local
+pytest tests/
+
+# With coverage
+pytest tests/ --cov=app --cov-report=term-missing
+
+# Inside Docker
 docker compose run --rm web pytest tests/
 ```
 
-## Endpoints
+## Available Endpoints
 
-| Method | Path      | Description             | Response                        |
-|--------|-----------|-------------------------|---------------------------------|
-| GET    | `/health` | Service health check    | `{"status": "ok"}`              |
-| GET    | `/hello`  | Greeting message        | `{"message": "Hello, world!"}` |
+| Method | Path      | Description                          |
+|--------|-----------|--------------------------------------|
+| GET    | `/health` | Returns `{"status": "ok"}`           |
+| GET    | `/hello`  | Returns `{"message": "Hello, world!"}` |
