@@ -1,25 +1,19 @@
 import React from 'react';
 
 /**
- * Logo component for Madhuri Real Estate.
- *
- * Renders the company logo as an accessible image element with
- * appropriate alt text and modern styling. The logo is displayed
- * within a centered container and uses the SVG asset from the
- * public directory.
+ * Logo component displays the company logo prominently at the top of the page.
+ * Renders an SVG logo with appropriate alt text for accessibility.
  */
 const Logo: React.FC = () => {
   return (
-    <div className="logo-container" data-testid="logo">
+    <section className="section logo-section" data-testid="logo-section">
       <img
         src="/logo.svg"
-        alt="Madhuri Real Estate logo"
-        className="logo-image"
-        width={120}
-        height={120}
-        role="img"
+        alt="Madhuri Real Estate Logo"
+        width="200"
+        height="80"
       />
-    </div>
+    </section>
   );
 };
 

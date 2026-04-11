@@ -1,17 +1,12 @@
-# Madhuri Real Estate — Running Guide
+# Madhuri Real Estate - Single Page Application
 
 ## TEAM_BRIEF
 stack: TypeScript/React+Vite
-test_runner: cd . && npx react-scripts test --watchAll=false
+test_runner: npx vitest run
 lint_tool: none
 coverage_tool: none
 coverage_threshold: 0
 coverage_applies: false
-
-## Prerequisites
-
-- Node.js >= 16
-- npm >= 8
 
 ## Setup
 
@@ -22,12 +17,10 @@ npm install
 ## Development
 
 ```bash
-npm start
+npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-## Testing
+## Run Tests
 
 ```bash
 npm test
@@ -43,16 +36,27 @@ npm run build
 
 ```
 src/
-  components/
-    Logo.tsx          — Company logo component
-    CompanyName.tsx   — Company name heading component
-  styles/
-    global.css        — Global styles, colors, typography
-  __tests__/
-    App.test.tsx      — Component tests
-  App.tsx             — Main application layout
-  index.tsx           — React DOM entry point
-public/
-  index.html          — HTML template
-  logo.svg            — SVG logo asset
+├── main.tsx                    # Entry point
+├── App.tsx                     # Main layout composition
+├── setupTests.ts               # Test setup (jest-dom)
+├── components/
+│   ├── Logo.tsx                # Company logo display
+│   ├── CompanyName.tsx         # Company name heading
+│   ├── Profile.tsx             # Agent profile with photo and bio
+│   ├── RecentSales.tsx         # Recent property sales grid
+│   └── ContactInfo.tsx         # Contact details and form
+├── styles/
+│   └── global.css              # Global styles, colors, responsive
+└── __tests__/
+    ├── App.test.tsx             # Integration tests for all sections
+    ├── RecentSales.test.tsx     # RecentSales component tests
+    └── ContactInfo.test.tsx     # ContactInfo form & display tests
 ```
+
+## Section Order (in App.tsx)
+
+1. Logo
+2. CompanyName
+3. Profile
+4. RecentSales
+5. ContactInfo

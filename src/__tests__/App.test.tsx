@@ -1,113 +1,203 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { describe, it, expect } from 'vitest';
 import App from '../App';
-import Logo from '../components/Logo';
-import CompanyName from '../components/CompanyName';
 
-describe('App component', () => {
-  test('renders the app container', () => {
+describe('App', () => {
+  it('renders the app container', () => {
     render(<App />);
-    const appElement = screen.getByTestId('app');
-    expect(appElement).toBeInTheDocument();
+    expect(screen.getByTestId('app-container')).toBeInTheDocument();
   });
 
-  test('renders the header with banner role', () => {
+  it('renders all main sections in correct order', () => {
     render(<App />);
-    const header = screen.getByRole('banner');
-    expect(header).toBeInTheDocument();
+    const container = screen.getByTestId('app-container');
+    const sections = container.children;
+
+    expect(sections.length).toBe(5);
+    expect(sections[0]).toHaveAttribute('data-testid', 'logo-section');
+    expect(sections[1]).toHaveAttribute('data-testid', 'company-name-section');
+    expect(sections[2]).toHaveAttribute('data-testid', 'profile-section');
+    expect(sections[3]).toHaveAttribute('data-testid', 'recent-sales-section');
+    expect(sections[4]).toHaveAttribute('data-testid', 'contact-section');
   });
 
-  test('renders the main content area', () => {
+  it('renders the Logo section with an image', () => {
     render(<App />);
-    const main = screen.getByRole('main');
-    expect(main).toBeInTheDocument();
+    const logoSection = screen.getByTestId('logo-section');
+    const img = within(logoSection).getByRole('img');
+    expect(img).toHaveAttribute('alt', 'Madhuri Real Estate Logo');
   });
 
-  test('renders Logo component within the header', () => {
+  it('renders the CompanyName section with heading', () => {
     render(<App />);
-    const logo = screen.getByTestId('logo');
-    expect(logo).toBeInTheDocument();
+    expect(screen.getByText('Madhuri Real Estate')).toBeInTheDocument();
+    expect(
+      screen.getByText('Your Trusted Partner in Finding the Perfect Home')
+    ).toBeInTheDocument();
   });
 
-  test('renders CompanyName component within the header', () => {
+  it('renders the Profile section with image and bio', () => {
     render(<App />);
-    const companyName = screen.getByTestId('company-name');
-    expect(companyName).toBeInTheDocument();
+    const profileSection = screen.getByTestId('profile-section');
+    expect(within(profileSection).getByText('Madhuri Sharma')).toBeInTheDocument();
+    expect(
+      within(profileSection).getByText('Senior Real Estate Agent')
+    ).toBeInTheDocument();
+    expect(
+      within(profileSection).getByRole('img', { name: /Madhuri/i })
+    ).toBeInTheDocument();
   });
 
-  test('Logo appears before CompanyName in the DOM', () => {
+  it('renders the RecentSales section with sale cards', () => {
     render(<App />);
-    const header = screen.getByRole('banner');
-    const children = Array.from(header.children);
-    const logoIndex = children.findIndex(
-      (child) => (child as HTMLElement).dataset.testid === 'logo'
+    const salesSection = screen.getByTestId('recent-sales-section');
+    expect(within(salesSection).getByText('Recent Sales')).toBeInTheDocument();
+    const cards = within(salesSection).getAllByTestId('sale-card');
+    expect(cards.length).toBeGreaterThan(0);
+  });
+
+  it('renders the ContactInfo section with contact details', () => {
+    render(<App />);
+    const contactSection = screen.getByTestId('contact-section');
+    expect(within(contactSection).getByText('Contact Us')).toBeInTheDocument();
+    expect(screen.getByTestId('contact-phone')).toHaveTextContent('(555) 123-4567');
+    expect(screen.getByTestId('contact-email')).toHaveTextContent(
+      'madhuri@madhurirealestate.com'
     );
-    const nameIndex = children.findIndex(
-      (child) => (child as HTMLElement).dataset.testid === 'company-name'
-    );
-    expect(logoIndex).toBeLessThan(nameIndex);
-    expect(logoIndex).toBeGreaterThanOrEqual(0);
-    expect(nameIndex).toBeGreaterThanOrEqual(0);
+    expect(screen.getByTestId('contact-address')).toBeInTheDocument();
+  });
+
+  it('renders the contact form', () => {
+    render(<App />);
+    expect(screen.getByTestId('contact-form')).toBeInTheDocument();
+    expect(screen.getByLabelText(/name/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/message/i)).toBeInTheDocument();
   });
 });
 
-describe('Logo component', () => {
-  test('renders logo image with correct alt text', () => {
-    render(<Logo />);
-    const img = screen.getByAltText('Madhuri Real Estate logo');
+describe('Profile component', () => {
+  it('displays profile image with correct alt text', () => {
+    render(<App />);
+    const img = screen.getByAlt('Madhuri - Real Estate Agent');
     expect(img).toBeInTheDocument();
-    expect(img).toHaveAttribute('src', '/logo.svg');
+    expect(img).toHaveClass('profile-image');
   });
 
-  test('logo image has role="img" for accessibility', () => {
-    render(<Logo />);
-    const img = screen.getByRole('img');
-    expect(img).toBeInTheDocument();
+  it('displays agent name and role', () => {
+    render(<App />);
+    expect(screen.getByText('Madhuri Sharma')).toBeInTheDocument();
+    expect(screen.getByText('Senior Real Estate Agent')).toBeInTheDocument();
   });
 
-  test('logo image has width and height attributes', () => {
-    render(<Logo />);
-    const img = screen.getByAltText('Madhuri Real Estate logo');
-    expect(img).toHaveAttribute('width', '120');
-    expect(img).toHaveAttribute('height', '120');
-  });
-
-  test('logo has the correct CSS class', () => {
-    render(<Logo />);
-    const img = screen.getByAltText('Madhuri Real Estate logo');
-    expect(img).toHaveClass('logo-image');
+  it('displays bio text', () => {
+    render(<App />);
+    expect(
+      screen.getByText(/With over 15 years of experience/i)
+    ).toBeInTheDocument();
   });
 });
 
-describe('CompanyName component', () => {
-  test('renders the company name text', () => {
-    render(<CompanyName />);
-    const heading = screen.getByText('Madhuri Real Estate');
-    expect(heading).toBeInTheDocument();
+describe('ContactInfo component', () => {
+  it('displays phone, email, and address', () => {
+    render(<App />);
+    expect(screen.getByTestId('contact-phone')).toHaveTextContent('(555) 123-4567');
+    expect(screen.getByTestId('contact-email')).toHaveTextContent(
+      'madhuri@madhurirealestate.com'
+    );
+    expect(screen.getByTestId('contact-address')).toBeInTheDocument();
   });
 
-  test('company name uses an h1 heading tag', () => {
-    render(<CompanyName />);
-    const heading = screen.getByRole('heading', { level: 1 });
-    expect(heading).toBeInTheDocument();
-    expect(heading).toHaveTextContent('Madhuri Real Estate');
+  it('shows validation errors when submitting empty form', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    const submitButton = screen.getByRole('button', { name: /send message/i });
+    await user.click(submitButton);
+
+    expect(screen.getByTestId('name-error')).toHaveTextContent('Name is required');
+    expect(screen.getByTestId('email-error')).toHaveTextContent('Email is required');
+    expect(screen.getByTestId('message-error')).toHaveTextContent(
+      'Message is required'
+    );
   });
 
-  test('company name heading has the correct CSS class', () => {
-    render(<CompanyName />);
-    const heading = screen.getByRole('heading', { level: 1 });
-    expect(heading).toHaveClass('company-name');
+  it('shows email validation error for invalid email', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    const nameInput = screen.getByLabelText(/name/i);
+    const emailInput = screen.getByLabelText(/email/i);
+    const messageInput = screen.getByLabelText(/message/i);
+    const submitButton = screen.getByRole('button', { name: /send message/i });
+
+    await user.type(nameInput, 'John Doe');
+    await user.type(emailInput, 'notavalidemail');
+    await user.type(messageInput, 'Hello there');
+    await user.click(submitButton);
+
+    expect(screen.getByTestId('email-error')).toHaveTextContent(
+      'Please enter a valid email address'
+    );
+    expect(screen.queryByTestId('name-error')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('message-error')).not.toBeInTheDocument();
   });
 
-  test('renders the tagline subtitle', () => {
-    render(<CompanyName />);
-    const subtitle = screen.getByText('Your Dream Home Awaits');
-    expect(subtitle).toBeInTheDocument();
+  it('shows success message on valid submission', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    const nameInput = screen.getByLabelText(/name/i);
+    const emailInput = screen.getByLabelText(/email/i);
+    const messageInput = screen.getByLabelText(/message/i);
+    const submitButton = screen.getByRole('button', { name: /send message/i });
+
+    await user.type(nameInput, 'John Doe');
+    await user.type(emailInput, 'john@example.com');
+    await user.type(messageInput, 'I am interested in a property.');
+    await user.click(submitButton);
+
+    expect(screen.getByTestId('form-success')).toHaveTextContent(
+      'Thank you! Your message has been sent successfully.'
+    );
+    expect(screen.queryByTestId('name-error')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('email-error')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('message-error')).not.toBeInTheDocument();
   });
 
-  test('subtitle has the correct CSS class', () => {
-    render(<CompanyName />);
-    const subtitle = screen.getByText('Your Dream Home Awaits');
-    expect(subtitle).toHaveClass('company-name-subtitle');
+  it('clears form fields after successful submission', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    const nameInput = screen.getByLabelText(/name/i) as HTMLInputElement;
+    const emailInput = screen.getByLabelText(/email/i) as HTMLInputElement;
+    const messageInput = screen.getByLabelText(/message/i) as HTMLTextAreaElement;
+    const submitButton = screen.getByRole('button', { name: /send message/i });
+
+    await user.type(nameInput, 'John Doe');
+    await user.type(emailInput, 'john@example.com');
+    await user.type(messageInput, 'Hello');
+    await user.click(submitButton);
+
+    expect(nameInput.value).toBe('');
+    expect(emailInput.value).toBe('');
+    expect(messageInput.value).toBe('');
+  });
+
+  it('clears field error when user starts typing', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    const submitButton = screen.getByRole('button', { name: /send message/i });
+    await user.click(submitButton);
+
+    expect(screen.getByTestId('name-error')).toBeInTheDocument();
+
+    const nameInput = screen.getByLabelText(/name/i);
+    await user.type(nameInput, 'J');
+
+    expect(screen.queryByTestId('name-error')).not.toBeInTheDocument();
   });
 });

@@ -1,48 +1,36 @@
-/* ==========================================================================
-   Global Styles — Madhuri Real Estate
-   ========================================================================== */
-
+/* ===== CSS Custom Properties ===== */
 :root {
-  /* Brand color palette */
-  --color-primary: #1a365d;
-  --color-primary-light: #2b6cb0;
-  --color-accent: #c6973b;
-  --color-accent-light: #d4a74a;
-  --color-white: #ffffff;
-  --color-off-white: #f7f8fa;
-  --color-gray-100: #edf2f7;
-  --color-gray-200: #e2e8f0;
-  --color-gray-400: #a0aec0;
-  --color-gray-600: #718096;
-  --color-gray-800: #2d3748;
-  --color-gray-900: #1a202c;
+  --color-primary: #1a3c5e;
+  --color-primary-light: #2a5a8a;
+  --color-secondary: #c8a951;
+  --color-secondary-light: #e0c96a;
+  --color-background: #f8f9fa;
+  --color-surface: #ffffff;
+  --color-text: #2c2c2c;
+  --color-text-light: #6c757d;
+  --color-error: #dc3545;
+  --color-success: #28a745;
+  --color-border: #dee2e6;
 
-  /* Typography */
-  --font-heading: 'Georgia', 'Times New Roman', serif;
-  --font-body: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --font-family-primary: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --font-family-heading: Georgia, 'Times New Roman', Times, serif;
 
-  /* Spacing */
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
   --spacing-md: 1rem;
   --spacing-lg: 1.5rem;
   --spacing-xl: 2rem;
-  --spacing-2xl: 3rem;
-  --spacing-3xl: 4rem;
+  --spacing-xxl: 3rem;
 
-  /* Borders & Shadows */
-  --border-radius-sm: 4px;
-  --border-radius-md: 8px;
-  --border-radius-lg: 16px;
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.12), 0 4px 10px rgba(0, 0, 0, 0.08);
+  --border-radius: 8px;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
 
-  /* Layout */
   --max-width: 1200px;
 }
 
-/* Reset */
+/* ===== Reset & Base ===== */
 *,
 *::before,
 *::after {
@@ -53,16 +41,16 @@
 
 html {
   font-size: 16px;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
 }
 
 body {
-  font-family: var(--font-body);
-  color: var(--color-gray-800);
-  background-color: var(--color-off-white);
+  font-family: var(--font-family-primary);
+  color: var(--color-text);
+  background-color: var(--color-background);
   line-height: 1.6;
-  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 img {
@@ -72,113 +60,357 @@ img {
 }
 
 a {
-  color: var(--color-primary-light);
+  color: var(--color-primary);
   text-decoration: none;
 }
 
 a:hover {
-  text-decoration: underline;
+  color: var(--color-primary-light);
 }
 
-/* Container */
+/* ===== App Container ===== */
 .app-container {
   max-width: var(--max-width);
   margin: 0 auto;
   padding: var(--spacing-md);
 }
 
-/* Header */
-.app-header {
+/* ===== Section Base ===== */
+.section {
+  margin-bottom: var(--spacing-xxl);
+  padding: var(--spacing-xl);
+  background-color: var(--color-surface);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ===== Logo Section ===== */
+.logo-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: var(--spacing-xl) var(--spacing-md);
+  background-color: var(--color-primary);
+  border-radius: var(--border-radius);
+}
+
+.logo-section img,
+.logo-section svg {
+  max-height: 80px;
+  width: auto;
+}
+
+/* ===== Company Name Section ===== */
+.company-name-section {
+  text-align: center;
+  padding: var(--spacing-lg) var(--spacing-md);
+}
+
+.company-name-section h1 {
+  font-family: var(--font-family-heading);
+  font-size: 2.5rem;
+  color: var(--color-primary);
+  letter-spacing: 0.05em;
+  font-weight: 700;
+}
+
+.company-name-section .tagline {
+  font-size: 1.1rem;
+  color: var(--color-text-light);
+  margin-top: var(--spacing-sm);
+  font-style: italic;
+}
+
+/* ===== Profile Section ===== */
+.profile-section {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: var(--spacing-xl) var(--spacing-md);
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
-  border-bottom: 4px solid var(--color-accent);
-  margin-bottom: var(--spacing-2xl);
+  gap: var(--spacing-xl);
+  padding: var(--spacing-xl);
 }
 
-/* Main content */
-.app-main {
-  max-width: var(--max-width);
-  margin: 0 auto;
-  padding: 0 var(--spacing-md) var(--spacing-2xl);
+.profile-image-container {
+  flex-shrink: 0;
 }
 
-/* Logo component styles */
-.logo-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.profile-image {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid var(--color-secondary);
+  box-shadow: var(--shadow-md);
+}
+
+.profile-bio {
+  text-align: center;
+}
+
+.profile-bio h2 {
+  font-family: var(--font-family-heading);
+  font-size: 1.8rem;
+  color: var(--color-primary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.profile-bio .role {
+  font-size: 1.1rem;
+  color: var(--color-secondary);
+  font-weight: 600;
   margin-bottom: var(--spacing-md);
 }
 
-.logo-image {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  box-shadow: var(--shadow-lg);
-  transition: transform 0.3s ease;
-}
-
-.logo-image:hover {
-  transform: scale(1.05);
-}
-
-/* Company name styles */
-.company-name {
-  font-family: var(--font-heading);
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: var(--color-accent-light);
-  text-align: center;
-  letter-spacing: 0.04em;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  margin: 0;
-  padding: var(--spacing-xs) 0;
-  line-height: 1.2;
-}
-
-.company-name-subtitle {
-  font-family: var(--font-body);
+.profile-bio p {
   font-size: 1rem;
-  color: var(--color-gray-200);
+  color: var(--color-text);
+  line-height: 1.8;
+  max-width: 600px;
+}
+
+/* ===== Recent Sales Section ===== */
+.recent-sales-section {
+  padding: var(--spacing-xl);
+}
+
+.recent-sales-section h2 {
+  font-family: var(--font-family-heading);
+  font-size: 1.8rem;
+  color: var(--color-primary);
   text-align: center;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
+  margin-bottom: var(--spacing-xl);
+}
+
+.sales-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-lg);
+}
+
+.sale-card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.sale-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.sale-card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.sale-card-body {
+  padding: var(--spacing-md);
+}
+
+.sale-card-body .sale-address {
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: var(--spacing-xs);
+}
+
+.sale-card-body .sale-price {
+  color: var(--color-secondary);
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+.sale-card-body .sale-date {
+  color: var(--color-text-light);
+  font-size: 0.875rem;
   margin-top: var(--spacing-xs);
 }
 
-/* Responsive */
+.empty-state {
+  text-align: center;
+  padding: var(--spacing-xxl);
+  color: var(--color-text-light);
+  font-style: italic;
+}
+
+/* ===== Contact Info Section ===== */
+.contact-section {
+  padding: var(--spacing-xl);
+}
+
+.contact-section h2 {
+  font-family: var(--font-family-heading);
+  font-size: 1.8rem;
+  color: var(--color-primary);
+  text-align: center;
+  margin-bottom: var(--spacing-xl);
+}
+
+.contact-layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+.contact-details {
+  flex: 1;
+}
+
+.contact-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.contact-item .contact-icon {
+  font-size: 1.3rem;
+  min-width: 24px;
+  text-align: center;
+  color: var(--color-secondary);
+}
+
+.contact-item .contact-label {
+  font-weight: 600;
+  color: var(--color-primary);
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.contact-item .contact-value {
+  color: var(--color-text);
+  margin-top: var(--spacing-xs);
+}
+
+/* ===== Contact Form ===== */
+.contact-form {
+  flex: 1;
+}
+
+.form-group {
+  margin-bottom: var(--spacing-md);
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin-bottom: var(--spacing-xs);
+  font-size: 0.9rem;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  font-family: var(--font-family-primary);
+  font-size: 1rem;
+  color: var(--color-text);
+  background-color: var(--color-surface);
+  transition: border-color 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(26, 60, 94, 0.15);
+}
+
+.form-group input.error,
+.form-group textarea.error {
+  border-color: var(--color-error);
+}
+
+.form-group .error-message {
+  color: var(--color-error);
+  font-size: 0.8rem;
+  margin-top: var(--spacing-xs);
+}
+
+.form-group textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.submit-button {
+  display: inline-block;
+  padding: var(--spacing-sm) var(--spacing-xl);
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  width: 100%;
+}
+
+.submit-button:hover {
+  background-color: var(--color-primary-light);
+}
+
+.submit-button:disabled {
+  background-color: var(--color-text-light);
+  cursor: not-allowed;
+}
+
+.form-success {
+  color: var(--color-success);
+  font-weight: 600;
+  text-align: center;
+  padding: var(--spacing-md);
+  background-color: rgba(40, 167, 69, 0.1);
+  border-radius: var(--border-radius);
+  margin-top: var(--spacing-md);
+}
+
+/* ===== Responsive: Tablet and up ===== */
 @media (min-width: 768px) {
-  .app-header {
+  .app-container {
+    padding: var(--spacing-xl);
+  }
+
+  .profile-section {
     flex-direction: row;
-    justify-content: center;
-    gap: var(--spacing-xl);
-    padding: var(--spacing-2xl) var(--spacing-xl);
+    align-items: flex-start;
   }
 
-  .logo-image {
-    width: 140px;
-    height: 140px;
+  .profile-bio {
+    text-align: left;
   }
 
-  .company-name {
-    font-size: 3rem;
+  .sales-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 
-  .company-name-subtitle {
-    font-size: 1.1rem;
+  .contact-layout {
+    flex-direction: row;
+  }
+
+  .submit-button {
+    width: auto;
   }
 }
 
-@media (max-width: 480px) {
-  .company-name {
-    font-size: 1.75rem;
+/* ===== Responsive: Desktop ===== */
+@media (min-width: 1024px) {
+  .company-name-section h1 {
+    font-size: 3rem;
   }
 
-  .logo-image {
-    width: 90px;
-    height: 90px;
+  .sales-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .profile-image {
+    width: 250px;
+    height: 250px;
   }
 }

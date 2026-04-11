@@ -1,23 +1,27 @@
 # Setup Instructions
 
-## Install Dependencies
+This project uses npm for package management. Do NOT commit lock files.
 
-Run from the project root:
+## Install dependencies
 
 ```bash
 npm install
 ```
 
-This will generate `package-lock.json` and the `node_modules/` directory.
+## Run development server
 
-## Run Tests
+```bash
+npm run dev
+```
+
+## Run tests
 
 ```bash
 npm test
 ```
 
-## Start Development Server
+## Build for production
 
 ```bash
-npm start
+npm run build
 ```
