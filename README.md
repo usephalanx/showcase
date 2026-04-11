@@ -1,36 +1,27 @@
 # Hi App
 
-A minimal React + TypeScript application built with Vite that displays "Hi".
+A minimal React + TypeScript + Vite application that displays "Hi".
 
 ## Stack
 
 - **React 18** — UI library
 - **TypeScript** — type safety
-- **Vite** — dev server and build tool
-- **Vitest** — unit testing
-- **Docker** — containerised development
+- **Vite** — build tool and dev server
+- **Vitest** — test runner
+- **React Testing Library** — component testing
 
 ## Project Structure
 
 ```
-.
-├── index.html          # HTML entry point (Vite convention)
-├── src/
-│   ├── main.tsx        # React entry point
-│   ├── App.tsx         # Main App component
-│   ├── App.test.tsx    # Tests for App component
-│   ├── setupTests.ts   # Test setup (jest-dom matchers)
-│   └── vite-env.d.ts   # Vite type declarations
-├── vite.config.ts      # Vite configuration
-├── tsconfig.json       # TypeScript configuration
-├── package.json        # Dependencies and scripts
-├── Dockerfile          # Docker image definition
-└── docker-compose.yml  # Docker Compose orchestration
+index.html          HTML entry point
+src/
+  App.tsx           Main component (renders "Hi")
+  App.test.tsx      Test for App component
+  main.tsx          React DOM entry point
+  vite-env.d.ts     Vite type declarations
 ```
 
 ## Getting Started
-
-### Local Development
 
 ```bash
 npm install
@@ -39,23 +30,23 @@ npm run dev
 
 Open http://localhost:5173 in your browser.
 
-### Docker
+## Testing
+
+```bash
+npm test
+```
+
+## Building
+
+```bash
+npm run build
+npm run preview
+```
+
+## Docker
 
 ```bash
 docker compose up --build
 ```
 
 Open http://localhost:5173 in your browser.
-
-### Running Tests
-
-```bash
-npm test
-```
-
-### Building for Production
-
-```bash
-npm run build
-npm run preview
-```

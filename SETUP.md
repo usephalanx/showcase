@@ -1,25 +1,11 @@
-# Setup Instructions
+# Setup
 
-## Install Dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-## Install Test Dependencies
+After cloning the repository, run the following to install dependencies
+and generate the lock file:
 
 ```bash
-pip install pytest httpx
+npm install
 ```
 
-## Run Tests
-
-```bash
-pytest tests/ -v
-```
-
-## Run the Application
-
-```bash
-uvicorn main:app --reload
-```
+This produces `node_modules/` and `package-lock.json` which are not
+checked into version control.

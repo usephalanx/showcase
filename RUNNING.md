@@ -2,7 +2,7 @@
 
 ## TEAM_BRIEF
 stack: TypeScript/React+Vite
-test_runner: npm test
+test_runner: npx vitest run
 lint_tool: none
 coverage_tool: none
 coverage_threshold: 0
@@ -10,16 +10,23 @@ coverage_applies: false
 
 ## Prerequisites
 
-- Node.js 20+ **or** Docker
+- Node.js 20+ and npm, OR Docker + Docker Compose
 
-## Local Setup
+## Local Development
 
 ```bash
 npm install
 npm run dev
 ```
 
-Visit http://localhost:5173.
+Open http://localhost:5173.
+
+## Running Tests
+
+```bash
+npm install
+npx vitest run
+```
 
 ## Docker Setup
 
@@ -27,28 +34,12 @@ Visit http://localhost:5173.
 docker compose up --build
 ```
 
-Visit http://localhost:5173.
+Open http://localhost:5173.
 
-## Running Tests
-
-```bash
-npm install   # if not already done
-npm test
-```
-
-## Building for Production
+## Build for Production
 
 ```bash
+npm install
 npm run build
 npm run preview
 ```
-
-## Available Scripts
-
-| Command          | Description                        |
-|------------------|------------------------------------|
-| `npm run dev`    | Start Vite dev server              |
-| `npm run build`  | Type-check and build for production|
-| `npm run preview`| Preview production build locally   |
-| `npm test`       | Run tests with Vitest              |
-| `npm run test:watch` | Run tests in watch mode        |

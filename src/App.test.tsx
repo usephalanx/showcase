@@ -5,6 +5,6 @@ import App from './App';
 describe('App', () => {
   it('renders Hi text', () => {
     render(<App />);
-    expect(screen.getByText('Hi')).toBeInTheDocument();
+    expect(screen.getByText('Hi')).toBeDefined();
   });
 });
