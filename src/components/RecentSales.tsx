@@ -1,80 +1,84 @@
 import React from 'react';
 
-/** Represents a single property sale record. */
+/**
+ * Represents a single property sale record.
+ */
 export interface Sale {
-  /** Unique identifier for the sale. */
   id: number;
-  /** Street address of the property. */
   address: string;
-  /** Sale price formatted as a string (e.g. "$450,000"). */
   price: string;
-  /** URL for the property image. */
   imageUrl: string;
-  /** Date string for when the sale closed. */
   dateSold: string;
 }
 
-/** Props for the RecentSales component. */
-export interface RecentSalesProps {
-  /** Optional array of sales to display. Falls back to default data if not provided. */
+/**
+ * Props for the RecentSales component.
+ */
+interface RecentSalesProps {
   sales?: Sale[];
 }
 
-/** Default sample sales data displayed when no explicit sales prop is provided. */
+/** Default sales data used when no sales prop is provided. */
 const DEFAULT_SALES: Sale[] = [
   {
     id: 1,
     address: '123 Maple Drive, Springfield',
     price: '$450,000',
-    imageUrl: 'https://via.placeholder.com/400x200?text=Property+1',
-    dateSold: 'January 15, 2024',
+    imageUrl: '/images/sale1.jpg',
+    dateSold: 'March 15, 2024',
   },
   {
     id: 2,
-    address: '456 Oak Avenue, Shelbyville',
-    price: '$625,000',
-    imageUrl: 'https://via.placeholder.com/400x200?text=Property+2',
-    dateSold: 'February 3, 2024',
+    address: '456 Oak Avenue, Riverside',
+    price: '$620,000',
+    imageUrl: '/images/sale2.jpg',
+    dateSold: 'February 28, 2024',
   },
   {
     id: 3,
-    address: '789 Pine Lane, Capital City',
-    price: '$380,000',
-    imageUrl: 'https://via.placeholder.com/400x200?text=Property+3',
-    dateSold: 'March 20, 2024',
+    address: '789 Pine Lane, Lakewood',
+    price: '$385,000',
+    imageUrl: '/images/sale3.jpg',
+    dateSold: 'January 10, 2024',
   },
 ];
 
 /**
- * RecentSales component displays a responsive grid of recent property sales.
- * Supports both populated and empty states. Accepts an optional `sales` prop;
- * when omitted, default sample data is rendered.
+ * RecentSales component showcases recent property sales
+ * in an attractive, easy-to-scan grid format.
+ *
+ * Displays an empty state message when no sales data is available.
+ * Uses default sales data when no sales prop is provided.
  */
 const RecentSales: React.FC<RecentSalesProps> = ({ sales }) => {
-  const displaySales = sales !== undefined ? sales : DEFAULT_SALES;
+  const salesData = sales !== undefined ? sales : DEFAULT_SALES;
 
   return (
-    <section className="recent-sales-section" data-testid="recent-sales-section" aria-label="Recent Sales">
+    <div data-testid="recent-sales-section" className="recent-sales-section">
       <h2>Recent Sales</h2>
-      {displaySales.length === 0 ? (
-        <div className="empty-state" data-testid="empty-state">
-          <p>No recent sales to display at this time.</p>
+      {salesData.length === 0 ? (
+        <div data-testid="empty-state" className="empty-state">
+          <p>No recent sales to display.</p>
         </div>
       ) : (
-        <div className="sales-grid" data-testid="sales-grid">
-          {displaySales.map((sale) => (
-            <article key={sale.id} className="sale-card" data-testid="sale-card">
-              <img src={sale.imageUrl} alt={`Property at ${sale.address}`} />
-              <div className="sale-card-info">
+        <div data-testid="sales-grid" className="sales-grid">
+          {salesData.map((sale) => (
+            <div key={sale.id} data-testid="sale-card" className="sale-card">
+              <img
+                src={sale.imageUrl}
+                alt={`Property at ${sale.address}`}
+                className="sale-image"
+              />
+              <div className="sale-details">
                 <p className="sale-address">{sale.address}</p>
                 <p className="sale-price">{sale.price}</p>
                 <p className="sale-date">Sold: {sale.dateSold}</p>
               </div>
-            </article>
+            </div>
           ))}
         </div>
       )}
-    </section>
+    </div>
   );
 };
 

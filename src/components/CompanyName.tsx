@@ -1,15 +1,14 @@
 import React from 'react';
 
 /**
- * CompanyName component displays the company name with distinctive
- * brand typography and an optional tagline.
+ * CompanyName component showcases the company name
+ * 'Madhuri Real Estate' with distinctive typography.
  */
 const CompanyName: React.FC = () => {
   return (
-    <section className="company-name-section" data-testid="company-name-section" aria-label="Company Name">
-      <h1>Madhuri Real Estate</h1>
-      <p className="tagline">Your Trusted Partner in Finding the Perfect Home</p>
-    </section>
+    <div data-testid="company-name-section" className="company-name-section">
+      <h1 className="company-name-heading">Madhuri Real Estate</h1>
+    </div>
   );
 };
 

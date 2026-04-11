@@ -1,19 +1,18 @@
 import React from 'react';
 
 /**
- * Logo component displays the Madhuri Real Estate brand logo
- * prominently at the top of the page with accessible alt text.
+ * Logo component displays the Madhuri Real Estate logo prominently
+ * at the top of the page.
  */
 const Logo: React.FC = () => {
   return (
-    <section className="logo-section" data-testid="logo-section" aria-label="Company Logo">
+    <div data-testid="logo-section" className="logo-section">
       <img
         src="/logo.svg"
         alt="Madhuri Real Estate Logo"
-        width={150}
-        height={150}
+        className="logo-image"
       />
-    </section>
+    </div>
   );
 };
 
