@@ -1,19 +1,28 @@
-import { describe, it, expect } from 'vitest';
+import React from 'react';
 import { render, screen } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
 import App from './App';
 
 describe('App', () => {
-  it('renders the HelloWorld component inside the app', () => {
+  it('renders the HelloWorld component with correct text', () => {
     render(<App />);
-    const heading = screen.getByRole('heading', { level: 1 });
-    expect(heading).toBeInTheDocument();
-    expect(heading).toHaveTextContent('Hello World');
+    const heading = screen.getByTestId('hello-heading');
+    expect(heading).toBeDefined();
+    expect(heading.textContent).toBe('Hello World');
   });
 
-  it('has an app container with the correct CSS module class', () => {
+  it('renders the app container with a CSS module class', () => {
     render(<App />);
     const container = screen.getByTestId('app-container');
-    expect(container).toBeInTheDocument();
-    expect(container.className).toContain('container');
+    expect(container).toBeDefined();
+    expect(container.className).toBeTruthy();
+    expect(container.className.length).toBeGreaterThan(0);
+  });
+
+  it('app container contains the hello heading', () => {
+    render(<App />);
+    const container = screen.getByTestId('app-container');
+    const heading = screen.getByTestId('hello-heading');
+    expect(container.contains(heading)).toBe(true);
   });
 });

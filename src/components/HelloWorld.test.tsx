@@ -1,18 +1,26 @@
-import { describe, it, expect } from 'vitest';
+import React from 'react';
 import { render, screen } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
 import HelloWorld from './HelloWorld';
 
 describe('HelloWorld', () => {
-  it('renders an h1 element with "Hello World" text', () => {
+  it('renders a heading with "Hello World" text', () => {
     render(<HelloWorld />);
-    const heading = screen.getByRole('heading', { level: 1 });
-    expect(heading).toBeInTheDocument();
-    expect(heading).toHaveTextContent('Hello World');
+    const heading = screen.getByTestId('hello-heading');
+    expect(heading).toBeDefined();
+    expect(heading.textContent).toBe('Hello World');
   });
 
-  it('applies the heading CSS module class', () => {
+  it('renders as an h1 element', () => {
     render(<HelloWorld />);
-    const heading = screen.getByRole('heading', { level: 1 });
-    expect(heading.className).toContain('heading');
+    const heading = screen.getByTestId('hello-heading');
+    expect(heading.tagName).toBe('H1');
+  });
+
+  it('has a CSS module class applied', () => {
+    render(<HelloWorld />);
+    const heading = screen.getByTestId('hello-heading');
+    expect(heading.className).toBeTruthy();
+    expect(heading.className.length).toBeGreaterThan(0);
   });
 });

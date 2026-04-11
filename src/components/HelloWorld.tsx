@@ -2,13 +2,17 @@ import React from 'react';
 import styles from './HelloWorld.module.css';
 
 /**
- * HelloWorld component.
+ * Reusable HelloWorld component.
  *
- * Renders a styled <h1> heading with the text "Hello World".
+ * Renders a styled <h1> heading displaying "Hello World".
  * Uses CSS modules for scoped styling.
  */
 const HelloWorld: React.FC = () => {
-  return <h1 className={styles.heading}>Hello World</h1>;
+  return (
+    <h1 className={styles.heading} data-testid="hello-heading">
+      Hello World
+    </h1>
+  );
 };
 
 export default HelloWorld;

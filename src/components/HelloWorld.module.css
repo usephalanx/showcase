@@ -1,9 +1,9 @@
 .heading {
   font-size: 3rem;
   font-weight: 700;
-  color: #1a1a2e;
+  color: #e0e0e0;
   text-align: center;
-  letter-spacing: -0.02em;
-  margin: 0;
-  padding: 1rem;
+  letter-spacing: 0.05em;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }

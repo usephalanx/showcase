@@ -1,18 +1,17 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-// https://vitejs.dev/config/
+/**
+ * Vite configuration for React TypeScript application.
+ *
+ * Enables the React plugin for JSX transform and fast refresh,
+ * and configures Vitest for testing with jsdom environment.
+ */
 export default defineConfig({
   plugins: [react()],
-  css: {
-    modules: {
-      localsConvention: 'camelCaseOnly',
-    },
-  },
   test: {
     globals: true,
     environment: 'jsdom',
-    setupFiles: ['./src/test-setup.ts'],
     css: {
       modules: {
         classNameStrategy: 'non-scoped',

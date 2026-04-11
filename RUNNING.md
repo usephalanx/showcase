@@ -1,9 +1,8 @@
 # Hello World React App
 
-A minimal React + TypeScript application built with Vite, displaying a centered "Hello World" heading.
+A minimal React + Vite TypeScript application that displays a centered "Hello World" heading.
 
 ## TEAM_BRIEF
-
 stack: TypeScript/React+Vite
 test_runner: npx vitest run
 lint_tool: none
@@ -13,7 +12,8 @@ coverage_applies: false
 
 ## Prerequisites
 
-- Node.js 18+ and npm 9+
+- Node.js >= 18
+- npm >= 9
 
 ## Setup
 
@@ -23,62 +23,40 @@ npm install
 
 ## Development
 
-Start the Vite dev server:
-
 ```bash
 npm run dev
 ```
 
-The app will be available at `http://localhost:5173` by default.
+Open http://localhost:5173 in your browser.
 
 ## Build
-
-Create a production build:
 
 ```bash
 npm run build
 ```
 
-The output will be in the `dist/` directory.
-
-## Preview Production Build
-
-```bash
-npm run preview
-```
-
 ## Testing
-
-Run the test suite:
 
 ```bash
 npm test
 ```
 
-Run tests in watch mode during development:
-
-```bash
-npm run test:watch
-```
+This runs `vitest run` which executes all `*.test.tsx` files in the `src/` directory.
 
 ## Project Structure
 
 ```
-.
-├── index.html                        # Vite HTML entry point
-├── package.json                      # Dependencies and scripts
-├── tsconfig.json                     # TypeScript configuration
-├── vite.config.ts                    # Vite configuration
-├── vite-env.d.ts                     # Vite/CSS module type declarations
-├── RUNNING.md                        # This file
-└── src/
-    ├── main.tsx                      # React bootstrap / DOM mount
-    ├── App.tsx                       # Root application component
-    ├── App.module.css                # App-level container styles
-    ├── App.test.tsx                  # App integration tests
-    ├── test-setup.ts                 # Test environment setup
-    └── components/
-        ├── HelloWorld.tsx            # HelloWorld component
-        ├── HelloWorld.module.css     # HelloWorld scoped styles
-        └── HelloWorld.test.tsx       # HelloWorld unit tests
+index.html                          # HTML entry point with #root div
+src/
+  main.tsx                          # React 18 bootstrap (createRoot)
+  App.tsx                           # Root component with centered container
+  App.module.css                    # App-level flexbox centering styles
+  App.test.tsx                      # Integration test for App component
+  components/
+    HelloWorld.tsx                  # Reusable heading component
+    HelloWorld.module.css           # Scoped heading styles
+    HelloWorld.test.tsx             # Unit test for HelloWorld component
+vite.config.ts                      # Vite + Vitest configuration
+tsconfig.json                       # TypeScript compiler options
+package.json                        # Dependencies and scripts
 ```
