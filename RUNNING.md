@@ -1,33 +1,84 @@
-# Running the Todo API
+# Hello World React App
+
+A minimal React + TypeScript application built with Vite, displaying a centered "Hello World" heading.
+
+## TEAM_BRIEF
+
+stack: TypeScript/React+Vite
+test_runner: npx vitest run
+lint_tool: none
+coverage_tool: none
+coverage_threshold: 0
+coverage_applies: false
 
 ## Prerequisites
 
-- Python 3.10 or later
+- Node.js 18+ and npm 9+
 
-## Install dependencies
+## Setup
 
 ```bash
-pip install fastapi uvicorn pydantic
+npm install
 ```
 
-For running the test suite you will also need:
+## Development
+
+Start the Vite dev server:
 
 ```bash
-pip install httpx pytest
+npm run dev
 ```
 
-## Start the server
+The app will be available at `http://localhost:5173` by default.
+
+## Build
+
+Create a production build:
 
 ```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+npm run build
 ```
 
-The API will be available at <http://localhost:8000>.
+The output will be in the `dist/` directory.
 
-Interactive docs are served at <http://localhost:8000/docs>.
-
-## Run the tests
+## Preview Production Build
 
 ```bash
-pytest tests/
+npm run preview
+```
+
+## Testing
+
+Run the test suite:
+
+```bash
+npm test
+```
+
+Run tests in watch mode during development:
+
+```bash
+npm run test:watch
+```
+
+## Project Structure
+
+```
+.
+├── index.html                        # Vite HTML entry point
+├── package.json                      # Dependencies and scripts
+├── tsconfig.json                     # TypeScript configuration
+├── vite.config.ts                    # Vite configuration
+├── vite-env.d.ts                     # Vite/CSS module type declarations
+├── RUNNING.md                        # This file
+└── src/
+    ├── main.tsx                      # React bootstrap / DOM mount
+    ├── App.tsx                       # Root application component
+    ├── App.module.css                # App-level container styles
+    ├── App.test.tsx                  # App integration tests
+    ├── test-setup.ts                 # Test environment setup
+    └── components/
+        ├── HelloWorld.tsx            # HelloWorld component
+        ├── HelloWorld.module.css     # HelloWorld scoped styles
+        └── HelloWorld.test.tsx       # HelloWorld unit tests
 ```
