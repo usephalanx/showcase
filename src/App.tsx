@@ -2,9 +2,12 @@ import React from 'react';
 
 /**
  * Main application component.
+ *
  * Renders a centered "Hello World" heading on a white background.
+ * Uses inline styles for layout so that tests can verify centering
+ * and background color via the style property.
  */
-function App(): React.ReactElement {
+function App(): React.JSX.Element {
   return (
     <div
       style={{
