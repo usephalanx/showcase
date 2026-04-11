@@ -4,9 +4,6 @@ Registers the --timeout option so that pytest does not fail with
 'unrecognized arguments' when pytest-timeout is not installed.
 """
 
-import sys
-from pathlib import Path
-
 
 def pytest_addoption(parser):
     """Register --timeout so pytest doesn't choke when the plugin is absent."""

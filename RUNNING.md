@@ -16,40 +16,29 @@ coverage_applies: true
 ## Local Setup
 
 ```bash
+# Install dependencies
 pip install -r requirements.txt
-```
 
-## Running the App
-
-```bash
+# Run the application
 uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-```
 
-The API will be available at http://localhost:8000.
-
-### Endpoints
-
-| Method | Path      | Response                         |
-|--------|-----------|----------------------------------|
-| GET    | `/health` | `{"status": "ok"}`               |
-| GET    | `/hello`  | `{"message": "Hello, world!"}` |
-
-## Running Tests
-
-```bash
+# Run the tests
 pytest tests/
 ```
 
-## Docker
-
-### Build and Run
+## Docker Setup
 
 ```bash
+# Build and start
 docker compose up --build
-```
 
-### Run Tests in Docker
-
-```bash
+# Run tests inside the container
 docker compose run --rm web pytest tests/
 ```
+
+## Endpoints
+
+| Method | Path      | Description             | Response                        |
+|--------|-----------|-------------------------|---------------------------------|
+| GET    | `/health` | Service health check    | `{"status": "ok"}`              |
+| GET    | `/hello`  | Greeting message        | `{"message": "Hello, world!"}` |
