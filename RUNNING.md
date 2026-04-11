@@ -1,4 +1,4 @@
-# Running the Application
+# Running Instructions
 
 ## TEAM_BRIEF
 stack: Python/FastAPI
@@ -8,20 +8,23 @@ coverage_tool: pytest-cov
 coverage_threshold: 70
 coverage_applies: true
 
-## Docker-Based Instructions
+## Local Development
 
-### Build and Run
+### Install Dependencies
 
 ```bash
-docker compose up --build
+pip install -r requirements.txt
 ```
 
-The API will be available at `http://localhost:8000`.
+### Run the Application
+
+```bash
+uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
 
 ### Run Tests
 
 ```bash
-pip install -r requirements.txt
 pytest tests/ -v
 ```
 
@@ -31,14 +34,16 @@ pytest tests/ -v
 pytest tests/ --cov=app --cov-report=term-missing
 ```
 
-### Verify the Endpoint
+## Docker
+
+### Build and Run
 
 ```bash
-curl http://localhost:8000/hello
+docker compose up --build
 ```
 
-Expected response:
+### Run Tests in Docker
 
-```json
-{"message": "Hello, World!"}
+```bash
+docker compose run --rm web pytest tests/ --cov=app --cov-report=term-missing
 ```
