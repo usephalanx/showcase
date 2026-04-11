@@ -1,33 +1,54 @@
-# Running the Todo API
+# Running the Application
+
+## TEAM_BRIEF
+stack: TypeScript/React+Vite
+test_runner: npm test
+lint_tool: none
+coverage_tool: none
+coverage_threshold: 0
+coverage_applies: false
 
 ## Prerequisites
 
-- Python 3.10 or later
+- Node.js 20+ **or** Docker
 
-## Install dependencies
-
-```bash
-pip install fastapi uvicorn pydantic
-```
-
-For running the test suite you will also need:
+## Local Setup
 
 ```bash
-pip install httpx pytest
+npm install
+npm run dev
 ```
 
-## Start the server
+Visit http://localhost:5173.
+
+## Docker Setup
 
 ```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+docker compose up --build
 ```
 
-The API will be available at <http://localhost:8000>.
+Visit http://localhost:5173.
 
-Interactive docs are served at <http://localhost:8000/docs>.
-
-## Run the tests
+## Running Tests
 
 ```bash
-pytest tests/
+npm install   # if not already done
+npm test
 ```
+
+## Building for Production
+
+```bash
+npm run build
+npm run preview
+```
+
+## Available Scripts
+
+| Command          | Description                        |
+|------------------|------------------------------------|
+| `npm run dev`    | Start Vite dev server              |
+| `npm run build`  | Type-check and build for production|
+| `npm run preview`| Preview production build locally   |
+| `npm test`       | Run tests with Vitest              |
+| `npm run test:watch` | Run tests in watch mode        |
