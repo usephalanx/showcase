@@ -1,1 +1,1 @@
-"""Test suite for the FastAPI application."""
+"""Test package for the FastAPI application."""

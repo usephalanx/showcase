@@ -2,7 +2,7 @@
 
 ## TEAM_BRIEF
 stack: Python/FastAPI
-test_runner: pytest tests/
+test_runner: pytest tests/ -v
 lint_tool: ruff check .
 coverage_tool: pytest-cov
 coverage_threshold: 70
@@ -10,40 +10,33 @@ coverage_applies: true
 
 ## Local Development
 
-### Install Dependencies
-
 ```bash
 pip install -r requirements.txt
-```
-
-### Run the Application
-
-```bash
 uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
-### Run Tests
+## Running Tests
 
 ```bash
 pytest tests/ -v
 ```
 
-### Run Tests with Coverage
+## Running Tests with Coverage
 
 ```bash
-pytest tests/ --cov=app --cov-report=term-missing
+pytest tests/ --cov=app --cov-report=term-missing --cov-fail-under=70
 ```
 
 ## Docker
 
-### Build and Run
+### Build and run
 
 ```bash
 docker compose up --build
 ```
 
-### Run Tests in Docker
+### Run tests in container
 
 ```bash
-docker compose run --rm web pytest tests/ --cov=app --cov-report=term-missing
+docker compose run --rm api pytest tests/ --cov=app --cov-report=term-missing --cov-fail-under=70
 ```

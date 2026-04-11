@@ -1,6 +1,6 @@
-# Hello World FastAPI Application
+# Hello World FastAPI
 
-A minimal FastAPI application with a `/hello` endpoint.
+A minimal FastAPI application with a `/hello` endpoint and full test coverage.
 
 ## Setup
 
@@ -8,28 +8,26 @@ A minimal FastAPI application with a `/hello` endpoint.
 pip install -r requirements.txt
 ```
 
-## Running the Application
+## Run the app
 
 ```bash
 uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
-Or with Docker:
-
-```bash
-docker compose up --build
-```
-
-## Running Tests
+## Run tests
 
 ```bash
 pytest tests/ -v
 ```
 
-### With Coverage
+## Run tests with coverage
 
 ```bash
-pytest tests/ --cov=app --cov-report=term-missing
+pytest tests/ --cov=app --cov-report=term-missing --cov-fail-under=70
 ```
 
-Coverage threshold target: **70%**
+## Docker
+
+```bash
+docker compose up --build
+```
