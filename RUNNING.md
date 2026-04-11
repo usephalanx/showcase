@@ -1,33 +1,78 @@
-# Running the Todo API
+# Hello World React App
+
+## TEAM_BRIEF
+stack: TypeScript/React+Vite
+test_runner: npx vitest run
+lint_tool: none
+coverage_tool: none
+coverage_threshold: 0
+coverage_applies: false
 
 ## Prerequisites
 
-- Python 3.10 or later
+- Node.js 18+ and npm
+- Docker (optional, for containerised execution)
 
-## Install dependencies
+## Local Setup
 
 ```bash
-pip install fastapi uvicorn pydantic
+# Install dependencies
+npm install
+
+# Start the development server
+npm run dev
+
+# Run the test suite
+npm test
+
+# Build for production
+npm run build
+
+# Preview the production build
+npm run preview
 ```
 
-For running the test suite you will also need:
+## Docker-based Setup
 
 ```bash
-pip install httpx pytest
+# Build the Docker image
+docker build -t hello-world-react .
+
+# Run the tests inside a container
+docker run --rm hello-world-react npm test
+
+# Run the dev server (accessible on http://localhost:5173)
+docker run --rm -p 5173:5173 hello-world-react npm run dev -- --host 0.0.0.0
 ```
 
-## Start the server
+## Project Structure
 
-```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+```
+.
+├── index.html            # Vite HTML entry point
+├── package.json          # Dependencies and scripts
+├── vite.config.js        # Vite + Vitest configuration
+├── RUNNING.md            # This file
+└── src/
+    ├── main.jsx          # React entry point
+    ├── App.jsx           # Main App component (renders Hello World)
+    ├── App.test.jsx      # Vitest test suite for App component
+    └── setupTests.js     # Test setup (jest-dom matchers)
 ```
 
-The API will be available at <http://localhost:8000>.
+## Testing
 
-Interactive docs are served at <http://localhost:8000/docs>.
+The test suite uses **Vitest** with **React Testing Library** and verifies that the
+`App` component renders an `<h1>` heading containing the text "Hello World".
 
-## Run the tests
+Run the tests:
 
 ```bash
-pytest tests/
+npm test
+```
+
+Run tests in watch mode:
+
+```bash
+npm run test:watch
 ```
