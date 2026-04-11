@@ -2,24 +2,22 @@
 
 ## Install Dependencies
 
-```bash
-pip install -r requirements.txt
-```
-
-## Install Test Dependencies
+Run from the project root:
 
 ```bash
-pip install pytest httpx
+npm install
 ```
+
+This will generate `package-lock.json` and the `node_modules/` directory.
 
 ## Run Tests
 
 ```bash
-pytest tests/ -v
+npm test
 ```
 
-## Run the Application
+## Start Development Server
 
 ```bash
-uvicorn main:app --reload
+npm start
 ```
