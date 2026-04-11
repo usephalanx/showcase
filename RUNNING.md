@@ -10,65 +10,69 @@ coverage_applies: false
 
 ## Prerequisites
 
-- Node.js >= 18
-- npm >= 9
+- Node.js 18+ and npm
+- Docker (optional, for containerised execution)
 
-## Setup
+## Local Setup
 
 ```bash
+# Install dependencies
 npm install
-```
 
-## Development
-
-```bash
+# Start the development server
 npm run dev
+
+# Run the test suite
+npm test
+
+# Build for production
+npm run build
+
+# Preview the production build
+npm run preview
 ```
 
-Open http://localhost:5173 in your browser.
-
-## Build
+## Docker-based Setup
 
 ```bash
-npm run build
+# Build the Docker image
+docker build -t hello-world-react .
+
+# Run the tests inside a container
+docker run --rm hello-world-react npm test
+
+# Run the dev server (accessible on http://localhost:5173)
+docker run --rm -p 5173:5173 hello-world-react npm run dev -- --host 0.0.0.0
 ```
 
-## Run Tests
+## Project Structure
+
+```
+.
+├── index.html            # Vite HTML entry point
+├── package.json          # Dependencies and scripts
+├── vite.config.js        # Vite + Vitest configuration
+├── RUNNING.md            # This file
+└── src/
+    ├── main.jsx          # React entry point
+    ├── App.jsx           # Main App component (renders Hello World)
+    ├── App.test.jsx      # Vitest test suite for App component
+    └── setupTests.js     # Test setup (jest-dom matchers)
+```
+
+## Testing
+
+The test suite uses **Vitest** with **React Testing Library** and verifies that the
+`App` component renders an `<h1>` heading containing the text "Hello World".
+
+Run the tests:
 
 ```bash
 npm test
 ```
 
-## Docker-based Setup
-
-### Build the image
+Run tests in watch mode:
 
 ```bash
-docker build -t hello-world-app .
-```
-
-### Run in development mode
-
-```bash
-docker run -it --rm -p 5173:5173 hello-world-app npm run dev -- --host 0.0.0.0
-```
-
-### Run tests inside Docker
-
-```bash
-docker run -it --rm hello-world-app npm test
-```
-
-### Dockerfile (if not present)
-
-Create a `Dockerfile` at the project root:
-
-```dockerfile
-FROM node:18-alpine
-WORKDIR /app
-COPY package.json ./
-RUN npm install
-COPY . .
-EXPOSE 5173
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+npm run test:watch
 ```

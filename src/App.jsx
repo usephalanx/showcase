@@ -1,14 +1,12 @@
 /**
- * Main App component.
+ * App component — renders the main application heading.
  *
- * Renders a simple "Hello World" heading as the root UI element.
+ * @returns {JSX.Element} A div containing the "Hello World" heading.
  */
-function App() {
+export default function App() {
   return (
     <div>
       <h1>Hello World</h1>
     </div>
   );
 }
-
-export default App;
