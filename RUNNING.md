@@ -1,33 +1,72 @@
-# Running the Todo API
+# Running the Application
+
+## TEAM_BRIEF
+stack: Python/FastAPI
+test_runner: pytest tests/
+lint_tool: ruff check .
+coverage_tool: pytest-cov
+coverage_threshold: 70
+coverage_applies: true
 
 ## Prerequisites
 
-- Python 3.10 or later
+- Python 3.11+
+- Docker and Docker Compose (for containerised usage)
 
-## Install dependencies
+## Local Development
 
-```bash
-pip install fastapi uvicorn pydantic
-```
-
-For running the test suite you will also need:
+### Install dependencies
 
 ```bash
-pip install httpx pytest
+pip install -r requirements.txt
+pip install anyio pytest-anyio
 ```
 
-## Start the server
+### Run the application
 
 ```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-The API will be available at <http://localhost:8000>.
+The API will be available at: http://localhost:8000
 
-Interactive docs are served at <http://localhost:8000/docs>.
-
-## Run the tests
+### Run tests
 
 ```bash
 pytest tests/
+```
+
+### Run tests with coverage
+
+```bash
+pytest tests/ --cov=app --cov-report=term-missing
+```
+
+## Docker
+
+### Build and run
+
+```bash
+docker compose up --build
+```
+
+The API will be available at: http://localhost:8000
+
+### Stop
+
+```bash
+docker compose down
+```
+
+## Endpoints
+
+| Method | Path     | Description              |
+|--------|----------|--------------------------|
+| GET    | `/hello` | Returns a greeting JSON  |
+
+### Example
+
+```bash
+curl http://localhost:8000/hello
+# {"message": "Hello, World!"}
 ```
