@@ -1,33 +1,72 @@
-# Running the Todo API
+# Madhuri Real Estate — Frontend
+
+## TEAM_BRIEF
+stack: TypeScript/React+Vite
+test_runner: cd frontend && npx vitest run
+lint_tool: none
+coverage_tool: none
+coverage_threshold: 0
+coverage_applies: false
+
+## Overview
+Single-page real estate website for Madhuri Real Estate built with Vite, React, and TypeScript.
 
 ## Prerequisites
+- Node.js >= 18
+- npm >= 9
 
-- Python 3.10 or later
-
-## Install dependencies
-
+## Setup
 ```bash
-pip install fastapi uvicorn pydantic
+cd frontend
+npm install
 ```
 
-For running the test suite you will also need:
-
+## Development
 ```bash
-pip install httpx pytest
+cd frontend
+npm run dev
 ```
+The app will start at http://localhost:3000.
 
-## Start the server
-
+## Build
 ```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+cd frontend
+npm run build
 ```
+Output goes to `frontend/dist/`.
 
-The API will be available at <http://localhost:8000>.
-
-Interactive docs are served at <http://localhost:8000/docs>.
-
-## Run the tests
-
+## Testing
 ```bash
-pytest tests/
+cd frontend
+npm test
+```
+Runs all tests under `src/__tests__/` via Vitest + jsdom.
+
+## Project Structure
+```
+frontend/
+├── public/
+│   └── logo.svg
+├── src/
+│   ├── __tests__/
+│   │   ├── App.test.tsx
+│   │   ├── ContactInfo.test.tsx
+│   │   └── RecentSales.test.tsx
+│   ├── components/
+│   │   ├── CompanyName.tsx
+│   │   ├── ContactInfo.tsx
+│   │   ├── Logo.tsx
+│   │   ├── Profile.tsx
+│   │   └── RecentSales.tsx
+│   ├── styles/
+│   │   └── global.css
+│   ├── App.tsx
+│   ├── main.tsx
+│   ├── test-setup.ts
+│   └── vite-env.d.ts
+├── index.html
+├── package.json
+├── tsconfig.json
+├── tsconfig.node.json
+└── vite.config.ts
 ```

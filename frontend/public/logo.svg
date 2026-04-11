@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a365d;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2b6cb0;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="200" height="200" rx="24" fill="url(#grad)" />
+  <g transform="translate(100,100)">
+    <!-- House roof -->
+    <polygon points="0,-60 -55,-10 -40,-10 -40,35 40,35 40,-10 55,-10" fill="#fff" opacity="0.95" />
+    <!-- Door -->
+    <rect x="-12" y="5" width="24" height="30" rx="3" fill="url(#grad)" />
+    <!-- Window left -->
+    <rect x="-35" y="0" width="16" height="16" rx="2" fill="url(#grad)" opacity="0.8" />
+    <!-- Window right -->
+    <rect x="19" y="0" width="16" height="16" rx="2" fill="url(#grad)" opacity="0.8" />
+    <!-- M letter -->
+    <text y="75" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" font-size="36" fill="#fff">M</text>
+  </g>
+</svg>
