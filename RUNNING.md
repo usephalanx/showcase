@@ -1,4 +1,4 @@
-# Running the Application
+# Hello World FastAPI Application
 
 ## TEAM_BRIEF
 stack: Python/FastAPI
@@ -10,7 +10,7 @@ coverage_applies: true
 
 ## Prerequisites
 
-- Python 3.11+
+- Python 3.11+ (for local development)
 - Docker and Docker Compose (for containerised execution)
 
 ## Local Development
@@ -27,24 +27,18 @@ pip install -r requirements.txt
 uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
-### 3. Access the API
+The API will be available at: **http://localhost:8000/hello**
 
-Open your browser or use curl:
-
-```bash
-curl http://localhost:8000/hello
-```
-
-Expected response:
-
-```json
-{"message": "Hello, World!"}
-```
-
-### 4. Run tests
+### 3. Run the test suite
 
 ```bash
 pytest tests/
+```
+
+To run with verbose output:
+
+```bash
+pytest tests/ -v
 ```
 
 ## Docker
@@ -55,10 +49,40 @@ pytest tests/
 docker compose up --build
 ```
 
-The application will be accessible at `http://localhost:8000/hello`.
+The application will be accessible at: **http://localhost:8000/hello**
 
-### Stop the service
+To stop the application:
 
 ```bash
 docker compose down
+```
+
+### Build and run with Docker only
+
+```bash
+docker build -t hello-api .
+docker run -p 8000:8000 hello-api
+```
+
+## API Endpoints
+
+| Method | Path     | Description                          | Response                          |
+|--------|----------|--------------------------------------|-----------------------------------|
+| GET    | `/hello` | Returns a JSON greeting message      | `{"message": "Hello, World!"}` |
+
+## Project Structure
+
+```
+.
+├── app/
+│   ├── __init__.py
+│   └── main.py          # FastAPI application with /hello endpoint
+├── tests/
+│   ├── __init__.py
+│   └── test_hello.py    # Comprehensive test suite
+├── conftest.py           # Root pytest configuration
+├── requirements.txt      # Python dependencies
+├── Dockerfile            # Container image definition
+├── docker-compose.yml    # Docker Compose orchestration
+└── RUNNING.md            # This file
 ```
