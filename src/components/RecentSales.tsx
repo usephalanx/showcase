@@ -4,45 +4,15 @@ import React from 'react';
 export interface Sale {
   /** Unique identifier for the sale. */
   id: number;
-  /** Street address of the sold property. */
+  /** Street address of the property. */
   address: string;
-  /** Sale price as a formatted string (e.g. "$450,000"). */
+  /** Sale price formatted as a string (e.g. "$450,000"). */
   price: string;
-  /** URL of the property image. */
+  /** URL for the property image. */
   imageUrl: string;
-  /** Date when the sale was completed. */
-  date: string;
-  /** Optional sale status (e.g. "Sold", "Pending"). Defaults to "Sold". */
-  status?: string;
+  /** Date string for when the sale closed. */
+  dateSold: string;
 }
-
-/** Default sales data used when no props are provided. */
-const defaultSales: Sale[] = [
-  {
-    id: 1,
-    address: '123 Oak Avenue, Springfield',
-    price: '$450,000',
-    imageUrl: '/sales/house1.jpg',
-    date: 'January 2024',
-    status: 'Sold',
-  },
-  {
-    id: 2,
-    address: '456 Maple Drive, Riverside',
-    price: '$625,000',
-    imageUrl: '/sales/house2.jpg',
-    date: 'December 2023',
-    status: 'Sold',
-  },
-  {
-    id: 3,
-    address: '789 Pine Street, Lakewood',
-    price: '$380,000',
-    imageUrl: '/sales/house3.jpg',
-    date: 'November 2023',
-    status: 'Sold',
-  },
-];
 
 /** Props for the RecentSales component. */
 export interface RecentSalesProps {
@@ -50,60 +20,57 @@ export interface RecentSalesProps {
   sales?: Sale[];
 }
 
+/** Default sample sales data displayed when no explicit sales prop is provided. */
+const DEFAULT_SALES: Sale[] = [
+  {
+    id: 1,
+    address: '123 Maple Drive, Springfield',
+    price: '$450,000',
+    imageUrl: 'https://via.placeholder.com/400x200?text=Property+1',
+    dateSold: 'January 15, 2024',
+  },
+  {
+    id: 2,
+    address: '456 Oak Avenue, Shelbyville',
+    price: '$625,000',
+    imageUrl: 'https://via.placeholder.com/400x200?text=Property+2',
+    dateSold: 'February 3, 2024',
+  },
+  {
+    id: 3,
+    address: '789 Pine Lane, Capital City',
+    price: '$380,000',
+    imageUrl: 'https://via.placeholder.com/400x200?text=Property+3',
+    dateSold: 'March 20, 2024',
+  },
+];
+
 /**
- * RecentSales component showcases recent property sales in a responsive
- * grid layout. Displays an empty-state message when no sales data is available.
+ * RecentSales component displays a responsive grid of recent property sales.
+ * Supports both populated and empty states. Accepts an optional `sales` prop;
+ * when omitted, default sample data is rendered.
  */
 const RecentSales: React.FC<RecentSalesProps> = ({ sales }) => {
-  const displaySales = sales !== undefined ? sales : defaultSales;
+  const displaySales = sales !== undefined ? sales : DEFAULT_SALES;
 
   return (
-    <section className="section recent-sales-section" data-testid="recent-sales-section">
+    <section className="recent-sales-section" data-testid="recent-sales-section" aria-label="Recent Sales">
       <h2>Recent Sales</h2>
       {displaySales.length === 0 ? (
-        <p className="empty-state" data-testid="empty-state">
-          No recent sales to display at this time.
-        </p>
+        <div className="empty-state" data-testid="empty-state">
+          <p>No recent sales to display at this time.</p>
+        </div>
       ) : (
         <div className="sales-grid" data-testid="sales-grid">
           {displaySales.map((sale) => (
-            <div key={sale.id} className="sale-card" data-testid="sale-card">
-              <div className="sale-card-image-wrapper">
-                <img
-                  src={sale.imageUrl}
-                  alt={`Property at ${sale.address}`}
-                  className="sale-card-image"
-                  onError={(e) => {
-                    const target = e.currentTarget;
-                    target.style.display = 'none';
-                    const fallback = target.nextElementSibling as HTMLElement | null;
-                    if (fallback) {
-                      fallback.style.display = 'flex';
-                    }
-                  }}
-                />
-                <div
-                  className="sale-card-image-fallback"
-                  style={{ display: 'none' }}
-                  data-testid="image-fallback"
-                >
-                  <span>No Image Available</span>
-                </div>
+            <article key={sale.id} className="sale-card" data-testid="sale-card">
+              <img src={sale.imageUrl} alt={`Property at ${sale.address}`} />
+              <div className="sale-card-info">
+                <p className="sale-address">{sale.address}</p>
+                <p className="sale-price">{sale.price}</p>
+                <p className="sale-date">Sold: {sale.dateSold}</p>
               </div>
-              <div className="sale-card-body">
-                <p className="sale-address" data-testid="sale-address">{sale.address}</p>
-                <p className="sale-price" data-testid="sale-price">{sale.price}</p>
-                <div className="sale-card-footer">
-                  <span className="sale-date" data-testid="sale-date">{sale.date}</span>
-                  <span
-                    className={`sale-status sale-status--${(sale.status || 'Sold').toLowerCase()}`}
-                    data-testid="sale-status"
-                  >
-                    {sale.status || 'Sold'}
-                  </span>
-                </div>
-              </div>
-            </div>
+            </article>
           ))}
         </div>
       )}

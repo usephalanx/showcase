@@ -1,25 +1,19 @@
 import React from 'react';
 
-/** Props for the Logo component. */
-interface LogoProps {
-  /** Optional custom source for the logo image. */
-  src?: string;
-  /** Optional alt text for the logo. */
-  alt?: string;
-}
-
 /**
- * Logo component displays the company logo prominently at the top of the page.
- * Falls back to a text-based logo if no image is provided.
+ * Logo component displays the Madhuri Real Estate brand logo
+ * prominently at the top of the page with accessible alt text.
  */
-const Logo: React.FC<LogoProps> = ({
-  src = '/logo.svg',
-  alt = 'Madhuri Real Estate Logo',
-}) => {
+const Logo: React.FC = () => {
   return (
-    <div className="section logo-section" data-testid="logo-section">
-      <img src={src} alt={alt} className="logo-image" />
-    </div>
+    <section className="logo-section" data-testid="logo-section" aria-label="Company Logo">
+      <img
+        src="/logo.svg"
+        alt="Madhuri Real Estate Logo"
+        width={150}
+        height={150}
+      />
+    </section>
   );
 };
 

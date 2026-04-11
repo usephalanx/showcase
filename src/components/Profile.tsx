@@ -1,38 +1,31 @@
 import React from 'react';
 
-/** Props for the Profile component. */
-interface ProfileProps {
-  /** URL of the profile photo. */
-  imageUrl?: string;
-  /** Name of the agent. */
-  name?: string;
-  /** Bio / description of the agent. */
-  bio?: string;
-}
-
 /**
- * Profile component presents the agent or company profile with a
- * photo and biographical description in a responsive layout.
+ * Profile component presents the agent/company profile with a photo
+ * placeholder and biographical description. Responsive layout adapts
+ * from stacked (mobile) to side-by-side (desktop).
  */
-const Profile: React.FC<ProfileProps> = ({
-  imageUrl = '/profile.jpg',
-  name = 'Madhuri Patel',
-  bio = 'With over 15 years of experience in residential and commercial real estate, Madhuri Patel is dedicated to helping families find their dream homes. Her deep knowledge of the local market and commitment to client satisfaction have made her one of the most trusted names in the industry.',
-}) => {
+const Profile: React.FC = () => {
   return (
-    <section className="section profile-section" data-testid="profile-section">
+    <section className="profile-section" data-testid="profile-section" aria-label="Agent Profile">
       <img
-        src={imageUrl}
-        alt={`${name} profile photo`}
         className="profile-image"
-        onError={(e) => {
-          const target = e.currentTarget;
-          target.style.display = 'none';
-        }}
+        src="https://via.placeholder.com/150x150?text=Agent"
+        alt="Madhuri - Real Estate Agent"
+        width={150}
+        height={150}
       />
-      <div className="profile-details">
-        <h3>{name}</h3>
-        <p>{bio}</p>
+      <div className="profile-content">
+        <h2>About Madhuri</h2>
+        <p>
+          With over 15 years of experience in the real estate market, Madhuri has
+          helped hundreds of families find their dream homes. Specializing in
+          residential properties, luxury estates, and investment opportunities,
+          Madhuri brings deep market knowledge, unwavering dedication, and a
+          personal touch to every transaction. Whether you are buying your first
+          home or selling a cherished property, Madhuri is committed to making
+          the process seamless and rewarding.
+        </p>
       </div>
     </section>
   );

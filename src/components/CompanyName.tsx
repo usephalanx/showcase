@@ -1,26 +1,15 @@
 import React from 'react';
 
-/** Props for the CompanyName component. */
-interface CompanyNameProps {
-  /** Optional company name override. */
-  name?: string;
-  /** Optional tagline displayed below the name. */
-  tagline?: string;
-}
-
 /**
- * CompanyName component showcases the company name with distinctive
- * typography and an optional tagline beneath.
+ * CompanyName component displays the company name with distinctive
+ * brand typography and an optional tagline.
  */
-const CompanyName: React.FC<CompanyNameProps> = ({
-  name = 'Madhuri Real Estate',
-  tagline = 'Your Trusted Partner in Real Estate',
-}) => {
+const CompanyName: React.FC = () => {
   return (
-    <div className="section company-name-section" data-testid="company-name-section">
-      <h1>{name}</h1>
-      {tagline && <p className="tagline">{tagline}</p>}
-    </div>
+    <section className="company-name-section" data-testid="company-name-section" aria-label="Company Name">
+      <h1>Madhuri Real Estate</h1>
+      <p className="tagline">Your Trusted Partner in Finding the Perfect Home</p>
+    </section>
   );
 };
 

@@ -1,117 +1,171 @@
-import React, { useState } from 'react';
+import React, { useState, FormEvent, ChangeEvent } from 'react';
 
-/** Props for the ContactInfo component. */
-interface ContactInfoProps {
-  /** Phone number to display. */
-  phone?: string;
-  /** Email address to display. */
+/** Shape of the contact form fields. */
+interface FormData {
+  name: string;
+  email: string;
+  message: string;
+}
+
+/** Shape of per-field validation errors. */
+interface FormErrors {
+  name?: string;
   email?: string;
-  /** Office address to display. */
-  address?: string;
+  message?: string;
 }
 
 /**
- * ContactInfo component provides clear contact information
- * and a simple contact form with basic validation.
+ * Validates form data and returns an object of field-level error messages.
+ * Returns an empty object when all fields are valid.
  */
-const ContactInfo: React.FC<ContactInfoProps> = ({
-  phone = '(555) 123-4567',
-  email = 'info@madhurirealestate.com',
-  address = '100 Main Street, Suite 200, Springfield, IL 62701',
-}) => {
-  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [submitted, setSubmitted] = useState(false);
+function validateForm(data: FormData): FormErrors {
+  const errors: FormErrors = {};
 
-  const validate = (): boolean => {
-    const newErrors: Record<string, string> = {};
-    if (!formData.name.trim()) newErrors.name = 'Name is required';
-    if (!formData.email.trim()) newErrors.email = 'Email is required';
-    if (!formData.message.trim()) newErrors.message = 'Message is required';
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+  if (!data.name.trim()) {
+    errors.name = 'Name is required';
+  }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (validate()) {
-      setSubmitted(true);
-      setFormData({ name: '', email: '', message: '' });
-      setErrors({});
+  if (!data.email.trim()) {
+    errors.email = 'Email is required';
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email.trim())) {
+    errors.email = 'Please enter a valid email address';
+  }
+
+  if (!data.message.trim()) {
+    errors.message = 'Message is required';
+  }
+
+  return errors;
+}
+
+/**
+ * ContactInfo component displays contact details (phone, email, address)
+ * alongside a validated contact form. Form validation is performed on
+ * submission and inline errors are displayed for each invalid field.
+ */
+const ContactInfo: React.FC = () => {
+  const [formData, setFormData] = useState<FormData>({
+    name: '',
+    email: '',
+    message: '',
+  });
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [submitted, setSubmitted] = useState<boolean>(false);
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    // Clear field error on change
+    if (errors[name as keyof FormErrors]) {
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
+    e.preventDefault();
+    const validationErrors = validateForm(formData);
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      setSubmitted(false);
+      return;
+    }
+
+    // In a real application, this would send the data to a server.
+    setErrors({});
+    setSubmitted(true);
+    setFormData({ name: '', email: '', message: '' });
   };
 
   return (
-    <section className="section contact-section" data-testid="contact-section">
-      <h2>Contact Us</h2>
+    <section className="contact-section" data-testid="contact-section" aria-label="Contact Information">
+      <h2>Get In Touch</h2>
+      <div className="contact-layout">
+        {/* Contact Details */}
+        <div className="contact-details" data-testid="contact-details">
+          <div className="contact-item">
+            <span className="contact-label">Phone:</span>
+            <a href="tel:+15551234567" aria-label="Call us at (555) 123-4567">(555) 123-4567</a>
+          </div>
+          <div className="contact-item">
+            <span className="contact-label">Email:</span>
+            <a href="mailto:info@madhurirealestate.com" aria-label="Email us at info@madhurirealestate.com">
+              info@madhurirealestate.com
+            </a>
+          </div>
+          <div className="contact-item">
+            <span className="contact-label">Address:</span>
+            <span>100 Main Street, Suite 200, Springfield, IL 62701</span>
+          </div>
+        </div>
 
-      <div className="contact-info-grid">
-        <div className="contact-item">
-          <div>
-            <p className="label">Phone</p>
-            <p className="value" data-testid="contact-phone">{phone}</p>
+        {/* Contact Form */}
+        <form className="contact-form" data-testid="contact-form" onSubmit={handleSubmit} noValidate>
+          {submitted && (
+            <div className="form-success" data-testid="form-success" role="status">
+              Thank you! Your message has been sent.
+            </div>
+          )}
+
+          <div className="form-group">
+            <label htmlFor="contact-name">Name</label>
+            <input
+              id="contact-name"
+              name="name"
+              type="text"
+              value={formData.name}
+              onChange={handleChange}
+              aria-required="true"
+              aria-invalid={!!errors.name}
+              placeholder="Your name"
+            />
+            {errors.name && (
+              <span className="field-error" data-testid="error-name" role="alert">
+                {errors.name}
+              </span>
+            )}
           </div>
-        </div>
-        <div className="contact-item">
-          <div>
-            <p className="label">Email</p>
-            <p className="value" data-testid="contact-email">{email}</p>
+
+          <div className="form-group">
+            <label htmlFor="contact-email">Email</label>
+            <input
+              id="contact-email"
+              name="email"
+              type="email"
+              value={formData.email}
+              onChange={handleChange}
+              aria-required="true"
+              aria-invalid={!!errors.email}
+              placeholder="you@example.com"
+            />
+            {errors.email && (
+              <span className="field-error" data-testid="error-email" role="alert">
+                {errors.email}
+              </span>
+            )}
           </div>
-        </div>
-        <div className="contact-item">
-          <div>
-            <p className="label">Address</p>
-            <p className="value" data-testid="contact-address">{address}</p>
+
+          <div className="form-group">
+            <label htmlFor="contact-message">Message</label>
+            <textarea
+              id="contact-message"
+              name="message"
+              value={formData.message}
+              onChange={handleChange}
+              aria-required="true"
+              aria-invalid={!!errors.message}
+              placeholder="How can we help you?"
+            />
+            {errors.message && (
+              <span className="field-error" data-testid="error-message" role="alert">
+                {errors.message}
+              </span>
+            )}
           </div>
-        </div>
+
+          <button type="submit">Send Message</button>
+        </form>
       </div>
-
-      {submitted && (
-        <p data-testid="success-message" style={{ color: 'var(--color-success)', textAlign: 'center', marginBottom: 'var(--space-md)' }}>
-          Thank you for your message! We will get back to you soon.
-        </p>
-      )}
-
-      <form className="contact-form" onSubmit={handleSubmit} data-testid="contact-form" noValidate>
-        <div>
-          <input
-            type="text"
-            name="name"
-            placeholder="Your Name"
-            value={formData.name}
-            onChange={handleChange}
-            aria-label="Your Name"
-          />
-          {errors.name && <p className="form-error" data-testid="error-name">{errors.name}</p>}
-        </div>
-        <div>
-          <input
-            type="email"
-            name="email"
-            placeholder="Your Email"
-            value={formData.email}
-            onChange={handleChange}
-            aria-label="Your Email"
-          />
-          {errors.email && <p className="form-error" data-testid="error-email">{errors.email}</p>}
-        </div>
-        <div>
-          <textarea
-            name="message"
-            placeholder="Your Message"
-            value={formData.message}
-            onChange={handleChange}
-            aria-label="Your Message"
-          />
-          {errors.message && <p className="form-error" data-testid="error-message">{errors.message}</p>}
-        </div>
-        <button type="submit">Send Message</button>
-      </form>
     </section>
   );
 };

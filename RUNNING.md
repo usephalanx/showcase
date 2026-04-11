@@ -1,8 +1,10 @@
-# Madhuri Real Estate — Running Guide
+# Madhuri Real Estate - Single Page Application
+
+A modern, responsive single-page website for Madhuri Real Estate built with React and TypeScript.
 
 ## TEAM_BRIEF
-stack: TypeScript/React+CRA
-test_runner: npx react-scripts test --watchAll=false
+stack: TypeScript/React+Vite
+test_runner: npx jest --config jest.config.ts
 lint_tool: none
 coverage_tool: none
 coverage_threshold: 0
@@ -10,8 +12,8 @@ coverage_applies: false
 
 ## Prerequisites
 
-- Node.js >= 16
-- npm >= 8
+- Node.js >= 18
+- npm >= 9
 
 ## Setup
 
@@ -19,24 +21,20 @@ coverage_applies: false
 npm install
 ```
 
-## Development Server
+## Development
 
 ```bash
 npm run dev
 ```
 
-Opens at http://localhost:3000
-
-## Run Tests
+## Testing
 
 ```bash
 npm test
 ```
 
-## Build for Production
+## Build
 
 ```bash
 npm run build
 ```
-
-Output will be in the `build/` directory.

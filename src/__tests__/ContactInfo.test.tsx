@@ -1,124 +1,100 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { describe, it, expect } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
+import '@testing-library/jest-dom';
 import ContactInfo from '../components/ContactInfo';
 
+/**
+ * Test suite for the ContactInfo component.
+ * Tests contact details display and form validation.
+ */
 describe('ContactInfo', () => {
-  it('renders the contact section heading', () => {
+  beforeEach(() => {
     render(<ContactInfo />);
-    expect(screen.getByText('Contact Us')).toBeInTheDocument();
   });
 
-  it('displays phone number', () => {
-    render(<ContactInfo />);
-    expect(screen.getByTestId('contact-phone')).toHaveTextContent('(555) 123-4567');
+  describe('Contact details', () => {
+    it('displays the phone number', () => {
+      expect(screen.getByText('(555) 123-4567')).toBeInTheDocument();
+    });
+
+    it('displays the email address', () => {
+      expect(screen.getByText('info@madhurirealestate.com')).toBeInTheDocument();
+    });
+
+    it('displays the physical address', () => {
+      expect(screen.getByText(/100 Main Street/i)).toBeInTheDocument();
+    });
+
+    it('renders the section heading', () => {
+      expect(screen.getByRole('heading', { name: /get in touch/i })).toBeInTheDocument();
+    });
   });
 
-  it('displays email address', () => {
-    render(<ContactInfo />);
-    expect(screen.getByTestId('contact-email')).toHaveTextContent(
-      'madhuri@madhurirealestate.com'
-    );
-  });
+  describe('Contact form', () => {
+    it('renders the contact form', () => {
+      expect(screen.getByTestId('contact-form')).toBeInTheDocument();
+    });
 
-  it('displays physical address', () => {
-    render(<ContactInfo />);
-    const addr = screen.getByTestId('contact-address');
-    expect(addr).toHaveTextContent(/100 Main Street/);
-    expect(addr).toHaveTextContent(/Springfield/);
-  });
+    it('renders name, email, and message fields', () => {
+      expect(screen.getByLabelText(/name/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/message/i)).toBeInTheDocument();
+    });
 
-  it('renders the contact form with all fields', () => {
-    render(<ContactInfo />);
-    expect(screen.getByLabelText(/name/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/phone/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/message/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /send message/i })).toBeInTheDocument();
-  });
+    it('renders a submit button', () => {
+      expect(screen.getByRole('button', { name: /send message/i })).toBeInTheDocument();
+    });
 
-  it('validates required fields on empty submit', async () => {
-    const user = userEvent.setup();
-    render(<ContactInfo />);
+    it('shows validation errors when submitting empty form', () => {
+      fireEvent.click(screen.getByRole('button', { name: /send message/i }));
 
-    await user.click(screen.getByRole('button', { name: /send message/i }));
+      expect(screen.getByTestId('error-name')).toHaveTextContent('Name is required');
+      expect(screen.getByTestId('error-email')).toHaveTextContent('Email is required');
+      expect(screen.getByTestId('error-message')).toHaveTextContent('Message is required');
+    });
 
-    expect(screen.getByTestId('name-error')).toHaveTextContent('Name is required');
-    expect(screen.getByTestId('email-error')).toHaveTextContent('Email is required');
-    expect(screen.getByTestId('message-error')).toHaveTextContent(
-      'Message is required'
-    );
-  });
+    it('shows email format error for invalid email', () => {
+      fireEvent.change(screen.getByLabelText(/name/i), { target: { value: 'John' } });
+      fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'not-an-email' } });
+      fireEvent.change(screen.getByLabelText(/message/i), { target: { value: 'Hello' } });
+      fireEvent.click(screen.getByRole('button', { name: /send message/i }));
 
-  it('validates email format', async () => {
-    const user = userEvent.setup();
-    render(<ContactInfo />);
+      expect(screen.getByTestId('error-email')).toHaveTextContent('Please enter a valid email address');
+      expect(screen.queryByTestId('error-name')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('error-message')).not.toBeInTheDocument();
+    });
 
-    await user.type(screen.getByLabelText(/name/i), 'Test');
-    await user.type(screen.getByLabelText(/email/i), 'bad-email');
-    await user.type(screen.getByLabelText(/message/i), 'Test message');
-    await user.click(screen.getByRole('button', { name: /send message/i }));
+    it('shows success message on valid submission', () => {
+      fireEvent.change(screen.getByLabelText(/name/i), { target: { value: 'Jane Doe' } });
+      fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'jane@example.com' } });
+      fireEvent.change(screen.getByLabelText(/message/i), { target: { value: 'I want to buy a house.' } });
+      fireEvent.click(screen.getByRole('button', { name: /send message/i }));
 
-    expect(screen.getByTestId('email-error')).toHaveTextContent(
-      'Please enter a valid email address'
-    );
-  });
+      expect(screen.getByTestId('form-success')).toHaveTextContent(/thank you/i);
+      expect(screen.queryByTestId('error-name')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('error-email')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('error-message')).not.toBeInTheDocument();
+    });
 
-  it('accepts valid form and shows success', async () => {
-    const user = userEvent.setup();
-    render(<ContactInfo />);
+    it('clears form fields after successful submission', () => {
+      fireEvent.change(screen.getByLabelText(/name/i), { target: { value: 'Jane' } });
+      fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'jane@example.com' } });
+      fireEvent.change(screen.getByLabelText(/message/i), { target: { value: 'Hello' } });
+      fireEvent.click(screen.getByRole('button', { name: /send message/i }));
 
-    await user.type(screen.getByLabelText(/name/i), 'Jane');
-    await user.type(screen.getByLabelText(/email/i), 'jane@test.com');
-    await user.type(screen.getByLabelText(/message/i), 'Hello!');
-    await user.click(screen.getByRole('button', { name: /send message/i }));
+      expect((screen.getByLabelText(/name/i) as HTMLInputElement).value).toBe('');
+      expect((screen.getByLabelText(/email/i) as HTMLInputElement).value).toBe('');
+      expect((screen.getByLabelText(/message/i) as HTMLTextAreaElement).value).toBe('');
+    });
 
-    expect(screen.getByTestId('form-success')).toBeInTheDocument();
-    expect(screen.queryByTestId('name-error')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('email-error')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('message-error')).not.toBeInTheDocument();
-  });
+    it('clears field error when user types in the field', () => {
+      // Submit empty to trigger errors
+      fireEvent.click(screen.getByRole('button', { name: /send message/i }));
+      expect(screen.getByTestId('error-name')).toBeInTheDocument();
 
-  it('clears the form after successful submission', async () => {
-    const user = userEvent.setup();
-    render(<ContactInfo />);
-
-    const nameInput = screen.getByLabelText(/name/i) as HTMLInputElement;
-    const emailInput = screen.getByLabelText(/email/i) as HTMLInputElement;
-    const messageInput = screen.getByLabelText(/message/i) as HTMLTextAreaElement;
-
-    await user.type(nameInput, 'Jane');
-    await user.type(emailInput, 'jane@test.com');
-    await user.type(messageInput, 'Hello!');
-    await user.click(screen.getByRole('button', { name: /send message/i }));
-
-    expect(nameInput.value).toBe('');
-    expect(emailInput.value).toBe('');
-    expect(messageInput.value).toBe('');
-  });
-
-  it('clears field error when user types', async () => {
-    const user = userEvent.setup();
-    render(<ContactInfo />);
-
-    await user.click(screen.getByRole('button', { name: /send message/i }));
-    expect(screen.getByTestId('name-error')).toBeInTheDocument();
-
-    await user.type(screen.getByLabelText(/name/i), 'A');
-    expect(screen.queryByTestId('name-error')).not.toBeInTheDocument();
-  });
-
-  it('phone field is optional', async () => {
-    const user = userEvent.setup();
-    render(<ContactInfo />);
-
-    await user.type(screen.getByLabelText(/name/i), 'Jane');
-    await user.type(screen.getByLabelText(/email/i), 'jane@test.com');
-    await user.type(screen.getByLabelText(/message/i), 'Hello!');
-    await user.click(screen.getByRole('button', { name: /send message/i }));
-
-    // Should succeed without phone
-    expect(screen.getByTestId('form-success')).toBeInTheDocument();
+      // Type in name field
+      fireEvent.change(screen.getByLabelText(/name/i), { target: { value: 'A' } });
+      expect(screen.queryByTestId('error-name')).not.toBeInTheDocument();
+    });
   });
 });
