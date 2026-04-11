@@ -1,15 +1,10 @@
-# syntax=docker/dockerfile:1
 FROM python:3.11-slim
 
-LABEL maintainer="team"
+WORKDIR /app
 
-WORKDIR /code
-
-# Install dependencies first for better layer caching
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
 COPY app/ ./app/
 
 EXPOSE 8000

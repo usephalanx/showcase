@@ -1,4 +1,4 @@
-# Running the Application
+# Running the Hello World API
 
 ## TEAM_BRIEF
 stack: Python/FastAPI
@@ -10,63 +10,61 @@ coverage_applies: true
 
 ## Prerequisites
 
-- Python 3.11+
-- Docker and Docker Compose (for containerised usage)
+- Python 3.11+ **or** Docker / Docker Compose
 
-## Local Development
+---
 
-### Install dependencies
+## Run Locally (without Docker)
 
 ```bash
+# 1. Create and activate a virtual environment
+python -m venv .venv
+source .venv/bin/activate   # Linux/macOS
+# .venv\Scripts\activate    # Windows
+
+# 2. Install dependencies
 pip install -r requirements.txt
-pip install anyio pytest-anyio
+
+# 3. Start the server
+uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
-### Run the application
+The API is now available at **http://localhost:8000/hello**.
 
-```bash
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-```
+---
 
-The API will be available at: http://localhost:8000
-
-### Run tests
-
-```bash
-pytest tests/
-```
-
-### Run tests with coverage
-
-```bash
-pytest tests/ --cov=app --cov-report=term-missing
-```
-
-## Docker
-
-### Build and run
+## Run with Docker Compose
 
 ```bash
 docker compose up --build
 ```
 
-The API will be available at: http://localhost:8000
+The API is now available at **http://localhost:8000/hello**.
 
-### Stop
+Stop with `Ctrl+C` or:
 
 ```bash
 docker compose down
 ```
 
-## Endpoints
+---
 
-| Method | Path     | Description              |
-|--------|----------|--------------------------|
-| GET    | `/hello` | Returns a greeting JSON  |
-
-### Example
+## Run Tests
 
 ```bash
-curl http://localhost:8000/hello
-# {"message": "Hello, World!"}
+# Install dependencies (if not already installed)
+pip install -r requirements.txt
+
+# Run the test suite with coverage
+pytest tests/ -v --tb=short --cov=app --cov-report=term-missing
 ```
+
+All tests should pass with 100% coverage on `app/main.py`.
+
+---
+
+## Endpoints
+
+| Method | Path     | Description                      | Status |
+|--------|----------|----------------------------------|--------|
+| GET    | `/hello` | Returns `{"message": "Hello, World!"}` | 200    |
