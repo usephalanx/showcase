@@ -1,42 +1,33 @@
-# Hello World App — Running Instructions
+# Hello World React App
+
+A minimal React + Vite + TypeScript application that renders a centered "Hello World" heading using CSS modules.
 
 ## TEAM_BRIEF
 stack: TypeScript/React+Vite
-test_runner: pytest tests/
+test_runner: npx vitest run
 lint_tool: none
 coverage_tool: none
 coverage_threshold: 0
 coverage_applies: false
 
-## Overview
-
-A minimal React + TypeScript + Vite application that displays a centered "Hello World" heading with modern, clean styling using CSS modules.
-
 ## Prerequisites
 
 - Node.js >= 18
 - npm >= 9
-- Python >= 3.9 (for running tests)
-- pytest (for running tests)
 
 ## Setup
 
 ```bash
-# Install Node.js dependencies
 npm install
-
-# Install Python test dependencies
-pip install pytest
 ```
 
-## Development
+## Development Server
 
 ```bash
-# Start the Vite dev server
 npm run dev
 ```
 
-The app will be available at `http://localhost:5173`.
+Opens on http://localhost:5173 by default.
 
 ## Build
 
@@ -44,33 +35,34 @@ The app will be available at `http://localhost:5173`.
 npm run build
 ```
 
-## Testing
-
-Python-based tests validate that all CSS files, components, and styling rules are correctly in place:
+## Running Tests
 
 ```bash
-pytest tests/
+npm test
 ```
+
+This runs `vitest run` which executes all `*.test.tsx` files in the `src/` directory.
+
+Test files:
+- `src/components/HelloWorld.test.tsx` — Unit tests for the HelloWorld component
+- `src/App.test.tsx` — Integration tests for the App component
 
 ## Project Structure
 
 ```
-├── index.html                          # HTML entry point
+├── index.html                          # Vite HTML entry point
+├── package.json                        # Dependencies and scripts
+├── tsconfig.json                       # TypeScript configuration
+├── vite.config.ts                      # Vite + Vitest configuration
+├── vite-env.d.ts                       # TypeScript declarations for Vite
 ├── src/
-│   ├── main.tsx                        # React bootstrap
-│   ├── index.css                       # Global reset & base styles
-│   ├── App.tsx                         # Root component
-│   ├── App.module.css                  # App container centering styles
-│   ├── App.css                         # Legacy/fallback app styles
-│   ├── vite-env.d.ts                   # TypeScript declarations
-│   ├── test-setup.ts                   # Vitest setup
+│   ├── main.tsx                        # React DOM entry point
+│   ├── App.tsx                         # Root App component
+│   ├── App.module.css                  # App-level centering styles
+│   ├── App.test.tsx                    # Integration tests for App
 │   └── components/
 │       ├── HelloWorld.tsx              # HelloWorld component
-│       └── HelloWorld.module.css       # Scoped heading styles
-├── tests/
-│   └── test_frontend_styling.py        # Python tests for styling
-├── package.json
-├── tsconfig.json
-├── vite.config.ts
-└── vitest.config.ts
+│       ├── HelloWorld.module.css       # HelloWorld scoped styles
+│       └── HelloWorld.test.tsx         # Unit tests for HelloWorld
+└── RUNNING.md                          # This file
 ```

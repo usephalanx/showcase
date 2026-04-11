@@ -25,4 +25,22 @@ describe('App', () => {
     const heading = screen.getByTestId('hello-heading');
     expect(container.contains(heading)).toBe(true);
   });
+
+  it('app container has the correct CSS module class name', () => {
+    render(<App />);
+    const container = screen.getByTestId('app-container');
+    expect(container.className).toContain('container');
+  });
+
+  it('renders the heading as an h1 element inside the app', () => {
+    render(<App />);
+    const heading = screen.getByTestId('hello-heading');
+    expect(heading.tagName).toBe('H1');
+  });
+
+  it('app container is a div element', () => {
+    render(<App />);
+    const container = screen.getByTestId('app-container');
+    expect(container.tagName).toBe('DIV');
+  });
 });

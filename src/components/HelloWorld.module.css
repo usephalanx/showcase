@@ -1,14 +1,6 @@
-/*
- * Scoped styles for the HelloWorld component.
- * Provides modern, centered heading typography.
- */
-
 .heading {
   font-size: 3rem;
   font-weight: 700;
-  color: #1a1a2e;
+  color: #333333;
   text-align: center;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-  padding: 1rem;
 }
