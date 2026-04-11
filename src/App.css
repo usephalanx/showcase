@@ -1,0 +1,14 @@
+/*
+ * Legacy App.css kept for compatibility.
+ * Primary styles are in App.module.css (CSS Modules).
+ * This file provides fallback app-level styles.
+ */
+
+.app-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  width: 100%;
+  background-color: #ffffff;
+}
