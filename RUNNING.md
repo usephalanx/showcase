@@ -1,4 +1,4 @@
-# Running the Vite React App
+# Hello World React App
 
 ## TEAM_BRIEF
 stack: TypeScript/React+Vite
@@ -10,42 +10,58 @@ coverage_applies: false
 
 ## Prerequisites
 
-- Node.js 18+ and npm
-- Docker (optional, for containerised runs)
+- Node.js >= 18
+- npm >= 9
 
-## Local Development
+## Setup
 
 ```bash
-# Install dependencies
 npm install
+```
 
-# Start the development server
+## Development
+
+```bash
 npm run dev
+```
 
-# Build for production
+Open http://localhost:5173 in your browser.
+
+## Build
+
+```bash
 npm run build
+```
 
-# Preview the production build
-npm run preview
+## Run Tests
 
-# Run tests
+```bash
 npm test
 ```
 
 ## Docker-based Setup
 
+### Build the image
+
 ```bash
-# Build the Docker image
-docker build -t vite-react-app .
-
-# Run the development server
-docker run -it --rm -p 5173:5173 vite-react-app npm run dev -- --host
-
-# Run tests inside the container
-docker run -it --rm vite-react-app npm test
+docker build -t hello-world-app .
 ```
 
-### Dockerfile (example)
+### Run in development mode
+
+```bash
+docker run -it --rm -p 5173:5173 hello-world-app npm run dev -- --host 0.0.0.0
+```
+
+### Run tests inside Docker
+
+```bash
+docker run -it --rm hello-world-app npm test
+```
+
+### Dockerfile (if not present)
+
+Create a `Dockerfile` at the project root:
 
 ```dockerfile
 FROM node:18-alpine
@@ -54,19 +70,5 @@ COPY package.json ./
 RUN npm install
 COPY . .
 EXPOSE 5173
-CMD ["npm", "run", "dev", "--", "--host"]
-```
-
-## Project Structure
-
-```
-.
-├── index.html          # HTML entry point for Vite
-├── package.json        # Dependencies and scripts
-├── vite.config.js      # Vite configuration with React plugin
-├── RUNNING.md          # This file
-└── src/
-    ├── main.jsx        # React entry point
-    ├── App.jsx         # Main App component
-    └── App.test.jsx    # Tests for App component
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
 ```

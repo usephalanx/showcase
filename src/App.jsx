@@ -1,12 +1,12 @@
 /**
- * Main App component that renders the application root.
+ * Main App component.
  *
- * @returns {JSX.Element} A div containing "Hello World".
+ * Renders a simple "Hello World" heading as the root UI element.
  */
 function App() {
   return (
     <div>
-      Hello World
+      <h1>Hello World</h1>
     </div>
   );
 }
