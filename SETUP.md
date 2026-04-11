@@ -1,11 +1,11 @@
 # Setup
 
-After cloning the repository, run the following to install dependencies
-and generate the lock file:
+After cloning the repository, run the following commands to generate lock files and install dependencies:
 
 ```bash
 npm install
 ```
 
-This produces `node_modules/` and `package-lock.json` which are not
-checked into version control.
+This will generate `package-lock.json` and populate `node_modules/`.
+
+Do NOT commit `package-lock.json`, `node_modules/`, or `dist/` — they are in `.gitignore`.

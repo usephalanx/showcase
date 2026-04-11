@@ -1,4 +1,4 @@
-# Running the Application
+# Running Instructions
 
 ## TEAM_BRIEF
 stack: TypeScript/React+Vite
@@ -10,36 +10,39 @@ coverage_applies: false
 
 ## Prerequisites
 
-- Node.js 20+ and npm, OR Docker + Docker Compose
+- Node.js >= 18
+- npm >= 9
 
-## Local Development
+## Install Dependencies
 
 ```bash
 npm install
+```
+
+## Run Development Server
+
+```bash
 npm run dev
 ```
 
 Open http://localhost:5173.
 
-## Running Tests
+## Run Tests
 
 ```bash
-npm install
-npx vitest run
+npm test
 ```
 
-## Docker Setup
+## Build for Production
+
+```bash
+npm run build
+```
+
+## Docker
 
 ```bash
 docker compose up --build
 ```
 
-Open http://localhost:5173.
-
-## Build for Production
-
-```bash
-npm install
-npm run build
-npm run preview
-```
+Navigate to http://localhost:5173.

@@ -1,8 +1,10 @@
 /**
  * Main application component.
  *
- * Renders a simple page displaying "Hi".
+ * Renders a simple page displaying the text "Hi".
  */
-export default function App(): JSX.Element {
+function App(): JSX.Element {
   return <div>Hi</div>;
 }
+
+export default App;

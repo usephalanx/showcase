@@ -1,25 +1,13 @@
-# Hi App
+# Hi SPA
 
-A minimal React + TypeScript + Vite application that displays "Hi".
+A minimal single-page React application that displays "Hi".
 
 ## Stack
 
-- **React 18** — UI library
-- **TypeScript** — type safety
-- **Vite** — build tool and dev server
-- **Vitest** — test runner
-- **React Testing Library** — component testing
-
-## Project Structure
-
-```
-index.html          HTML entry point
-src/
-  App.tsx           Main component (renders "Hi")
-  App.test.tsx      Test for App component
-  main.tsx          React DOM entry point
-  vite-env.d.ts     Vite type declarations
-```
+- React 18
+- TypeScript
+- Vite 5
+- Vitest + React Testing Library
 
 ## Getting Started
 
@@ -30,13 +18,13 @@ npm run dev
 
 Open http://localhost:5173 in your browser.
 
-## Testing
+## Running Tests
 
 ```bash
 npm test
 ```
 
-## Building
+## Building for Production
 
 ```bash
 npm run build
@@ -49,4 +37,4 @@ npm run preview
 docker compose up --build
 ```
 
-Open http://localhost:5173 in your browser.
+Navigate to http://localhost:5173.
