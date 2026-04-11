@@ -1,17 +1,15 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-/// <reference types="vitest" />
-
+/**
+ * Vite configuration for the React + TypeScript application.
+ * Includes the React plugin for JSX transform and Vitest for testing.
+ */
 export default defineConfig({
   plugins: [react()],
-  server: {
-    host: '0.0.0.0',
-    port: 5173,
-  },
   test: {
-    environment: 'jsdom',
     globals: true,
-    setupFiles: [],
+    environment: 'jsdom',
+    setupFiles: ['./src/setupTests.ts'],
   },
 });
