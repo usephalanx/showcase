@@ -1,10 +1,8 @@
 version: "3.9"
 
 services:
-  hello-api:
-    build:
-      context: .
-      dockerfile: Dockerfile
+  api:
+    build: .
     ports:
       - "8000:8000"
     restart: unless-stopped

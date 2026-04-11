@@ -1,13 +1,10 @@
-"""Tests for the /hello endpoint in app.main.
+"""Test suite for the FastAPI /hello endpoint.
 
 Covers:
 - GET /hello returns 200 with correct JSON body.
 - POST /hello returns 405 Method Not Allowed.
-- PUT /hello returns 405 Method Not Allowed.
-- DELETE /hello returns 405 Method Not Allowed.
-- PATCH /hello returns 405 Method Not Allowed.
-- GET on a non-existent path returns 404.
-- Response Content-Type is application/json.
+- Other unsupported methods (PUT, DELETE, PATCH) return 405.
+- Non-existent route returns 404.
 """
 
 from __future__ import annotations
@@ -26,57 +23,63 @@ def anyio_backend() -> str:
 
 @pytest.fixture
 async def client() -> AsyncClient:
-    """Create an async HTTP client wired to the FastAPI app."""
+    """Create an async HTTP client bound to the FastAPI app."""
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://testserver") as ac:
         yield ac
 
 
 @pytest.mark.anyio
-async def test_hello_returns_hello_world(client: AsyncClient) -> None:
-    """GET /hello must return 200 with {'message': 'Hello, World!'}."""
+async def test_hello_returns_200(client: AsyncClient) -> None:
+    """GET /hello should return HTTP 200."""
     response = await client.get("/hello")
     assert response.status_code == 200
+
+
+@pytest.mark.anyio
+async def test_hello_returns_correct_json(client: AsyncClient) -> None:
+    """GET /hello should return {'message': 'Hello, World!'}."""
+    response = await client.get("/hello")
     assert response.json() == {"message": "Hello, World!"}
 
 
 @pytest.mark.anyio
-async def test_hello_response_content_type(client: AsyncClient) -> None:
-    """GET /hello must return application/json content type."""
+async def test_hello_content_type_is_json(client: AsyncClient) -> None:
+    """GET /hello should return a JSON content-type header."""
     response = await client.get("/hello")
-    assert "application/json" in response.headers["content-type"]
+    assert "application/json" in response.headers.get("content-type", "")
 
 
 @pytest.mark.anyio
 async def test_hello_post_method_not_allowed(client: AsyncClient) -> None:
-    """POST /hello must return 405 Method Not Allowed."""
+    """POST /hello should return 405 Method Not Allowed."""
     response = await client.post("/hello")
     assert response.status_code == 405
 
 
 @pytest.mark.anyio
 async def test_hello_put_method_not_allowed(client: AsyncClient) -> None:
-    """PUT /hello must return 405 Method Not Allowed."""
+    """PUT /hello should return 405 Method Not Allowed."""
     response = await client.put("/hello")
     assert response.status_code == 405
 
 
 @pytest.mark.anyio
 async def test_hello_delete_method_not_allowed(client: AsyncClient) -> None:
-    """DELETE /hello must return 405 Method Not Allowed."""
+    """DELETE /hello should return 405 Method Not Allowed."""
     response = await client.delete("/hello")
     assert response.status_code == 405
 
 
 @pytest.mark.anyio
 async def test_hello_patch_method_not_allowed(client: AsyncClient) -> None:
-    """PATCH /hello must return 405 Method Not Allowed."""
+    """PATCH /hello should return 405 Method Not Allowed."""
     response = await client.patch("/hello")
     assert response.status_code == 405
 
 
 @pytest.mark.anyio
-async def test_nonexistent_path_returns_404(client: AsyncClient) -> None:
-    """GET on a non-existent path must return 404."""
+async def test_nonexistent_route_returns_404(client: AsyncClient) -> None:
+    """GET /nonexistent should return 404 Not Found."""
     response = await client.get("/nonexistent")
     assert response.status_code == 404

@@ -1,8 +1,8 @@
-# Running the Hello World API
+# Running the Hello World FastAPI Application
 
 ## TEAM_BRIEF
 stack: Python/FastAPI
-test_runner: pytest tests/
+test_runner: pytest tests/ -v
 lint_tool: ruff check .
 coverage_tool: pytest-cov
 coverage_threshold: 70
@@ -10,61 +10,42 @@ coverage_applies: true
 
 ## Prerequisites
 
-- Python 3.11+ **or** Docker / Docker Compose
+- Python 3.11+ **or** Docker
+- pip (if running locally)
 
----
-
-## Run Locally (without Docker)
+## Local Setup
 
 ```bash
-# 1. Create and activate a virtual environment
-python -m venv .venv
-source .venv/bin/activate   # Linux/macOS
-# .venv\Scripts\activate    # Windows
-
-# 2. Install dependencies
+# Install dependencies
 pip install -r requirements.txt
 
-# 3. Start the server
+# Run the application
 uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
-The API is now available at **http://localhost:8000/hello**.
+The API is available at: http://localhost:8000/hello
 
----
-
-## Run with Docker Compose
+## Docker Setup
 
 ```bash
+# Build and run with docker-compose
 docker compose up --build
 ```
 
-The API is now available at **http://localhost:8000/hello**.
+The API is available at: http://localhost:8000/hello
 
-Stop with `Ctrl+C` or:
-
-```bash
-docker compose down
-```
-
----
-
-## Run Tests
+## Running Tests
 
 ```bash
-# Install dependencies (if not already installed)
-pip install -r requirements.txt
+# Run all tests with verbose output
+pytest tests/ -v
 
-# Run the test suite with coverage
-pytest tests/ -v --tb=short --cov=app --cov-report=term-missing
+# Run tests with coverage
+pytest tests/ -v --cov=app --cov-report=term-missing
 ```
-
-All tests should pass with 100% coverage on `app/main.py`.
-
----
 
 ## Endpoints
 
-| Method | Path     | Description                      | Status |
-|--------|----------|----------------------------------|--------|
-| GET    | `/hello` | Returns `{"message": "Hello, World!"}` | 200    |
+| Method | Path    | Description                  |
+|--------|---------|------------------------------|
+| GET    | /hello  | Returns a greeting message   |
