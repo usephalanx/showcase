@@ -1,9 +1,9 @@
 /**
- * TodoInput — controlled text input with an "Add" button.
+ * TodoInput — a text input with an add button for creating new todos.
  *
- * Maintains local state for the input text. On submit (button press or
- * keyboard submit), calls `onAdd` with trimmed text and clears the input.
- * Empty / whitespace-only strings are silently rejected.
+ * Accepts an `onAdd` callback that is invoked with the trimmed title
+ * when the user taps the add button or submits via keyboard.
+ * Clears the input field after a successful submission.
  */
 
 import React, { useState } from 'react';
@@ -15,28 +15,20 @@ import {
   View,
 } from 'react-native';
 
-/**
- * Props accepted by the TodoInput component.
- */
+/** Props for the TodoInput component. */
 export interface TodoInputProps {
-  /** Callback invoked with the trimmed title string when the user submits. */
+  /** Callback invoked with the new todo title. */
   onAdd: (title: string) => void;
 }
 
 /**
- * A row containing a text input and an "Add" button.
+ * Controlled text input with an "Add" button.
  *
- * The component keeps the current input value in local state. When the
- * user presses the button or triggers a keyboard submit the trimmed value
- * is forwarded to `onAdd` and the field is cleared.  Blank input is
- * silently ignored.
+ * Trims whitespace and rejects empty strings before invoking onAdd.
  */
-const TodoInput: React.FC<TodoInputProps> = ({ onAdd }) => {
+export const TodoInput: React.FC<TodoInputProps> = ({ onAdd }) => {
   const [text, setText] = useState<string>('');
 
-  /**
-   * Validate, forward to parent callback, and reset the field.
-   */
   const handleSubmit = (): void => {
     const trimmed = text.trim();
     if (trimmed.length === 0) {
@@ -50,7 +42,8 @@ const TodoInput: React.FC<TodoInputProps> = ({ onAdd }) => {
     <View style={styles.container}>
       <TextInput
         style={styles.input}
-        placeholder="Add a new todo…"
+        placeholder="Add a new todo..."
+        placeholderTextColor="#999"
         value={text}
         onChangeText={setText}
         onSubmitEditing={handleSubmit}
@@ -61,7 +54,7 @@ const TodoInput: React.FC<TodoInputProps> = ({ onAdd }) => {
         style={styles.button}
         onPress={handleSubmit}
         activeOpacity={0.7}
-        testID="todo-add-button"
+        testID="add-button"
       >
         <Text style={styles.buttonText}>Add</Text>
       </TouchableOpacity>
@@ -72,28 +65,30 @@ const TodoInput: React.FC<TodoInputProps> = ({ onAdd }) => {
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    alignItems: 'center',
     marginBottom: 16,
   },
   input: {
     flex: 1,
+    height: 48,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: '#CCC',
     borderRadius: 8,
     paddingHorizontal: 12,
-    paddingVertical: 10,
     fontSize: 16,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFF',
+    color: '#1A1A1A',
   },
   button: {
-    backgroundColor: '#4a90d9',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 8,
     marginLeft: 8,
+    height: 48,
+    paddingHorizontal: 20,
+    backgroundColor: '#4A90D9',
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   buttonText: {
-    color: '#fff',
+    color: '#FFF',
     fontSize: 16,
     fontWeight: '600',
   },

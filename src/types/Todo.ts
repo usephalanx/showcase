@@ -1,8 +1,8 @@
 /**
- * Core Todo data model used throughout the React Native application.
+ * Todo — core data model for a single todo item.
  */
 export interface Todo {
-  /** Unique identifier (UUID string). */
+  /** Unique identifier (UUID v4 string). */
   id: string;
   /** Title text of the todo item. */
   title: string;

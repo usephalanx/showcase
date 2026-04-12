@@ -1,21 +1,27 @@
 /**
- * Custom React hook that manages the full todo state.
+ * useTodos — custom React hook for todo state management.
  *
- * Loads todos from storageService on mount, and exposes addTodo,
- * toggleTodo, and deleteTodo mutations that update both local state
- * and AsyncStorage.
+ * Provides CRUD operations for todos backed by AsyncStorage.
+ * Returns the current list of todos, a loading flag, and
+ * functions to add, toggle, and delete todos.
  */
-import { useState, useEffect, useCallback } from 'react';
+
+import { useCallback, useEffect, useState } from 'react';
+
 import { Todo } from '../types/Todo';
-import { getTodos, saveTodos } from '../services/storageService';
+import {
+  loadTodos,
+  saveTodos,
+  generateId,
+} from '../services/todoStorage';
 
 /** Return type for the useTodos hook. */
 export interface UseTodosReturn {
-  /** The current list of todos. */
+  /** Current list of todos. */
   todos: Todo[];
-  /** Whether the initial load from storage is in progress. */
+  /** True while the initial load from storage is in progress. */
   loading: boolean;
-  /** Add a new todo with the given title. */
+  /** Add a new todo with the given title (trims whitespace, rejects empty). */
   addTodo: (title: string) => Promise<void>;
   /** Toggle the completed status of the todo with the given id. */
   toggleTodo: (id: string) => Promise<void>;
@@ -24,24 +30,31 @@ export interface UseTodosReturn {
 }
 
 /**
- * Hook that manages todo CRUD state backed by AsyncStorage.
+ * Custom hook that manages todo state with AsyncStorage persistence.
  *
- * @returns An object containing the todos array, a loading flag,
- *          and mutation functions (addTodo, toggleTodo, deleteTodo).
+ * On mount it loads persisted todos from AsyncStorage. Every mutation
+ * (add / toggle / delete) optimistically updates local state and then
+ * persists the new list.
+ *
+ * @returns An object containing todos, loading state, and mutation functions.
  */
-export const useTodos = (): UseTodosReturn => {
+export function useTodos(): UseTodosReturn {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Load todos from storage on mount.
   useEffect(() => {
     let cancelled = false;
 
-    const loadTodos = async (): Promise<void> => {
+    const init = async () => {
       try {
-        const stored = await getTodos();
+        const stored = await loadTodos();
         if (!cancelled) {
           setTodos(stored);
+        }
+      } catch {
+        // If loading fails, start with empty list.
+        if (!cancelled) {
+          setTodos([]);
         }
       } finally {
         if (!cancelled) {
@@ -50,21 +63,13 @@ export const useTodos = (): UseTodosReturn => {
       }
     };
 
-    loadTodos();
+    init();
 
     return () => {
       cancelled = true;
     };
   }, []);
 
-  /**
-   * Add a new todo item.
-   *
-   * Trims the title and rejects empty strings. Generates a unique id
-   * using Date.now().toString().
-   *
-   * @param title - The title text for the new todo.
-   */
   const addTodo = useCallback(async (title: string): Promise<void> => {
     const trimmed = title.trim();
     if (trimmed.length === 0) {
@@ -72,42 +77,36 @@ export const useTodos = (): UseTodosReturn => {
     }
 
     const newTodo: Todo = {
-      id: Date.now().toString(),
+      id: generateId(),
       title: trimmed,
       completed: false,
       createdAt: new Date().toISOString(),
     };
 
-    const updated = [...todos, newTodo];
-    setTodos(updated);
-    await saveTodos(updated);
-  }, [todos]);
+    setTodos((prev) => {
+      const updated = [newTodo, ...prev];
+      saveTodos(updated);
+      return updated;
+    });
+  }, []);
 
-  /**
-   * Toggle the completed status of a todo.
-   *
-   * @param id - The unique identifier of the todo to toggle.
-   */
   const toggleTodo = useCallback(async (id: string): Promise<void> => {
-    const updated = todos.map((todo) =>
-      todo.id === id ? { ...todo, completed: !todo.completed } : todo,
-    );
-    setTodos(updated);
-    await saveTodos(updated);
-  }, [todos]);
+    setTodos((prev) => {
+      const updated = prev.map((todo) =>
+        todo.id === id ? { ...todo, completed: !todo.completed } : todo,
+      );
+      saveTodos(updated);
+      return updated;
+    });
+  }, []);
 
-  /**
-   * Delete a todo by its id.
-   *
-   * @param id - The unique identifier of the todo to delete.
-   */
   const deleteTodo = useCallback(async (id: string): Promise<void> => {
-    const updated = todos.filter((todo) => todo.id !== id);
-    setTodos(updated);
-    await saveTodos(updated);
-  }, [todos]);
+    setTodos((prev) => {
+      const updated = prev.filter((todo) => todo.id !== id);
+      saveTodos(updated);
+      return updated;
+    });
+  }, []);
 
   return { todos, loading, addTodo, toggleTodo, deleteTodo };
-};
-
-export default useTodos;
+}

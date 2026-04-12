@@ -1,13 +1,19 @@
-import React from 'react';
-import { FlatList, Text, StyleSheet, View } from 'react-native';
-import { Todo } from '../types/Todo';
-import TodoItem from './TodoItem';
-
 /**
- * Props for the TodoList component.
+ * TodoList — renders a scrollable list of todo items using FlatList.
+ *
+ * Accepts the todo array and callbacks for toggling and deleting items.
+ * Displays an empty-state message when no todos exist.
  */
+
+import React from 'react';
+import { FlatList, StyleSheet, Text, View } from 'react-native';
+
+import { Todo } from '../types/Todo';
+import { TodoItem } from './TodoItem';
+
+/** Props for the TodoList component. */
 export interface TodoListProps {
-  /** Array of todo items to render. */
+  /** Array of todo items to display. */
   todos: Todo[];
   /** Callback invoked when a todo's completion status should be toggled. */
   onToggle: (id: string) => void;
@@ -16,66 +22,50 @@ export interface TodoListProps {
 }
 
 /**
- * Renders the list of todos using a React Native FlatList.
+ * FlatList-based todo list with empty-state handling.
  *
- * - Uses `keyExtractor` with `todo.id` for stable list keys.
- * - Delegates individual item rendering to the `TodoItem` component.
- * - Displays an empty state message ('No todos yet! Add one above.')
- *   via `ListEmptyComponent` when the list has no items.
+ * Each item is rendered via the TodoItem component.
  */
-const TodoList: React.FC<TodoListProps> = ({ todos, onToggle, onDelete }) => {
-  /**
-   * Extracts the unique key for each todo item.
-   */
-  const keyExtractor = (item: Todo): string => item.id;
-
-  /**
-   * Renders a single todo item row.
-   */
-  const renderItem = ({ item }: { item: Todo }) => (
-    <TodoItem todo={item} onToggle={onToggle} onDelete={onDelete} />
-  );
-
-  /**
-   * Renders the empty state when no todos exist.
-   */
-  const renderEmptyComponent = () => (
-    <View style={styles.emptyContainer} testID="todo-list-empty">
-      <Text style={styles.emptyText}>No todos yet! Add one above.</Text>
-    </View>
-  );
+export const TodoList: React.FC<TodoListProps> = ({ todos, onToggle, onDelete }) => {
+  if (todos.length === 0) {
+    return (
+      <View style={styles.emptyContainer}>
+        <Text style={styles.emptyText}>No todos yet. Add one above!</Text>
+      </View>
+    );
+  }
 
   return (
     <FlatList
       data={todos}
-      keyExtractor={keyExtractor}
-      renderItem={renderItem}
-      ListEmptyComponent={renderEmptyComponent}
-      contentContainerStyle={todos.length === 0 ? styles.emptyListContent : styles.listContent}
+      keyExtractor={(item) => item.id}
+      renderItem={({ item }) => (
+        <TodoItem
+          todo={item}
+          onToggle={onToggle}
+          onDelete={onDelete}
+        />
+      )}
+      contentContainerStyle={styles.list}
+      showsVerticalScrollIndicator={false}
       testID="todo-list"
     />
   );
 };
 
 const styles = StyleSheet.create({
-  listContent: {
-    paddingVertical: 8,
-  },
-  emptyListContent: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+  list: {
+    paddingBottom: 24,
   },
   emptyContainer: {
-    alignItems: 'center',
+    flex: 1,
     justifyContent: 'center',
-    paddingVertical: 48,
-    paddingHorizontal: 32,
+    alignItems: 'center',
+    paddingTop: 48,
   },
   emptyText: {
     fontSize: 16,
-    color: '#999999',
-    textAlign: 'center',
+    color: '#999',
   },
 });
 

@@ -2,32 +2,30 @@
 
 ## TEAM_BRIEF
 stack: TypeScript/React Native (Expo)
-test_runner: npx jest --passWithNoTests
-lint_tool: npx eslint . --ext .ts,.tsx
-coverage_tool: npx jest --coverage
+test_runner: npx jest
+lint_tool: npx eslint .
+coverage_tool: jest --coverage
 coverage_threshold: 70
 coverage_applies: true
 
 ## Prerequisites
 
-- **Node.js** 18+ (LTS recommended)
-- **npm** 9+ (ships with Node.js 18+)
-- **Expo Go** app on your physical device (iOS App Store / Google Play Store), **or** an Android emulator / iOS Simulator
+- Node.js 18+ and npm
+- Expo Go app on your phone (iOS App Store / Google Play Store)
+- Or: Android emulator / iOS simulator (Xcode required for iOS)
 
 ## Setup
 
 ```bash
-# 1. Install JavaScript dependencies
+# 1. Install dependencies
 npm install
 
-# 2. Install Expo-specific native dependencies
-npx expo install \
-  @react-native-async-storage/async-storage \
+# 2. Install required Expo packages
+npx expo install @react-native-async-storage/async-storage \
   @react-navigation/native \
   @react-navigation/native-stack \
   react-native-screens \
-  react-native-safe-area-context \
-  expo-crypto
+  react-native-safe-area-context
 ```
 
 ## Running the App
@@ -37,27 +35,46 @@ npx expo install \
 npx expo start
 ```
 
-- **Physical device**: Scan the QR code with Expo Go.
-- **Android emulator**: Press `a` in the terminal.
-- **iOS Simulator**: Press `i` in the terminal.
-- **Web** (experimental): Press `w` in the terminal (opens at `http://localhost:8081`).
+Then:
+- **Physical device**: Scan the QR code with Expo Go
+- **Android emulator**: Press `a`
+- **iOS simulator**: Press `i`
+- **Web**: Press `w` (requires `npx expo install react-native-web react-dom @expo/metro-runtime`)
 
 ## Running Tests
 
 ```bash
-# Run the full test suite
-npx jest --passWithNoTests
+npm test
+# or
+npx jest
+```
 
-# Run with coverage report
+## Running with Coverage
+
+```bash
 npx jest --coverage
 ```
 
 ## Linting
 
 ```bash
-npx eslint . --ext .ts,.tsx
+npx eslint .
 ```
 
 ## Project Structure
 
-See [PLANNING.md](./PLANNING.md) for the full architecture, component hierarchy, and data model documentation.
+```
+src/
+├── components/       # Reusable UI components
+│   ├── TodoInput.tsx
+│   ├── TodoItem.tsx
+│   └── TodoList.tsx
+├── hooks/            # Custom React hooks
+│   └── useTodos.ts
+├── screens/          # App screens
+│   └── HomeScreen.tsx
+├── services/         # Storage and utility services
+│   └── todoStorage.ts
+└── types/            # TypeScript type definitions
+    └── Todo.ts
+```
