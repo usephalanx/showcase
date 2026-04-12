@@ -1,33 +1,90 @@
-# Running the Todo API
+# TodoApp — Setup & Running Instructions
+
+## TEAM_BRIEF
+
+stack: TypeScript/React Native (Expo)
+test_runner: cd mobile && npm test
+lint_tool: none
+coverage_tool: none
+coverage_threshold: 0
+coverage_applies: false
+
+---
 
 ## Prerequisites
 
-- Python 3.10 or later
+- **Node.js** 18+ (LTS recommended)
+- **npm** 9+ (bundled with Node.js 18+)
+- **Expo Go** app installed on your physical device (iOS App Store / Google Play),
+  **or** an Android emulator / iOS Simulator configured locally
 
-## Install dependencies
+---
 
-```bash
-pip install fastapi uvicorn pydantic
-```
-
-For running the test suite you will also need:
-
-```bash
-pip install httpx pytest
-```
-
-## Start the server
+## Initial Setup
 
 ```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+# 1. Navigate to the mobile project directory
+cd mobile
+
+# 2. Install all dependencies
+npm install
 ```
 
-The API will be available at <http://localhost:8000>.
+> **Note**: Do NOT run `npx create-expo-app` — the project is already scaffolded.
+> Just install dependencies with `npm install`.
 
-Interactive docs are served at <http://localhost:8000/docs>.
+---
 
-## Run the tests
+## Running the App
 
 ```bash
-pytest tests/
+# Start the Expo development server
+npx expo start
 ```
+
+Then choose one of:
+
+| Target              | Action                                                |
+| ------------------- | ----------------------------------------------------- |
+| **Physical device** | Scan the QR code with Expo Go (Android) or Camera (iOS) |
+| **Android emulator**| Press `a` in the terminal                             |
+| **iOS Simulator**   | Press `i` in the terminal (macOS only)                |
+| **Web browser**     | Press `w` in the terminal                             |
+
+The development server runs on `http://localhost:8081` by default.
+
+---
+
+## Running Tests
+
+```bash
+cd mobile
+npm test
+```
+
+This runs Jest with the `jest-expo` preset. Tests are located in `__tests__/`.
+
+---
+
+## TypeScript Check
+
+```bash
+cd mobile
+npm run ts:check
+```
+
+Runs `tsc --noEmit` to verify type correctness without emitting files.
+
+---
+
+## Project Structure
+
+See [PLANNING.md](./PLANNING.md) for the full architecture, data model,
+component hierarchy, and file responsibility map.
+
+---
+
+## Environment Variables
+
+No environment variables or secrets are required for the mobile app.
+All data is stored locally via AsyncStorage.
