@@ -1,79 +1,31 @@
-/**
- * HomeScreen — the main screen composing TodoInput and TodoList with useTodos hook.
- *
- * Renders a SafeAreaView container with a title header ('My Todos'),
- * the TodoInput component wired to addTodo, and the TodoList component
- * wired to todos/toggleTodo/deleteTodo. Shows an ActivityIndicator while loading.
- */
-
 import React from 'react';
-import {
-  ActivityIndicator,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
-
-import { TodoInput } from '../components/TodoInput';
-import { TodoList } from '../components/TodoList';
-import { useTodos } from '../hooks/useTodos';
+import { StyleSheet, Text, View } from 'react-native';
 
 /**
- * HomeScreen component.
+ * HomeScreen is the main screen of the Todo App.
  *
- * Serves as the main application screen, orchestrating the todo input form
- * and the scrollable todo list. Uses the useTodos hook for all state management
- * including loading state, adding, toggling, and deleting todos.
+ * Displays the todo list interface. Currently renders a placeholder view
+ * that will be populated with TodoInput, TodoList, and TodoItem components
+ * in subsequent implementation tasks.
  */
-export const HomeScreen: React.FC = () => {
-  const { todos, loading, addTodo, toggleTodo, deleteTodo } = useTodos();
-
-  if (loading) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#4A90D9" testID="loading-indicator" />
-        </View>
-      </SafeAreaView>
-    );
-  }
-
+const HomeScreen: React.FC = () => {
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
-        <Text style={styles.header}>My Todos</Text>
-        <TodoInput onAdd={addTodo} />
-        <TodoList
-          todos={todos}
-          onToggle={toggleTodo}
-          onDelete={deleteTodo}
-        />
-      </View>
-    </SafeAreaView>
+    <View style={styles.container}>
+      <Text style={styles.placeholder}>Welcome to Todo App</Text>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 16,
-    paddingTop: 16,
-  },
-  header: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#1A1A1A',
-    marginBottom: 16,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
+    backgroundColor: '#fff',
     alignItems: 'center',
+    justifyContent: 'center',
+  },
+  placeholder: {
+    fontSize: 18,
+    color: '#333',
   },
 });
 

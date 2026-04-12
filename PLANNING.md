@@ -1,29 +1,31 @@
-# React Native Todo App — Architecture Plan
+# Todo App — Architecture & Planning
 
 ## Tech Stack
 
-- **Framework**: React Native (Expo SDK 51)
+- **Runtime**: React Native (Expo SDK 51)
 - **Language**: TypeScript (strict mode)
+- **Navigation**: React Navigation v6 (`@react-navigation/native`, `@react-navigation/native-stack`)
 - **Storage**: AsyncStorage (`@react-native-async-storage/async-storage`)
-- **Navigation**: React Navigation (`@react-navigation/native` + `@react-navigation/native-stack`)
 - **Testing**: Jest + React Native Testing Library
 
 ## Data Model
 
 ```typescript
 interface Todo {
-  id: string;          // Unique ID (timestamp + random hex)
-  title: string;       // Todo title text
-  completed: boolean;  // Completion status
-  createdAt: string;   // ISO 8601 timestamp
+  id: string;          // UUID (generated via expo-crypto or lightweight uuid lib)
+  title: string;       // Non-empty, trimmed
+  completed: boolean;
+  createdAt: string;   // ISO 8601 via new Date().toISOString()
 }
 ```
 
-### Notes on Data Model
+### Edge Cases
 
-- `id` is generated using `Date.now().toString(36)` combined with random hex characters. For production, consider `expo-crypto` (`randomUUID()`) for cryptographically strong UUIDs.
-- `createdAt` is generated via `new Date().toISOString()` for consistency across time zones.
-- AsyncStorage has a ~6MB limit on some platforms. For very large todo lists, consider pagination or periodic cleanup of completed/old items.
+- **Storage limit**: AsyncStorage may have a ~6 MB limit on some platforms. For large todo lists, consider pagination or periodic cleanup.
+- **UUID generation**: Use `expo-crypto` or a lightweight uuid library rather than `Math.random`-based approaches.
+- **Timestamps**: Always generate `createdAt` with `new Date().toISOString()` for consistency.
+- **Input validation**: `TodoInput` must trim whitespace and reject empty strings before creating a todo.
+- **Race conditions**: Multiple rapid `addTodo`/`deleteTodo` calls could cause data loss. Use a sequential async queue or optimistic updates with reconciliation.
 
 ## Component Hierarchy
 
@@ -40,64 +42,73 @@ App
 ## File Structure
 
 ```
-src/
-├── components/
-│   ├── TodoInput.tsx      # Text input + Add button
-│   ├── TodoItem.tsx       # Single todo row (toggle + delete)
-│   └── TodoList.tsx       # FlatList of TodoItems with empty state
-├── hooks/
-│   └── useTodos.ts        # Custom hook: state + CRUD + persistence
-├── screens/
-│   └── HomeScreen.tsx     # Main screen composing TodoInput + TodoList
-├── services/
-│   └── todoStorage.ts     # AsyncStorage load/save/generateId
-└── types/
-    └── Todo.ts            # Todo interface definition
+/
+├── App.tsx                              # Root component: StatusBar + NavigationContainer + AppNavigator
+├── src/
+│   ├── navigation/
+│   │   ├── AppNavigator.tsx             # Native stack navigator definition
+│   │   └── types.ts                     # Navigation type definitions (RootStackParamList)
+│   ├── screens/
+│   │   └── HomeScreen.tsx               # Main screen with todo list and input
+│   ├── components/
+│   │   ├── TodoInput.tsx                # Text input + add button
+│   │   ├── TodoList.tsx                 # FlatList wrapper for todos
+│   │   └── TodoItem.tsx                 # Single todo row (toggle on press, delete on long press)
+│   ├── hooks/
+│   │   └── useTodos.ts                  # Custom hook: { todos, loading, addTodo, toggleTodo, deleteTodo }
+│   ├── services/
+│   │   └── todoStorage.ts              # AsyncStorage service: getTodos, saveTodos, addTodo, toggleTodo, deleteTodo
+│   └── types/
+│       └── todo.ts                      # Todo interface definition
+├── PLANNING.md
+├── RUNNING.md
+└── package.json
 ```
 
 ## Screen Specifications
 
 ### HomeScreen
 
-- Uses `useTodos()` hook for all state management
-- Renders `SafeAreaView` container with flex: 1
-- Displays "My Todos" header (large, bold text)
-- Shows `ActivityIndicator` while `loading` is true
-- Renders `TodoInput` wired to `addTodo`
-- Renders `TodoList` wired to `todos`, `toggleTodo`, `deleteTodo`
-
-## Storage Layer
-
-- `loadTodos()`: Read from AsyncStorage, parse JSON, return `Todo[]` (empty array on failure)
-- `saveTodos(todos)`: Serialize and write full list to AsyncStorage
-- `generateId()`: Timestamp + random hex ID generation
-
-## Custom Hook: `useTodos()`
-
-Returns:
-- `todos: Todo[]` — current list
-- `loading: boolean` — true during initial load
-- `addTodo(title: string): Promise<void>` — trims whitespace, rejects empty
-- `toggleTodo(id: string): Promise<void>` — flips `completed`
-- `deleteTodo(id: string): Promise<void>` — removes from list
-
-All mutations use optimistic state updates followed by async persistence.
-
-## Edge Cases & Design Decisions
-
-1. **Empty input**: `TodoInput` trims whitespace and silently rejects empty strings.
-2. **Race conditions**: Mutations use React's functional `setState` form (`setTodos(prev => ...)`) to avoid stale-state bugs with rapid successive calls. `saveTodos` is called inside the updater to capture the latest state.
-3. **Storage limits**: AsyncStorage may have a ~6MB limit. For large lists, implement pagination or cleanup.
-4. **ID generation**: Uses timestamp + random for simplicity. Upgrade to `expo-crypto.randomUUID()` for production.
-5. **Error handling**: Storage load failures fall back to an empty list. Save failures are silent (fire-and-forget) to keep the UI responsive.
+- **Title**: "Todo App" (set via navigation options)
+- **Layout**: `TodoInput` at the top, `TodoList` filling the remaining space
+- **Interactions**:
+  - Type text and tap Add to create a todo
+  - Tap a todo to toggle its completed status
+  - Long press a todo to delete it
+- **State**: Managed via `useTodos()` custom hook
+- **Loading**: Show an ActivityIndicator while todos load from AsyncStorage
 
 ## Navigation Structure
 
-Single-stack navigator with `HomeScreen` as the only route. Extensible for future screens (e.g., TodoDetailScreen, SettingsScreen).
+- Single native stack navigator with `HomeScreen` as the only route
+- Structured with `RootStackParamList` type for type-safe navigation
+- Extensible: add new screens by extending the param list and adding `Stack.Screen` entries
+
+## Storage Layer
+
+All functions in `todoStorage.ts` operate on the `@todos` AsyncStorage key:
+
+- `getTodos(): Promise<Todo[]>` — read and parse stored todos
+- `saveTodos(todos: Todo[]): Promise<void>` — serialize and write todos
+- `addTodo(title: string): Promise<Todo>` — create, append, save, return new todo
+- `toggleTodo(id: string): Promise<Todo[]>` — flip completed, save, return updated list
+- `deleteTodo(id: string): Promise<Todo[]>` — remove by id, save, return updated list
+
+## Custom Hook: useTodos
+
+```typescript
+function useTodos(): {
+  todos: Todo[];
+  loading: boolean;
+  addTodo: (title: string) => Promise<void>;
+  toggleTodo: (id: string) => Promise<void>;
+  deleteTodo: (id: string) => Promise<void>;
+}
+```
 
 ## Testing Strategy
 
-- **Component tests**: Jest + React Native Testing Library for TodoInput, TodoItem, TodoList, HomeScreen
-- **Hook tests**: `renderHook` for useTodos with mocked AsyncStorage
-- **Service tests**: Unit tests for todoStorage functions with mocked AsyncStorage
-- **Coverage target**: 70%+
+- **Unit tests**: `todoStorage.ts` functions with mocked AsyncStorage
+- **Component tests**: `TodoInput`, `TodoItem`, `TodoList` with React Native Testing Library
+- **Screen tests**: `HomeScreen` integration tests with mocked storage
+- **Navigation tests**: Verify `AppNavigator` renders `HomeScreen` with correct title
