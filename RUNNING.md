@@ -1,33 +1,40 @@
-# Running the Todo API
+# Running the Application
 
-## Prerequisites
+## TEAM_BRIEF
+stack: Python/FastAPI
+test_runner: pytest tests/
+lint_tool: ruff check .
+coverage_tool: pytest-cov
+coverage_threshold: 70
+coverage_applies: true
 
-- Python 3.10 or later
+## Quick Start
 
-## Install dependencies
-
-```bash
-pip install fastapi uvicorn pydantic
-```
-
-For running the test suite you will also need:
-
-```bash
-pip install httpx pytest
-```
-
-## Start the server
+1. Install dependencies:
 
 ```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+pip install -r requirements.txt
 ```
 
-The API will be available at <http://localhost:8000>.
-
-Interactive docs are served at <http://localhost:8000/docs>.
-
-## Run the tests
+2. Run the application:
 
 ```bash
-pytest tests/
+uvicorn main:app --host 0.0.0.0 --port 8000
 ```
+
+3. Open http://localhost:8000 in your browser.
+
+## Run Tests
+
+```bash
+pytest tests/ -v
+```
+
+## API Reference
+
+- `GET /` — Welcome message
+- `POST /todos` — Create a new todo
+- `GET /todos` — List all todos
+- `GET /todos/{id}` — Retrieve a single todo
+- `PUT /todos/{id}` — Update a todo
+- `DELETE /todos/{id}` — Delete a todo
