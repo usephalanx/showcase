@@ -1,33 +1,59 @@
-# Running the Todo API
+# Hello World API
 
-## Prerequisites
+A minimal FastAPI application exposing a single `GET /hello` endpoint.
 
-- Python 3.10 or later
+## TEAM_BRIEF
+stack: Python/FastAPI
+test_runner: pytest tests/ -v
+lint_tool: ruff check .
+coverage_tool: pytest-cov
+coverage_threshold: 70
+coverage_applies: true
 
-## Install dependencies
+## Quick Start
 
-```bash
-pip install fastapi uvicorn pydantic
-```
-
-For running the test suite you will also need:
-
-```bash
-pip install httpx pytest
-```
-
-## Start the server
+### Local
 
 ```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+pip install -r requirements.txt
+uvicorn app:app --host 0.0.0.0 --port 8000
 ```
 
-The API will be available at <http://localhost:8000>.
+Open <http://localhost:8000/hello>
 
-Interactive docs are served at <http://localhost:8000/docs>.
-
-## Run the tests
+### Docker
 
 ```bash
-pytest tests/
+docker compose up --build
 ```
+
+## Run Tests
+
+```bash
+pip install -r requirements.txt
+pytest tests/ -v
+```
+
+Or via Docker:
+
+```bash
+docker compose run --rm api pytest tests/ -v
+```
+
+## API Reference
+
+### GET /hello
+
+**Response** `200 OK`
+
+```json
+{
+  "message": "hello world",
+  "timestamp": "2025-01-01T00:00:00+00:00"
+}
+```
+
+| Field       | Type   | Description                              |
+|-------------|--------|------------------------------------------|
+| message     | string | Always `"hello world"`                   |
+| timestamp   | string | Current UTC time in ISO 8601 format      |
