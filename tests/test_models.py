@@ -1,9 +1,17 @@
-"""Tests for Pydantic models defined in models.py."""
+"""Tests for Pydantic models (models.py).
+
+Covers: TodoCreate, TodoUpdate, TodoResponse validation and defaults.
+"""
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
 import pytest
 from pydantic import ValidationError
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from models import TodoCreate, TodoResponse, TodoUpdate
 
@@ -11,70 +19,85 @@ from models import TodoCreate, TodoResponse, TodoUpdate
 class TestTodoCreate:
     """Tests for the TodoCreate model."""
 
-    def test_create_with_title_only(self) -> None:
-        """Title is the only required field."""
-        todo = TodoCreate(title="Buy milk")
-        assert todo.title == "Buy milk"
-        assert todo.description is None
-        assert todo.completed is False
+    def test_valid_creation(self) -> None:
+        """A TodoCreate with just a title is valid."""
+        tc = TodoCreate(title="Test")
+        assert tc.title == "Test"
+        assert tc.description is None
+        assert tc.completed is False
 
-    def test_create_with_all_fields(self) -> None:
-        """All fields can be provided explicitly."""
-        todo = TodoCreate(title="Buy milk", description="2% milk", completed=True)
-        assert todo.title == "Buy milk"
-        assert todo.description == "2% milk"
-        assert todo.completed is True
+    def test_with_all_fields(self) -> None:
+        """All fields can be provided."""
+        tc = TodoCreate(title="T", description="D", completed=True)
+        assert tc.title == "T"
+        assert tc.description == "D"
+        assert tc.completed is True
 
-    def test_create_missing_title_raises(self) -> None:
-        """Omitting title must raise a validation error."""
-        with pytest.raises(ValidationError):
-            TodoCreate()  # type: ignore[call-arg]
-
-    def test_create_empty_title_raises(self) -> None:
-        """An empty string title must raise a validation error."""
+    def test_empty_title_rejected(self) -> None:
+        """An empty-string title is rejected."""
         with pytest.raises(ValidationError):
             TodoCreate(title="")
+
+    def test_missing_title_rejected(self) -> None:
+        """Omitting title raises a validation error."""
+        with pytest.raises(ValidationError):
+            TodoCreate()  # type: ignore[call-arg]
 
 
 class TestTodoUpdate:
     """Tests for the TodoUpdate model."""
 
-    def test_update_all_none_by_default(self) -> None:
-        """All fields default to None."""
-        update = TodoUpdate()
-        assert update.title is None
-        assert update.description is None
-        assert update.completed is None
+    def test_all_fields_optional(self) -> None:
+        """An empty TodoUpdate is valid."""
+        tu = TodoUpdate()
+        assert tu.title is None
+        assert tu.description is None
+        assert tu.completed is None
 
-    def test_update_partial(self) -> None:
-        """Only supplied fields are set."""
-        update = TodoUpdate(completed=True)
-        assert update.completed is True
-        assert update.title is None
+    def test_partial_update(self) -> None:
+        """Only some fields can be provided."""
+        tu = TodoUpdate(completed=True)
+        assert tu.completed is True
+        assert tu.title is None
+
+    def test_empty_title_rejected(self) -> None:
+        """An empty-string title is rejected even in update."""
+        with pytest.raises(ValidationError):
+            TodoUpdate(title="")
 
 
 class TestTodoResponse:
     """Tests for the TodoResponse model."""
 
-    def test_response_roundtrip(self) -> None:
-        """All fields are populated correctly."""
-        data = {
-            "id": 1,
-            "title": "Test",
-            "description": "A test todo",
-            "completed": False,
-            "created_at": "2024-01-01T00:00:00+00:00",
-        }
-        resp = TodoResponse(**data)
-        assert resp.id == 1
-        assert resp.title == "Test"
-        assert resp.description == "A test todo"
-        assert resp.completed is False
-        assert resp.created_at == "2024-01-01T00:00:00+00:00"
-
-    def test_response_description_defaults_to_none(self) -> None:
-        """Description is optional and defaults to None."""
-        resp = TodoResponse(
-            id=2, title="No desc", completed=False, created_at="2024-01-01T00:00:00"
+    def test_valid_response(self) -> None:
+        """A fully populated TodoResponse is valid."""
+        tr = TodoResponse(
+            id=1,
+            title="Task",
+            completed=False,
+            created_at="2024-01-01T00:00:00+00:00",
         )
-        assert resp.description is None
+        assert tr.id == 1
+        assert tr.title == "Task"
+        assert tr.completed is False
+
+    def test_description_optional(self) -> None:
+        """Description defaults to None."""
+        tr = TodoResponse(
+            id=1,
+            title="Task",
+            completed=False,
+            created_at="2024-01-01T00:00:00",
+        )
+        assert tr.description is None
+
+    def test_with_description(self) -> None:
+        """Description can be provided."""
+        tr = TodoResponse(
+            id=1,
+            title="Task",
+            description="Details",
+            completed=False,
+            created_at="2024-01-01T00:00:00",
+        )
+        assert tr.description == "Details"
