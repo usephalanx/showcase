@@ -7,6 +7,11 @@ Registers the --timeout option so that pytest does not fail with
 import sys
 from pathlib import Path
 
+# Ensure the project root is on sys.path so that 'import app' works.
+_PROJECT_ROOT = str(Path(__file__).resolve().parent)
+if _PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, _PROJECT_ROOT)
+
 
 def pytest_addoption(parser):
     """Register --timeout so pytest doesn't choke when the plugin is absent."""

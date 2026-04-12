@@ -1,33 +1,47 @@
-# Running the Todo API
+# Hello World API
 
-## Prerequisites
+## TEAM_BRIEF
+stack: Python/FastAPI
+test_runner: pytest tests/ -v
+lint_tool: ruff check .
+coverage_tool: pytest-cov
+coverage_threshold: 70
+coverage_applies: true
 
-- Python 3.10 or later
-
-## Install dependencies
+## Quick Start
 
 ```bash
-pip install fastapi uvicorn pydantic
+pip install -r requirements.txt
+uvicorn app:app --host 0.0.0.0 --port 8000
 ```
 
-For running the test suite you will also need:
+Then open http://localhost:8000/hello
 
-```bash
-pip install httpx pytest
+## API Reference
+
+### GET /hello
+
+Returns a JSON object:
+
+```json
+{
+  "message": "hello world",
+  "timestamp": "2024-01-01T00:00:00+00:00"
+}
 ```
 
-## Start the server
+| Field       | Type   | Description                          |
+|-------------|--------|--------------------------------------|
+| message     | string | Always `"hello world"`               |
+| timestamp   | string | Current UTC time in ISO 8601 format  |
+
+### GET /
+
+Health-check endpoint returning `{"status": "ok"}`.
+
+## Running Tests
 
 ```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
-```
-
-The API will be available at <http://localhost:8000>.
-
-Interactive docs are served at <http://localhost:8000/docs>.
-
-## Run the tests
-
-```bash
-pytest tests/
+pip install -r requirements.txt
+pytest tests/ -v --tb=short --cov=app --cov-report=term-missing
 ```
