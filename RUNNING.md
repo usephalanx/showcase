@@ -1,45 +1,54 @@
-# Running the Todo Mobile App
+# RUNNING — React Native Todo App
 
 ## TEAM_BRIEF
+
 stack: TypeScript/React Native (Expo)
-test_runner: npm test
-lint_tool: npx expo lint
-coverage_tool: none
-coverage_threshold: 0
-coverage_applies: false
+test_runner: npx jest
+lint_tool: npx eslint .
+coverage_tool: jest --coverage
+coverage_threshold: 60
+coverage_applies: true
 
 ## Prerequisites
 
-- **Node.js** 18+ and **npm**
-- **Expo Go** app on a physical device (iOS / Android), **or** an Android emulator / iOS simulator
+- Node.js 18+
+- npm (or yarn)
+- Expo Go app on a physical device, or Android / iOS emulator
 
 ## Setup
 
 ```bash
-# 1. Install JavaScript dependencies
+# 1. Install dependencies
 npm install
 
-# 2. Install native/Expo-specific dependencies
+# 2. Install Expo-specific native packages
 npx expo install @react-native-async-storage/async-storage \
-  @react-navigation/native @react-navigation/native-stack \
-  react-native-screens react-native-safe-area-context
+  @react-navigation/native \
+  @react-navigation/native-stack \
+  react-native-screens \
+  react-native-safe-area-context
 ```
 
-## Running
+## Run
 
 ```bash
 npx expo start
 ```
 
-- Scan the QR code with **Expo Go** on your device, or
-- Press **a** for Android emulator, **i** for iOS simulator, **w** for web.
+Then:
+- Scan the QR code with Expo Go (Android / iOS)
+- Press `a` for Android emulator
+- Press `i` for iOS simulator
+- Press `w` for web (localhost:8081)
 
-## Testing
+## Test
 
 ```bash
-npm test
+npx jest
 ```
 
-## Project Structure
+## Lint
 
-See [PLANNING.md](./PLANNING.md) for the full architecture and file map.
+```bash
+npx eslint .
+```

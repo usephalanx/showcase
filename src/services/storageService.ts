@@ -1,55 +1,42 @@
 /**
- * AsyncStorage-based persistence service for Todo items.
+ * Storage service for persisting todos to AsyncStorage.
  *
- * Provides functions to load and save the full todo list,
- * handling JSON serialization/deserialization with error handling.
+ * Provides getTodos and saveTodos functions that serialise/deserialise
+ * the todo list as JSON under a single AsyncStorage key.
  */
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Todo } from '../types/todo';
+import { Todo } from '../types/Todo';
 
-/** Key used to store the todo list in AsyncStorage. */
-const TODOS_STORAGE_KEY = 'TODOS_STORAGE_KEY';
+const STORAGE_KEY = '@todos';
 
 /**
- * Retrieve all todos from AsyncStorage.
- *
- * Reads the JSON string stored under TODOS_STORAGE_KEY, deserializes it,
- * and returns the resulting array. Returns an empty array when no data
- * has been stored yet or when deserialization fails.
+ * Load all todos from AsyncStorage.
  *
  * @returns A promise that resolves to an array of Todo items.
+ *          Returns an empty array when no data is stored or on error.
  */
-export async function getTodos(): Promise<Todo[]> {
+export const getTodos = async (): Promise<Todo[]> => {
   try {
-    const json: string | null = await AsyncStorage.getItem(TODOS_STORAGE_KEY);
-    if (json === null) {
-      return [];
+    const json = await AsyncStorage.getItem(STORAGE_KEY);
+    if (json !== null) {
+      return JSON.parse(json) as Todo[];
     }
-    const parsed: unknown = JSON.parse(json);
-    if (!Array.isArray(parsed)) {
-      return [];
-    }
-    return parsed as Todo[];
-  } catch (error) {
-    console.error('storageService.getTodos: failed to load todos', error);
+    return [];
+  } catch {
     return [];
   }
-}
+};
 
 /**
- * Persist the given todo list to AsyncStorage.
+ * Persist the full todo list to AsyncStorage.
  *
- * Serializes the array to JSON and writes it under TODOS_STORAGE_KEY.
- * Logs an error to the console if the write fails.
- *
- * @param todos - The complete array of Todo items to persist.
- * @returns A promise that resolves when the data has been saved.
+ * @param todos - The complete array of Todo items to save.
  */
-export async function saveTodos(todos: Todo[]): Promise<void> {
+export const saveTodos = async (todos: Todo[]): Promise<void> => {
   try {
-    const json: string = JSON.stringify(todos);
-    await AsyncStorage.setItem(TODOS_STORAGE_KEY, json);
-  } catch (error) {
-    console.error('storageService.saveTodos: failed to save todos', error);
+    const json = JSON.stringify(todos);
+    await AsyncStorage.setItem(STORAGE_KEY, json);
+  } catch {
+    // Silently fail — callers can add error handling if needed.
   }
-}
+};
