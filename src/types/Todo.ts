@@ -1,5 +1,5 @@
 /**
- * Core Todo data model used throughout the application.
+ * Core Todo data model used throughout the React Native application.
  */
 export interface Todo {
   /** Unique identifier (UUID string). */
