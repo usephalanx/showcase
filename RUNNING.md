@@ -1,33 +1,69 @@
-# Running the Todo API
+# Hello World API
 
-## Prerequisites
+## TEAM_BRIEF
+stack: Python/FastAPI
+test_runner: pytest tests/ -v
+lint_tool: ruff check .
+coverage_tool: pytest-cov
+coverage_threshold: 70
+coverage_applies: true
 
-- Python 3.10 or later
+## Quick Start
 
-## Install dependencies
+### With Docker
 
 ```bash
-pip install fastapi uvicorn pydantic
+docker compose up --build
 ```
 
-For running the test suite you will also need:
+Then open <http://localhost:8000/hello>.
+
+### Without Docker
 
 ```bash
-pip install httpx pytest
+pip install -r requirements.txt
+uvicorn app:app --host 0.0.0.0 --port 8000
 ```
 
-## Start the server
+## API Reference
 
-```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+### `GET /`
+
+Health-check endpoint.
+
+**Response** `200 OK`
+
+```json
+{"status": "ok"}
 ```
 
-The API will be available at <http://localhost:8000>.
+### `GET /hello`
 
-Interactive docs are served at <http://localhost:8000/docs>.
+Returns a greeting with the current UTC timestamp.
 
-## Run the tests
+**Response** `200 OK`
+
+```json
+{
+  "message": "hello world",
+  "timestamp": "2024-01-15T12:00:00.000000+00:00"
+}
+```
+
+| Field       | Type   | Description                          |
+|-------------|--------|--------------------------------------|
+| `message`   | string | Always `"hello world"`               |
+| `timestamp` | string | Current UTC time in ISO 8601 format  |
+
+## Running Tests
 
 ```bash
-pytest tests/
+pip install -r requirements.txt
+pytest tests/ -v --tb=short --cov=app --cov-report=term-missing
+```
+
+Or with Docker:
+
+```bash
+docker compose exec api pytest tests/ -v --tb=short --cov=app --cov-report=term-missing
 ```
