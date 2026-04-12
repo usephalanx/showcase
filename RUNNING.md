@@ -1,63 +1,33 @@
 # Hello World API
 
+A minimal FastAPI application exposing a single `GET /hello` endpoint.
+
 ## TEAM_BRIEF
 stack: Python/FastAPI
-test_runner: pytest tests/
+test_runner: pytest tests/ -v
 lint_tool: ruff check .
 coverage_tool: pytest-cov
 coverage_threshold: 70
 coverage_applies: true
 
-## Prerequisites
+## Quick Start
 
-- Python 3.10+
-- pip (Python package manager)
-- Docker and Docker Compose (optional, for containerised usage)
-
-## Install
+### Local
 
 ```bash
 pip install -r requirements.txt
-```
-
-## Run
-
-### Option 1 — Direct Python
-
-```bash
-python app.py
-```
-
-### Option 2 — Uvicorn CLI
-
-```bash
 uvicorn app:app --host 0.0.0.0 --port 8000
 ```
 
-### Option 3 — Docker Compose
+Open <http://localhost:8000/hello>
+
+### Docker
 
 ```bash
 docker compose up --build
 ```
 
-## Test
-
-### Manual smoke test
-
-```bash
-curl http://localhost:8000/hello
-```
-
-Expected response:
-
-```json
-{
-  "message": "hello world",
-  "timestamp": "2025-01-01T00:00:00.000000+00:00"
-}
-```
-
-### Automated tests
+## Run Tests
 
 ```bash
 pip install -r requirements.txt
@@ -74,26 +44,16 @@ docker compose run --rm api pytest tests/ -v
 
 ### GET /hello
 
-Returns a JSON object with a greeting and the current UTC timestamp.
-
-**Response (200)**
+**Response** `200 OK`
 
 ```json
 {
   "message": "hello world",
-  "timestamp": "2025-01-01T00:00:00.000000+00:00"
+  "timestamp": "2025-01-01T00:00:00+00:00"
 }
 ```
 
-| Field     | Type   | Description                              |
-|-----------|--------|------------------------------------------|
-| message   | string | Always `"hello world"`                   |
-| timestamp | string | ISO-8601 UTC timestamp with timezone info |
-
-### Swagger UI
-
-Interactive API documentation is available at the `/docs` endpoint:
-
-```
-http://localhost:8000/docs
-```
+| Field       | Type   | Description                              |
+|-------------|--------|------------------------------------------|
+| message     | string | Always `"hello world"`                   |
+| timestamp   | string | Current UTC time in ISO 8601 format      |
