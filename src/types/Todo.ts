@@ -1,10 +1,10 @@
 /**
- * Represents a single todo item in the application.
+ * Core Todo data model used throughout the application.
  */
 export interface Todo {
-  /** Unique identifier generated via Date.now().toString(). */
+  /** Unique identifier (UUID string). */
   id: string;
-  /** The title/text of the todo item. */
+  /** Title text of the todo item. */
   title: string;
   /** Whether the todo has been completed. */
   completed: boolean;

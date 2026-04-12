@@ -4,16 +4,16 @@
 
 stack: TypeScript/React Native (Expo)
 test_runner: npx jest --passWithNoTests
-lint_tool: npx tsc --noEmit
-coverage_tool: none
-coverage_threshold: 0
-coverage_applies: false
+lint_tool: npx eslint . --ext .ts,.tsx
+coverage_tool: npx jest --coverage
+coverage_threshold: 60
+coverage_applies: true
 
 ## Prerequisites
 
 - **Node.js** 18 or later
 - **npm** (bundled with Node.js)
-- **Expo Go** app on your phone (iOS App Store / Google Play), **or** an Android emulator / iOS Simulator
+- **Expo Go** app installed on a physical device, **or** an Android emulator / iOS Simulator
 
 ## Setup
 
@@ -27,7 +27,8 @@ npx expo install \
   @react-navigation/native \
   @react-navigation/native-stack \
   react-native-screens \
-  react-native-safe-area-context
+  react-native-safe-area-context \
+  expo-crypto
 ```
 
 ## Running the App
@@ -36,24 +37,27 @@ npx expo install \
 npx expo start
 ```
 
-- Scan the QR code with **Expo Go** on your phone, **or**
-- Press `a` to open the Android emulator, **or**
-- Press `i` to open the iOS Simulator, **or**
-- Press `w` to open in a web browser (localhost:8081)
+Then:
+
+- **Physical device**: Scan the QR code with Expo Go.
+- **Android emulator**: Press `a` in the terminal.
+- **iOS Simulator**: Press `i` in the terminal.
+- **Web**: Press `w` (opens at `http://localhost:8081`).
 
 ## Running Tests
 
 ```bash
 npm test
+# or
+npx jest --passWithNoTests
 ```
 
-Or directly:
+## Running the Linter
 
 ```bash
-npx jest --passWithNoTests
+npx eslint . --ext .ts,.tsx
 ```
 
 ## Project Structure
 
-See [PLANNING.md](./PLANNING.md) for the full architecture, component
-hierarchy, data model, and file responsibilities.
+See [PLANNING.md](./PLANNING.md) for the full architecture and file layout.

@@ -2,36 +2,33 @@
 
 ## Tech Stack
 
-| Layer           | Technology                                              |
-| --------------- | ------------------------------------------------------- |
-| Framework       | React Native (Expo SDK 51)                              |
-| Language        | TypeScript (strict mode)                                |
-| Navigation      | @react-navigation/native + @react-navigation/native-stack |
-| Persistence     | @react-native-async-storage/async-storage               |
-| ID Generation   | expo-crypto (`randomUUID`) or `uuid` (lightweight)      |
-| Testing         | Jest + React Native Testing Library                     |
+| Layer          | Technology                                                                 |
+| -------------- | -------------------------------------------------------------------------- |
+| Framework      | React Native (Expo SDK 51)                                                 |
+| Language       | TypeScript (strict mode)                                                   |
+| Storage        | AsyncStorage (`@react-native-async-storage/async-storage`)                 |
+| Navigation     | React Navigation (`@react-navigation/native` + `@react-navigation/native-stack`) |
+| Testing        | Jest + React Native Testing Library                                        |
+| ID Generation  | `expo-crypto` (`randomUUID`) or lightweight `uuid` library                 |
 
 ## Data Model
 
 ```typescript
-export interface Todo {
-  /** Universally unique identifier (v4 UUID). */
-  id: string;
-  /** Short description of the task. */
-  title: string;
-  /** Whether the task has been completed. */
+interface Todo {
+  id: string;        // UUID v4
+  title: string;     // non-empty, trimmed
   completed: boolean;
-  /** ISO 8601 timestamp created with `new Date().toISOString()`. */
-  createdAt: string;
+  createdAt: string; // ISO 8601 via new Date().toISOString()
 }
 ```
 
-### Notes
+### Edge-case notes
 
-- `createdAt` is always generated via `new Date().toISOString()` for consistency.
-- UUID generation MUST use `expo-crypto` or the `uuid` library — never `Math.random()`.
-- AsyncStorage has a practical limit of ~6 MB on some platforms. For very large
-  todo lists, consider pagination or periodic cleanup of completed items.
+- **AsyncStorage limit**: ~6 MB on some platforms. For very large lists consider pagination or periodic cleanup of completed items.
+- **UUID generation**: Use `expo-crypto` or a dedicated `uuid` library — **never** `Math.random()`.
+- **Timestamps**: Always generate with `new Date().toISOString()` for consistency.
+- **Input validation**: `TodoInput` must `.trim()` input and reject empty strings.
+- **Race conditions**: Multiple rapid `addTodo`/`deleteTodo` calls can interleave reads and writes to AsyncStorage, causing data loss. Mitigate by queuing operations sequentially (e.g. a promise chain or mutex) or using optimistic UI updates with reconciliation.
 
 ## Component Hierarchy
 
@@ -40,101 +37,77 @@ App
 └── NavigationContainer
     └── NativeStackNavigator
         └── HomeScreen
-            ├── TodoInput          (text input + "Add" button)
-            └── TodoList           (FlatList of TodoItem)
-                └── TodoItem[]     (single row: title, checkbox, delete)
+            ├── TodoInput          (text input + add button)
+            └── TodoList            (FlatList wrapper)
+                └── TodoItem[]     (single todo row)
 ```
 
 ## File / Folder Structure
 
 ```
-/
-├── App.tsx                         # Entry point; wraps NavigationContainer
-├── src/
-│   ├── components/
-│   │   ├── TodoInput.tsx           # Controlled text input + Add button
-│   │   ├── TodoItem.tsx            # Single todo row (toggle / delete)
-│   │   └── TodoList.tsx            # FlatList wrapper around TodoItem[]
-│   ├── screens/
-│   │   └── HomeScreen.tsx          # Main screen composing Input + List
-│   ├── hooks/
-│   │   └── useTodos.ts             # Custom hook: CRUD + loading state
-│   ├── services/
-│   │   └── storage.ts              # AsyncStorage helpers (get/save/add/toggle/delete)
-│   ├── types/
-│   │   └── Todo.ts                 # Todo interface
-│   └── navigation/
-│       └── AppNavigator.tsx        # Stack navigator definition
-├── PLANNING.md                     # This file
-├── RUNNING.md                      # Setup & run instructions
-└── package.json
+src/
+├── types/
+│   └── Todo.ts              # Todo interface
+├── components/
+│   ├── TodoItem.tsx          # Single todo row (toggle + delete)
+│   ├── TodoInput.tsx         # Text input + add button
+│   └── TodoList.tsx          # FlatList of TodoItem components
+├── screens/
+│   └── HomeScreen.tsx        # Main screen composing TodoInput + TodoList
+├── hooks/
+│   └── useTodos.ts           # Custom hook: { todos, loading, addTodo, toggleTodo, deleteTodo }
+├── services/
+│   └── todoStorage.ts        # AsyncStorage CRUD: getTodos, saveTodos, addTodo, toggleTodo, deleteTodo
+└── navigation/
+    └── AppNavigator.tsx       # NativeStackNavigator with HomeScreen route
+App.tsx                        # Entry point — wraps AppNavigator in NavigationContainer
 ```
 
-## Storage Layer — `src/services/storage.ts`
+## Storage Layer (`src/services/todoStorage.ts`)
 
-| Function      | Signature                                       | Purpose                          |
-| ------------- | ----------------------------------------------- | -------------------------------- |
-| getTodos      | `() => Promise<Todo[]>`                          | Read all todos from AsyncStorage |
-| saveTodos     | `(todos: Todo[]) => Promise<void>`               | Overwrite the full list          |
-| addTodo       | `(title: string) => Promise<Todo>`               | Append a new todo and persist    |
-| toggleTodo    | `(id: string) => Promise<Todo[]>`                | Flip `completed` and persist     |
-| deleteTodo    | `(id: string) => Promise<Todo[]>`                | Remove a todo and persist        |
+| Function        | Signature                                    | Description                               |
+| --------------- | -------------------------------------------- | ----------------------------------------- |
+| `getTodos`      | `() => Promise<Todo[]>`                      | Read all todos from AsyncStorage          |
+| `saveTodos`     | `(todos: Todo[]) => Promise<void>`           | Persist the full todo list                |
+| `addTodo`       | `(title: string) => Promise<Todo>`           | Create, persist, and return a new todo    |
+| `toggleTodo`    | `(id: string) => Promise<Todo[]>`            | Toggle `completed` and persist            |
+| `deleteTodo`    | `(id: string) => Promise<Todo[]>`            | Remove by id and persist                  |
 
-### Concurrency / Race Condition
+## Custom Hook (`src/hooks/useTodos.ts`)
 
-Multiple rapid `addTodo`/`deleteTodo` calls can cause data loss because
-each function reads → mutates → writes the full list independently.
-Mitigation strategies:
-
-1. **Sequential queue** — wrap all storage mutations behind an async queue
-   (e.g. `p-queue` with concurrency 1).
-2. **Optimistic updates with reconciliation** — update UI state immediately,
-   persist in background, and reconcile on error.
-
-The initial implementation will use a sequential queue inside `useTodos`.
-
-## Custom Hook — `src/hooks/useTodos.ts`
+Returns:
 
 ```typescript
-function useTodos(): {
+{
   todos: Todo[];
   loading: boolean;
   addTodo: (title: string) => Promise<void>;
   toggleTodo: (id: string) => Promise<void>;
   deleteTodo: (id: string) => Promise<void>;
-};
+}
 ```
 
-- On mount, calls `getTodos()` and sets `loading = false` when done.
-- Each mutation updates local state optimistically, then persists.
+Loads todos on mount via `useEffect`. Each mutator calls the corresponding storage function and updates local state.
 
-## Screen Specifications — HomeScreen
+## Screen Specifications
 
-| Interaction        | Behaviour                                      |
-| ------------------ | ---------------------------------------------- |
-| Add button / enter | Call `addTodo(trimmedTitle)`. Reject empty.     |
-| Press todo row     | Toggle `completed` status.                     |
-| Long-press / swipe | Delete the todo (with optional confirmation).   |
+### HomeScreen
+
+- Renders `TodoInput` at the top and `TodoList` below.
+- Consumes `useTodos()` hook.
+- `TodoList` is a `FlatList` of `TodoItem` components.
+- Pressing the checkbox on a `TodoItem` calls `toggleTodo(id)`.
+- Pressing the delete button on a `TodoItem` calls `deleteTodo(id)`.
 
 ## Navigation
 
-Single-stack navigator with `HomeScreen` as the only route. The stack is
-designed to be extended with additional screens (e.g. TodoDetailScreen) in
-future iterations.
-
-## Edge Cases
-
-- **Empty input**: `TodoInput` trims whitespace and silently rejects empty strings.
-- **Duplicate titles**: Allowed — each todo has a unique UUID.
-- **AsyncStorage 6 MB limit**: Monitor list size; implement cleanup for completed
-  items older than a configurable threshold.
-- **Rapid mutations**: Handled via sequential async queue (see above).
+Single-stack navigator with one route (`Home`). Structure is intentionally extensible for future screens (e.g. `TodoDetail`).
 
 ## Testing Strategy
 
-| Layer       | Tool                             | Focus                                  |
-| ----------- | -------------------------------- | -------------------------------------- |
-| Components  | Jest + RNTL                      | Render, user interaction, callbacks    |
-| Hooks       | `@testing-library/react-hooks`   | State transitions, async flow          |
-| Services    | Jest (mock AsyncStorage)         | Serialisation, error handling          |
-| Integration | Detox (future)                   | End-to-end flows on real device / sim  |
+| Target              | Tool                          | Scope                                      |
+| ------------------- | ----------------------------- | ------------------------------------------ |
+| Components          | Jest + RNTL                   | Render, user interaction, conditional styles |
+| Storage service     | Jest (mock AsyncStorage)      | CRUD correctness, empty-state handling      |
+| Custom hook         | `renderHook` from RNTL        | State transitions, loading flag             |
+| Navigation          | Jest + RNTL                   | Screen renders inside navigator             |
