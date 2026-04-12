@@ -1,140 +1,79 @@
-# TodoApp — Architecture & Planning
-
-## Overview
-
-A cross-platform mobile Todo application built with React Native (Expo) and
-TypeScript. Data is persisted locally via AsyncStorage. Navigation is handled
-by React Navigation (native-stack).
-
----
+# Todo Mobile App — Architecture Plan
 
 ## Tech Stack
 
-| Layer          | Technology                                             |
-| -------------- | ------------------------------------------------------ |
-| Framework      | React Native 0.74 via Expo SDK 51                      |
-| Language       | TypeScript 5.3 (strict mode)                           |
-| Navigation     | @react-navigation/native + @react-navigation/native-stack |
-| Local Storage  | @react-native-async-storage/async-storage              |
-| Status Bar     | expo-status-bar                                        |
-| Testing        | Jest (jest-expo) + @testing-library/react-native       |
-
----
+| Layer | Technology |
+|---|---|
+| Framework | React Native (Expo SDK 51) |
+| Language | TypeScript |
+| Persistence | AsyncStorage (`@react-native-async-storage/async-storage`) |
+| Navigation | React Navigation (`@react-navigation/native` + `@react-navigation/native-stack`) |
+| ID Generation | `expo-crypto` (`randomUUID`) or lightweight `uuid` library |
+| Testing | Jest + React Native Testing Library |
 
 ## Data Model
 
+### Todo
+
 ```typescript
 interface Todo {
-  id: string;          // UUID v4 (generated via expo-crypto or lightweight uuid lib)
-  title: string;       // Non-empty, whitespace-trimmed
-  completed: boolean;  // Toggle on press
-  createdAt: string;   // ISO 8601 via new Date().toISOString()
+  id: string;         // UUID v4
+  title: string;      // Non-empty, trimmed
+  completed: boolean;
+  createdAt: string;  // ISO 8601 via new Date().toISOString()
 }
 ```
 
-### Edge Cases
-
-- **AsyncStorage limit**: Some platforms impose a ~6 MB limit. For very large
-  todo lists, implement pagination or periodic cleanup of completed items.
-- **UUID generation**: Use `expo-crypto` (`randomUUID()`) or a lightweight
-  uuid library. Do NOT rely on `Math.random()` for id generation.
-- **Timestamps**: Always generate with `new Date().toISOString()` for
-  consistency across time zones.
-- **Empty input**: `TodoInput` must `.trim()` the title and reject empty
-  strings before calling `addTodo`.
-- **Race conditions**: Multiple rapid `addTodo`/`deleteTodo` calls can cause
-  data loss when concurrent reads and writes hit AsyncStorage. Mitigate with
-  a sequential async queue or optimistic state updates with reconciliation
-  on the storage layer.
-
----
-
-## File & Folder Structure
+## File / Folder Structure
 
 ```
-mobile/
-├── App.tsx                          # Root component, mounts NavigationContainer
-├── app.json                         # Expo project config
-├── babel.config.js                  # Babel preset for Expo
-├── package.json                     # Dependencies & scripts
-├── tsconfig.json                    # Strict TS config extending expo base
-├── assets/                          # Icons, splash images
-├── src/
-│   ├── navigation/
-│   │   └── AppNavigator.tsx         # NativeStackNavigator with route definitions
-│   ├── screens/
-│   │   └── HomeScreen.tsx           # Main screen: input + FlatList of todos
-│   ├── components/
-│   │   ├── TodoInput.tsx            # TextInput + Add button
-│   │   ├── TodoList.tsx             # FlatList wrapper
-│   │   └── TodoItem.tsx             # Single todo row (toggle, delete)
-│   ├── hooks/
-│   │   └── useTodos.ts              # Custom hook: { todos, loading, addTodo, toggleTodo, deleteTodo }
-│   ├── services/
-│   │   └── storage.ts               # AsyncStorage CRUD: getTodos, saveTodos, addTodo, toggleTodo, deleteTodo
-│   └── types/
-│       └── todo.ts                  # Todo interface & related types
-└── __tests__/                       # Test files mirroring src/ structure
-    ├── services/
-    │   └── storage.test.ts
-    ├── hooks/
-    │   └── useTodos.test.ts
-    └── components/
-        ├── TodoInput.test.tsx
-        ├── TodoItem.test.tsx
-        └── HomeScreen.test.tsx
+src/
+  types/
+    todo.ts                 # Todo interface definition
+  services/
+    storageService.ts       # AsyncStorage read/write (getTodos, saveTodos)
+  hooks/
+    useTodos.ts             # Custom hook: { todos, loading, addTodo, toggleTodo, deleteTodo }
+  components/
+    TodoInput.tsx           # Text input + Add button
+    TodoItem.tsx            # Single todo row (tap to toggle, long-press to delete)
+    TodoList.tsx            # FlatList wrapper
+  screens/
+    HomeScreen.tsx          # Main screen composing TodoInput + TodoList
+  navigation/
+    AppNavigator.tsx        # NativeStackNavigator with HomeScreen
+App.tsx                     # Entry point: NavigationContainer + AppNavigator
 ```
-
----
 
 ## Component Hierarchy
 
 ```
 App
-└── NavigationContainer
-    └── NativeStackNavigator
-        └── HomeScreen
-            ├── TodoInput          (TextInput + "Add" button)
-            └── TodoList           (FlatList)
-                └── TodoItem[]     (title, checkbox, delete affordance)
+ └── NavigationContainer
+      └── NativeStackNavigator
+           └── HomeScreen
+                ├── TodoInput
+                └── TodoList
+                     └── TodoItem[]
 ```
 
----
+## Storage Layer
 
-## Screen Specifications
+All persistence goes through `src/services/storageService.ts`:
 
-### HomeScreen
+| Function | Signature | Description |
+|---|---|---|
+| `getTodos` | `() => Promise<Todo[]>` | Load & deserialize todos; returns `[]` on error |
+| `saveTodos` | `(todos: Todo[]) => Promise<void>` | Serialize & persist full list |
 
-- **Header**: "My Todos" (via navigation options)
-- **Input area**: `TodoInput` component at the top
-  - `TextInput` with placeholder "Add a new todo…"
-  - "Add" button; disabled when input is empty/whitespace-only
-- **List area**: `FlatList` rendering `TodoItem` components
-  - **Tap** a `TodoItem` → toggle `completed` status
-  - **Long press** a `TodoItem` → delete with confirmation
-  - Empty state: centred text "No todos yet. Add one above!"
-- **Loading state**: `ActivityIndicator` while `useTodos` loads from storage
+Storage key: `TODOS_STORAGE_KEY`.
 
----
+## Custom Hook — `useTodos()`
 
-## Storage Layer (`src/services/storage.ts`)
-
-| Function       | Signature                                      | Description                          |
-| -------------- | ---------------------------------------------- | ------------------------------------ |
-| `getTodos`     | `() => Promise<Todo[]>`                        | Read & parse from AsyncStorage       |
-| `saveTodos`    | `(todos: Todo[]) => Promise<void>`             | Serialise & write to AsyncStorage    |
-| `addTodo`      | `(title: string) => Promise<Todo>`             | Create, append, persist, return new  |
-| `toggleTodo`   | `(id: string) => Promise<Todo[]>`              | Flip `completed`, persist, return all|
-| `deleteTodo`   | `(id: string) => Promise<Todo[]>`              | Remove by id, persist, return all    |
-
-Storage key: `@TodoApp:todos`
-
----
-
-## Custom Hook (`src/hooks/useTodos.ts`)
+Returns:
 
 ```typescript
-function useTodos(): {
+{
   todos: Todo[];
   loading: boolean;
   addTodo: (title: string) => Promise<void>;
@@ -143,42 +82,30 @@ function useTodos(): {
 }
 ```
 
-- Loads todos from storage on mount via `useEffect`.
-- Exposes mutation functions that update both local state and storage.
-- Handles errors gracefully (console.error + optional user-facing alert).
+Internally loads todos on mount, calls `saveTodos` after every mutation.
 
----
+## Screen Specifications
 
-## Navigation Structure
+### HomeScreen
 
-Single stack navigator (extensible for future detail/edit screens):
+- **TodoInput**: text field with "Add" button. Trims whitespace; rejects empty strings.
+- **TodoList**: `FlatList` rendering `TodoItem` components.
+- **TodoItem**: tap toggles `completed`; long-press deletes.
 
-```typescript
-type RootStackParamList = {
-  Home: undefined;
-  // Future: Detail: { todoId: string };
-};
-```
+## Navigation
 
----
+Single-stack navigator with `HomeScreen` as the sole route. Extensible for future detail/edit screens.
+
+## Edge Cases & Notes
+
+1. **AsyncStorage size limit**: ~6 MB on some platforms. For very large lists, consider pagination or periodic cleanup.
+2. **UUID generation**: Use `expo-crypto.randomUUID()` or the `uuid` package — never `Math.random()`.
+3. **Date consistency**: Always generate `createdAt` with `new Date().toISOString()`.
+4. **Input validation**: `TodoInput` must `.trim()` input and reject empty strings before creating a todo.
+5. **Race conditions**: Rapid sequential `addTodo`/`deleteTodo` calls could cause data loss if they read stale state. Mitigate by serializing async operations (queue) or using optimistic updates with reconciliation against the stored state.
 
 ## Testing Strategy
 
-| Scope         | Tool                                 | Focus                                    |
-| ------------- | ------------------------------------ | ---------------------------------------- |
-| Unit          | Jest                                 | `storage.ts` functions (mocked AsyncStorage) |
-| Hook          | @testing-library/react-native        | `useTodos` state transitions             |
-| Component     | @testing-library/react-native        | Render, user interaction, snapshot       |
-| Integration   | @testing-library/react-native        | `HomeScreen` end-to-end flow             |
-
-- AsyncStorage is mocked via `@react-native-async-storage/async-storage/jest/async-storage-mock`.
-- All tests run with `npm test` (jest-expo preset).
-
----
-
-## Future Considerations
-
-- Add due dates and priority levels.
-- Sync with a remote API (the existing FastAPI backend).
-- Add swipe-to-delete gesture via `react-native-gesture-handler`.
-- Dark mode support via `useColorScheme`.
+- **Unit tests** for `storageService.ts` (mock AsyncStorage).
+- **Unit tests** for `useTodos` hook.
+- **Component tests** for `TodoInput`, `TodoItem`, `TodoList`, `HomeScreen` via React Native Testing Library.

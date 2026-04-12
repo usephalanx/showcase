@@ -1,90 +1,45 @@
-# TodoApp — Setup & Running Instructions
+# Running the Todo Mobile App
 
 ## TEAM_BRIEF
-
 stack: TypeScript/React Native (Expo)
-test_runner: cd mobile && npm test
-lint_tool: none
+test_runner: npm test
+lint_tool: npx expo lint
 coverage_tool: none
 coverage_threshold: 0
 coverage_applies: false
 
----
-
 ## Prerequisites
 
-- **Node.js** 18+ (LTS recommended)
-- **npm** 9+ (bundled with Node.js 18+)
-- **Expo Go** app installed on your physical device (iOS App Store / Google Play),
-  **or** an Android emulator / iOS Simulator configured locally
+- **Node.js** 18+ and **npm**
+- **Expo Go** app on a physical device (iOS / Android), **or** an Android emulator / iOS simulator
 
----
-
-## Initial Setup
+## Setup
 
 ```bash
-# 1. Navigate to the mobile project directory
-cd mobile
-
-# 2. Install all dependencies
+# 1. Install JavaScript dependencies
 npm install
+
+# 2. Install native/Expo-specific dependencies
+npx expo install @react-native-async-storage/async-storage \
+  @react-navigation/native @react-navigation/native-stack \
+  react-native-screens react-native-safe-area-context
 ```
 
-> **Note**: Do NOT run `npx create-expo-app` — the project is already scaffolded.
-> Just install dependencies with `npm install`.
-
----
-
-## Running the App
+## Running
 
 ```bash
-# Start the Expo development server
 npx expo start
 ```
 
-Then choose one of:
+- Scan the QR code with **Expo Go** on your device, or
+- Press **a** for Android emulator, **i** for iOS simulator, **w** for web.
 
-| Target              | Action                                                |
-| ------------------- | ----------------------------------------------------- |
-| **Physical device** | Scan the QR code with Expo Go (Android) or Camera (iOS) |
-| **Android emulator**| Press `a` in the terminal                             |
-| **iOS Simulator**   | Press `i` in the terminal (macOS only)                |
-| **Web browser**     | Press `w` in the terminal                             |
-
-The development server runs on `http://localhost:8081` by default.
-
----
-
-## Running Tests
+## Testing
 
 ```bash
-cd mobile
 npm test
 ```
 
-This runs Jest with the `jest-expo` preset. Tests are located in `__tests__/`.
-
----
-
-## TypeScript Check
-
-```bash
-cd mobile
-npm run ts:check
-```
-
-Runs `tsc --noEmit` to verify type correctness without emitting files.
-
----
-
 ## Project Structure
 
-See [PLANNING.md](./PLANNING.md) for the full architecture, data model,
-component hierarchy, and file responsibility map.
-
----
-
-## Environment Variables
-
-No environment variables or secrets are required for the mobile app.
-All data is stored locally via AsyncStorage.
+See [PLANNING.md](./PLANNING.md) for the full architecture and file map.
