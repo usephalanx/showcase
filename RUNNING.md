@@ -1,4 +1,4 @@
-# Running the Application
+# Hello World API
 
 ## TEAM_BRIEF
 stack: Python/FastAPI
@@ -10,31 +10,50 @@ coverage_applies: true
 
 ## Quick Start
 
-1. Install dependencies:
+### Using Docker
+
+```bash
+docker compose up --build
+```
+
+Open <http://localhost:8000/hello> in your browser.
+
+### Without Docker
 
 ```bash
 pip install -r requirements.txt
+python app.py
 ```
-
-2. Run the application:
-
-```bash
-uvicorn main:app --host 0.0.0.0 --port 8000
-```
-
-3. Open http://localhost:8000 in your browser.
 
 ## Run Tests
 
 ```bash
+pip install -r requirements.txt
 pytest tests/ -v
+```
+
+Or via Docker:
+
+```bash
+docker compose run --rm api pytest tests/ -v
 ```
 
 ## API Reference
 
-- `GET /` — Welcome message
-- `POST /todos` — Create a new todo
-- `GET /todos` — List all todos
-- `GET /todos/{id}` — Retrieve a single todo
-- `PUT /todos/{id}` — Update a todo
-- `DELETE /todos/{id}` — Delete a todo
+### GET /hello
+
+Returns a JSON object with a greeting and the current UTC timestamp.
+
+**Response (200)**
+
+```json
+{
+  "message": "hello world",
+  "timestamp": "2025-01-01T00:00:00.000000Z"
+}
+```
+
+| Field       | Type   | Description                          |
+|-------------|--------|--------------------------------------|
+| message     | string | Always `"hello world"`               |
+| timestamp   | string | ISO-8601 UTC timestamp ending in `Z` |
