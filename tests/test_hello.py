@@ -1,4 +1,4 @@
-"""Tests for the GET /hello and GET / endpoints."""
+"""Tests for the Hello World API endpoints."""
 
 from __future__ import annotations
 
@@ -12,29 +12,29 @@ client = TestClient(app)
 
 
 def test_hello_returns_200() -> None:
-    """GET /hello must return HTTP 200."""
+    """GET /hello should return HTTP 200."""
     response = client.get("/hello")
     assert response.status_code == 200
 
 
 def test_hello_response_has_message() -> None:
-    """The response body must contain message='hello world'."""
+    """GET /hello response body should contain message 'hello world'."""
     response = client.get("/hello")
     body = response.json()
     assert body["message"] == "hello world"
 
 
 def test_hello_response_has_iso_timestamp() -> None:
-    """The timestamp field must be a valid ISO 8601 string."""
+    """GET /hello response timestamp should be valid ISO 8601."""
     response = client.get("/hello")
     body = response.json()
-    # Will raise ValueError if not a valid ISO 8601 string
+    # Will raise ValueError if the timestamp is not valid ISO format
     parsed = datetime.datetime.fromisoformat(body["timestamp"])
-    assert isinstance(parsed, datetime.datetime)
+    assert parsed is not None
 
 
 def test_hello_response_timestamp_is_utc() -> None:
-    """The parsed timestamp must carry UTC timezone info (offset == 0)."""
+    """GET /hello response timestamp should be UTC (offset +00:00)."""
     response = client.get("/hello")
     body = response.json()
     parsed = datetime.datetime.fromisoformat(body["timestamp"])
@@ -43,20 +43,20 @@ def test_hello_response_timestamp_is_utc() -> None:
 
 
 def test_hello_response_schema_keys() -> None:
-    """The response JSON must contain exactly 'message' and 'timestamp'."""
+    """GET /hello response should contain exactly 'message' and 'timestamp' keys."""
     response = client.get("/hello")
     body = response.json()
     assert set(body.keys()) == {"message", "timestamp"}
 
 
 def test_root_returns_200() -> None:
-    """GET / must return 200 with {'status': 'ok'}."""
+    """GET / should return HTTP 200 with status ok."""
     response = client.get("/")
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
 
 
 def test_hello_method_not_allowed() -> None:
-    """POST /hello must return 405 Method Not Allowed."""
+    """POST /hello should return HTTP 405 Method Not Allowed."""
     response = client.post("/hello")
     assert response.status_code == 405
