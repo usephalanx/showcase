@@ -1,22 +1,17 @@
 """FastAPI application entry point.
 
-Creates the FastAPI app and mounts the Todo CRUD router.
-Provides /health and / root endpoints.
+Creates the FastAPI app instance and defines the /hello, /health, and / endpoints.
 """
 
 from __future__ import annotations
 
 from fastapi import FastAPI
 
-from routes import router
-
 app = FastAPI(
-    title="Todo API",
-    description="A simple Todo REST API with in-memory storage.",
+    title="Hello World API",
+    description="A simple Hello World FastAPI application.",
     version="1.0.0",
 )
-
-app.include_router(router)
 
 
 @app.get("/", tags=["root"])
@@ -29,3 +24,9 @@ async def root() -> dict:
 async def health() -> dict:
     """Return the health status of the application."""
     return {"status": "ok"}
+
+
+@app.get("/hello", tags=["hello"])
+async def hello() -> dict:
+    """Return a Hello, World! greeting message."""
+    return {"message": "Hello, World!"}
