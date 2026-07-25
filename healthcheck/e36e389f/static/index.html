@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo App</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+                         Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+            color: #222;
+        }
+
+        .input-group {
+            display: flex;
+            gap: .5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group input {
+            flex: 1;
+            padding: .6rem .8rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: border-color .2s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #4caf50;
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, .2);
+        }
+
+        .input-group button {
+            padding: .6rem 1.2rem;
+            background: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background .2s;
+        }
+
+        .input-group button:hover {
+            background: #43a047;
+        }
+
+        .input-group button:disabled {
+            background: #a5d6a7;
+            cursor: not-allowed;
+        }
+
+        #error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: .6rem 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            display: none;
+            font-size: .9rem;
+        }
+
+        #error-message.visible {
+            display: block;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        li {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: .75rem 1rem;
+            background: #fff;
+            border-radius: 4px;
+            margin-bottom: .5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, .1);
+            transition: opacity .2s;
+        }
+
+        li.loading {
+            opacity: .5;
+            pointer-events: none;
+        }
+
+        li .todo-left {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            flex: 1;
+            min-width: 0;
+        }
+
+        li.completed .todo-title {
+            text-decoration: line-through;
+            color: #999;
+        }
+
+        .todo-title {
+            word-break: break-word;
+        }
+
+        li button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: .25rem;
+            border-radius: 4px;
+            transition: background .15s;
+        }
+
+        li button:hover {
+            background: #f0f0f0;
+        }
+
+        li button.toggle {
+            flex-shrink: 0;
+        }
+
+        li button.delete {
+            color: #e53935;
+            flex-shrink: 0;
+            margin-left: .5rem;
+        }
+
+        li button.delete:hover {
+            background: #ffebee;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: #999;
+            font-size: 1rem;
+        }
+
+        .loading-spinner {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: #999;
+            font-size: 1rem;
+        }
+
+        @media (max-width: 480px) {
+            body { margin: 1rem auto; }
+            h1 { font-size: 1.5rem; margin-bottom: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <h1>Todo App</h1>
+
+    <div id="error-message" role="alert" aria-live="polite"></div>
+
+    <div class="input-group">
+        <input
+            id="todo-input"
+            type="text"
+            placeholder="What needs to be done?"
+            aria-label="New todo title"
+            maxlength="500"
+        />
+        <button id="add-btn" aria-label="Add todo">Add</button>
+    </div>
+
+    <ul id="todo-list" aria-label="Todo list"></ul>
+
+    <script>
+        (function () {
+            'use strict';
+
+            var API = '/api/todos';
+            var input = document.getElementById('todo-input');
+            var addBtn = document.getElementById('add-btn');
+            var list = document.getElementById('todo-list');
+            var errorEl = document.getElementById('error-message');
+
+            /**
+             * Escape HTML special characters to prevent XSS.
+             */
+            function escapeHtml(text) {
+                var div = document.createElement('div');
+                div.appendChild(document.createTextNode(text));
+                return div.innerHTML;
+            }
+
+            /**
+             * Show an error message to the user.
+             */
+            function showError(message) {
+                errorEl.textContent = message;
+                errorEl.classList.add('visible');
+                setTimeout(function () {
+                    errorEl.classList.remove('visible');
+                }, 5000);
+            }
+
+            /**
+             * Hide the error message.
+             */
+            function hideError() {
+                errorEl.classList.remove('visible');
+            }
+
+            /**
+             * Fetch all todos from the API and render them.
+             */
+            async function loadTodos() {
+                list.innerHTML = '<li class="loading-spinner">Loading&hellip;</li>';
+                try {
+                    var res = await fetch(API);
+                    if (!res.ok) throw new Error('Failed to load todos');
+                    var todos = await res.json();
+                    renderList(todos);
+                } catch (err) {
+                    list.innerHTML = '';
+                    showError('Could not load todos. Please try again.');
+                }
+            }
+
+            /**
+             * Render the full list of todos to the DOM.
+             */
+            function renderList(todos) {
+                list.innerHTML = '';
+                if (todos.length === 0) {
+                    list.innerHTML = '<li class="empty-state">No todos yet. Add one above!</li>';
+                    return;
+                }
+                todos.forEach(function (todo) {
+                    renderTodo(todo);
+                });
+            }
+
+            /**
+             * Create and append a single todo list item.
+             */
+            function renderTodo(todo) {
+                var li = document.createElement('li');
+                li.setAttribute('data-id', todo.id);
+                if (todo.completed) li.classList.add('completed');
+
+                var leftDiv = document.createElement('div');
+                leftDiv.className = 'todo-left';
+
+                var toggleBtn = document.createElement('button');
+                toggleBtn.className = 'toggle';
+                toggleBtn.setAttribute('aria-label', todo.completed ? 'Mark as incomplete' : 'Mark as complete');
+                toggleBtn.textContent = todo.completed ? '✅' : '⬜';
+                toggleBtn.addEventListener('click', function () {
+                    toggleTodo(todo.id, li);
+                });
+
+                var span = document.createElement('span');
+                span.className = 'todo-title';
+                span.textContent = todo.title;
+
+                leftDiv.appendChild(toggleBtn);
+                leftDiv.appendChild(span);
+
+                var deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete';
+                deleteBtn.setAttribute('aria-label', 'Delete todo');
+                deleteBtn.textContent = '🗑️';
+                deleteBtn.addEventListener('click', function () {
+                    deleteTodo(todo.id, li);
+                });
+
+                li.appendChild(leftDiv);
+                li.appendChild(deleteBtn);
+                list.appendChild(li);
+            }
+
+            /**
+             * Add a new todo via POST and re-fetch the list.
+             */
+            async function addTodo() {
+                var title = input.value.trim();
+                if (!title) {
+                    input.focus();
+                    return;
+                }
+
+                hideError();
+                addBtn.disabled = true;
+
+                try {
+                    var res = await fetch(API, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ title: title })
+                    });
+                    if (!res.ok) {
+                        var data = await res.json().catch(function () { return {}; });
+                        throw new Error(data.detail || 'Failed to add todo');
+                    }
+                    input.value = '';
+                    input.focus();
+                    await loadTodos();
+                } catch (err) {
+                    showError(err.message || 'Could not add todo. Please try again.');
+                } finally {
+                    addBtn.disabled = false;
+                }
+            }
+
+            /**
+             * Toggle a todo's completed status via PATCH and re-fetch.
+             */
+            async function toggleTodo(id, liElement) {
+                hideError();
+                liElement.classList.add('loading');
+
+                try {
+                    var res = await fetch(API + '/' + id, { method: 'PATCH' });
+                    if (!res.ok) {
+                        throw new Error('Failed to update todo');
+                    }
+                    await loadTodos();
+                } catch (err) {
+                    liElement.classList.remove('loading');
+                    showError('Could not update todo. Please try again.');
+                }
+            }
+
+            /**
+             * Delete a todo via DELETE and re-fetch.
+             */
+            async function deleteTodo(id, liElement) {
+                hideError();
+                liElement.classList.add('loading');
+
+                try {
+                    var res = await fetch(API + '/' + id, { method: 'DELETE' });
+                    if (!res.ok) {
+                        throw new Error('Failed to delete todo');
+                    }
+                    await loadTodos();
+                } catch (err) {
+                    liElement.classList.remove('loading');
+                    showError('Could not delete todo. Please try again.');
+                }
+            }
+
+            // Event listeners
+            addBtn.addEventListener('click', addTodo);
+            input.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') addTodo();
+            });
+
+            // Load todos on page load
+            loadTodos();
+        })();
+    </script>
+</body>
+</html>
